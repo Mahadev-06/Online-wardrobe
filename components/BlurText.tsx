@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
@@ -46,17 +45,24 @@ const BlurText: React.FC<BlurTextProps> = ({
   const ref = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
-    if (!ref.current) return;
+    // Capture the current element to ensure we unobserve the same element
+    // even if ref.current changes before the cleanup runs.
     const element = ref.current;
+    if (!element) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setInView(true);
-          observer.unobserve(element);
+          // Safely unobserve the captured element or the entry target
+          if (element) {
+             observer.unobserve(element);
+          }
         }
       },
       { threshold, rootMargin }
     );
+
     observer.observe(element);
     return () => observer.disconnect();
   }, [threshold, rootMargin]);

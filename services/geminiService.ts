@@ -1,10 +1,8 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { ClothingItem, UserProfile, TryOnImages } from "../types";
 
-const apiKey = process.env.API_KEY || '';
-
-const ai = new GoogleGenAI({ apiKey });
+// Ensure process.env.API_KEY is available (injected via vite.config.ts define)
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // Helper to clean base64 string
 const cleanBase64 = (str: string) => str.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");

@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
 import { UserProfile } from '../types';
-import { User, Ruler, Weight, Palette, ArrowLeft, LogIn, Check, Sparkles, AlertCircle } from 'lucide-react';
+import { User, Ruler, Weight, Palette, ArrowLeft, LogIn, Check, Sparkles, AlertCircle, Copy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 
 interface ProfileSetupProps {
   onBack: () => void;
@@ -22,6 +23,7 @@ const SKIN_TONES = [
 const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
   const { setProfile, loginWithGoogle, user, profile: existingProfile } = useWardrobe();
   const navigate = useNavigate();
+  const toast = useToast();
   
   // Step state: 0 = Auth Choice, 1 = Data Entry
   const [step, setStep] = useState(0);
@@ -44,6 +46,9 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('');
 
+  // State to track if the specific domain error occurred
+  const [authErrorDomain, setAuthErrorDomain] = useState<string | null>(null);
+
   // Effect: If user logs in via Google and has a profile, skip setup
   useEffect(() => {
     if (user && existingProfile) {
@@ -61,11 +66,20 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
   }, [user, existingProfile, step]);
 
   const handleGoogleLogin = async () => {
+      setAuthErrorDomain(null); // Reset error state
       setIsLoading(true);
       setLoadingText('Connecting to Google...');
-      await loginWithGoogle();
-      setIsLoading(false);
-      // The useEffect above will handle the next transition
+      try {
+        await loginWithGoogle();
+        // If successful, the useEffect above will handle transition
+      } catch (error: any) {
+        // Check specifically for unauthorized domain to show helper
+        if (error.code === 'auth/unauthorized-domain') {
+            setAuthErrorDomain(window.location.hostname);
+        }
+      } finally {
+        setIsLoading(false);
+      }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,6 +115,13 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     setProfile(newProfile);
     // Context update will trigger app redirect
+  };
+
+  const copyDomain = () => {
+      if (authErrorDomain) {
+        navigator.clipboard.writeText(authErrorDomain);
+        toast.info("Domain copied! Add this to Firebase Console.");
+      }
   };
 
   const isLogin = mode === 'login';
@@ -194,6 +215,33 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                         Guest data is saved to this browser only. Use Google to sync across devices.
                      </p>
                 </div>
+
+                {/* Developer Helper for Unauthorized Domain - Conditionally Rendered */}
+                {authErrorDomain && (
+                    <div className="mt-6 pt-4 border-t border-p_dark/5 text-center animate-fade-in">
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col gap-2 items-center">
+                            <h4 className="text-red-700 font-bold text-xs uppercase tracking-wide flex items-center gap-1">
+                                <AlertCircle size={12}/> Domain Not Authorized
+                            </h4>
+                            <p className="text-[10px] text-red-600/80 leading-tight">
+                                This app is running on a domain that hasn't been whitelisted in Firebase.
+                            </p>
+                            <div className="w-full mt-2">
+                                <span className="text-[10px] text-p_brown/50 font-bold block mb-1">Add this to Firebase Console:</span>
+                                <button 
+                                    onClick={copyDomain}
+                                    className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg hover:bg-gray-50 transition border border-red-100 group w-full justify-center"
+                                    title="Click to copy domain"
+                                >
+                                    <code className="text-xs font-mono text-p_dark font-bold truncate max-w-[200px]">
+                                        {authErrorDomain}
+                                    </code>
+                                    <Copy size={12} className="text-gray-400 group-hover:text-p_dark" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         )}
 

@@ -11,8 +11,8 @@ interface MagicBentoCardProps {
 }
 
 const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '', to, state, onClick, noHover = false }) => {
-  // Use HTMLElement to support both div and anchor elements since both are used conditionally
-  const cardRef = useRef<HTMLElement>(null);
+  // Use a union type to allow ref to be assigned to both div and anchor tags
+  const cardRef = useRef<HTMLDivElement | HTMLAnchorElement>(null);
 
   useEffect(() => {
     const card = cardRef.current;
@@ -32,7 +32,7 @@ const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '
       card.style.setProperty('--glow-opacity', '0');
     };
 
-    // Cast handlers to EventListener to satisfy strict typing for generic HTMLElement
+    // Cast as generic EventListener to avoid specific MouseEvent type conflicts during add/remove
     card.addEventListener('mousemove', handleMouseMove as unknown as EventListener);
     card.addEventListener('mouseleave', handleMouseLeave as unknown as EventListener);
 
