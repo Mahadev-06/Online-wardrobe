@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
 import { UserProfile } from '../types';
-import { User, Ruler, Weight, Palette, ArrowLeft, LogIn, Check, Sparkles, AlertCircle, Copy } from 'lucide-react';
+import { User, Ruler, Weight, Palette, ArrowLeft, LogIn, Check, Sparkles, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 
@@ -46,10 +46,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('');
 
-  // State to track if the specific domain error occurred
-  const [authErrorDomain, setAuthErrorDomain] = useState<string | null>(null);
-
-  // Effect: If user logs in via Google and has a profile, skip setup
+  // Effect: If user logs in and has a profile, skip setup
   useEffect(() => {
     if (user && existingProfile) {
         // User has data, done.
@@ -60,24 +57,19 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
         }, 1000);
     } else if (user && !existingProfile && step === 0) {
         // User logged in but no profile data yet -> Go to Step 1 (Form)
-        setName(user.name); // Pre-fill name from Google
+        setName(user.name); // Pre-fill name from Mock User
         setStep(1);
     }
   }, [user, existingProfile, step]);
 
   const handleGoogleLogin = async () => {
-      setAuthErrorDomain(null); // Reset error state
       setIsLoading(true);
-      setLoadingText('Connecting to Google...');
+      setLoadingText('Connecting to Demo Account...');
       try {
         await loginWithGoogle();
         // If successful, the useEffect above will handle transition
       } catch (error: any) {
-        // Check specifically for unauthorized domain to show helper
-        if (error.code === 'auth/unauthorized-domain') {
-            setAuthErrorDomain(window.location.hostname);
-        }
-      } finally {
+        toast.error("Login failed");
         setIsLoading(false);
       }
   };
@@ -115,13 +107,6 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
     await new Promise(resolve => setTimeout(resolve, 2000));
     setProfile(newProfile);
     // Context update will trigger app redirect
-  };
-
-  const copyDomain = () => {
-      if (authErrorDomain) {
-        navigator.clipboard.writeText(authErrorDomain);
-        toast.info("Domain copied! Add this to Firebase Console.");
-      }
   };
 
   const isLogin = mode === 'login';
@@ -194,7 +179,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                     className="w-full py-4 bg-white text-gray-700 rounded-xl font-bold text-base shadow-lg hover:bg-gray-50 transition-all flex items-center justify-center gap-3 border border-gray-200 group hover:scale-[1.02]"
                 >
                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6 group-hover:scale-110 transition" alt="Google" />
-                    Continue with Google
+                    Continue with Google (Demo)
                 </button>
 
                 <div className="relative py-2">
@@ -212,36 +197,9 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                 <div className="bg-p_red/10 p-3 rounded-lg flex items-start gap-2 mt-4">
                      <AlertCircle size={16} className="text-p_red shrink-0 mt-0.5" />
                      <p className="text-xs text-p_red font-medium text-left leading-tight">
-                        Guest data is saved to this browser only. Use Google to sync across devices.
+                        Guest data is saved to this browser only. Use "Google" (Demo) to simulate an account.
                      </p>
                 </div>
-
-                {/* Developer Helper for Unauthorized Domain - Conditionally Rendered */}
-                {authErrorDomain && (
-                    <div className="mt-6 pt-4 border-t border-p_dark/5 text-center animate-fade-in">
-                        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col gap-2 items-center">
-                            <h4 className="text-red-700 font-bold text-xs uppercase tracking-wide flex items-center gap-1">
-                                <AlertCircle size={12}/> Domain Not Authorized
-                            </h4>
-                            <p className="text-[10px] text-red-600/80 leading-tight">
-                                This app is running on a domain that hasn't been whitelisted in Firebase.
-                            </p>
-                            <div className="w-full mt-2">
-                                <span className="text-[10px] text-p_brown/50 font-bold block mb-1">Add this to Firebase Console:</span>
-                                <button 
-                                    onClick={copyDomain}
-                                    className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg hover:bg-gray-50 transition border border-red-100 group w-full justify-center"
-                                    title="Click to copy domain"
-                                >
-                                    <code className="text-xs font-mono text-p_dark font-bold truncate max-w-[200px]">
-                                        {authErrorDomain}
-                                    </code>
-                                    <Copy size={12} className="text-gray-400 group-hover:text-p_dark" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         )}
 

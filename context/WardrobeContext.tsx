@@ -2,8 +2,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ClothingItem, UserProfile, Outfit, CalendarEvent, SharedLook, AuthUser } from '../types';
 import { useToast } from './ToastContext';
-import { auth, googleProvider } from '../services/firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 
 interface WardrobeContextType {
   user: AuthUser | null;
@@ -26,6 +24,14 @@ interface WardrobeContextType {
 
 const WardrobeContext = createContext<WardrobeContextType | undefined>(undefined);
 
+// Mock User Data for Demo
+const MOCK_USER: AuthUser = {
+    id: 'demo_user_123',
+    name: 'Demo Stylist',
+    email: 'demo@wardrobe.app',
+    photoUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'
+};
+
 export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfileState] = useState<UserProfile | null>(null);
@@ -40,32 +46,17 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Helper to get storage key based on user ID
   const getKey = (key: string) => user ? `${user.id}_${key}` : `guest_${key}`;
 
-  // Monitor Firebase Auth State
+  // Initialize Mock Auth
   useEffect(() => {
-    // If auth is null (keys missing), stop loading and behave as guest
-    if (!auth) {
-        console.warn("Authentication service not initialized.");
+    const initAuth = async () => {
+        // Check for persisted mock session
+        const storedSession = localStorage.getItem('wardrobe_mock_session');
+        if (storedSession) {
+            setUser(JSON.parse(storedSession));
+        }
         setLoading(false);
-        return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        // Map Firebase user to our internal type
-        const appUser: AuthUser = {
-          id: firebaseUser.uid,
-          name: firebaseUser.displayName || 'User',
-          email: firebaseUser.email || '',
-          photoUrl: firebaseUser.photoURL || undefined
-        };
-        setUser(appUser);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    };
+    initAuth();
   }, []);
 
   // Load Data when User Changes
@@ -111,64 +102,21 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
   // --- Actions ---
 
   const loginWithGoogle = async () => {
-      if (!auth || !googleProvider) {
-          toast.error("Google Login is not configured (Missing API Keys)");
-          throw new Error("Firebase configuration missing");
-      }
-      try {
-        await signInWithPopup(auth, googleProvider);
-        toast.success("Successfully signed in!");
-      } catch (error: any) {
-        console.error("Login failed", error);
-        
-        let errorMessage = "Login failed. Please try again.";
-        
-        // Handle specific Firebase errors
-        if (error.code === 'auth/unauthorized-domain') {
-            const domain = window.location.hostname;
-            errorMessage = `Domain (${domain}) is not authorized in Firebase.`;
-            // Detailed log for the developer
-            console.error(`
-              Firebase Error: auth/unauthorized-domain
-              ACTION REQUIRED: 
-              1. Go to Firebase Console (https://console.firebase.google.com/)
-              2. Select project 'online-wardrobe-c8ff4'
-              3. Go to Authentication > Settings > Authorized Domains
-              4. Add this domain: ${domain}
-            `);
-            toast.error(errorMessage);
-            throw error; // Throw so UI can handle it
-        } else if (error.code === 'auth/popup-closed-by-user') {
-            errorMessage = "Sign-in cancelled.";
-            toast.info(errorMessage);
-            throw error;
-        } else if (error.code === 'auth/operation-not-allowed') {
-            errorMessage = "Google Sign-In is not enabled in Firebase Console.";
-        } else if (error.code === 'auth/invalid-api-key') {
-            errorMessage = "Invalid Firebase API Key configuration.";
-        }
-
-        toast.error(errorMessage);
-        throw error;
-      }
+      // Mock Login Process
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network request
+      
+      setUser(MOCK_USER);
+      localStorage.setItem('wardrobe_mock_session', JSON.stringify(MOCK_USER));
+      toast.success("Signed in (Demo Mode)");
+      setLoading(false);
   };
 
   const logout = async () => {
-      if (!auth) {
-          setUser(null);
-          setProfileState(null);
-          toast.info("Logged out (Guest)");
-          return;
-      }
-      try {
-        await signOut(auth);
-        setUser(null);
-        setProfileState(null);
-        toast.info("You have been logged out");
-      } catch (error) {
-        console.error("Logout failed", error);
-        toast.error("Failed to log out");
-      }
+      setUser(null);
+      setProfileState(null);
+      localStorage.removeItem('wardrobe_mock_session');
+      toast.info("Logged out");
   };
 
   const setProfile = (p: UserProfile) => {

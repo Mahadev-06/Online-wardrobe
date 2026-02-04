@@ -1,8 +1,29 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { ClothingItem, UserProfile, TryOnImages } from "../types";
 
-// Ensure process.env.API_KEY is available (injected via vite.config.ts define)
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safely initialize AI to prevent top-level crashes if env var is missing
+let ai: GoogleGenAI | null = null;
+
+try {
+  // process.env.API_KEY is replaced by Vite at build time
+  const apiKey = process.env.API_KEY;
+  if (apiKey && typeof apiKey === 'string' && apiKey.length > 0) {
+      ai = new GoogleGenAI({ apiKey });
+  } else {
+      console.warn("Gemini API Key is missing. AI features will not work.");
+  }
+} catch (e) {
+  console.error("Failed to initialize GoogleGenAI:", e);
+}
+
+// Helper to access AI instance safely
+const getAi = () => {
+    if (!ai) {
+        throw new Error("Gemini API Key is not configured. Please add API_KEY to your environment variables.");
+    }
+    return ai;
+};
 
 // Helper to clean base64 string
 const cleanBase64 = (str: string) => str.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
@@ -12,9 +33,10 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const analyzeClothingImage = async (base64Image: string, retryCount = 0): Promise<Partial<ClothingItem>> => {
   try {
+    const client = getAi();
     const data = cleanBase64(base64Image);
     
-    const response = await ai.models.generateContent({
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: {
         parts: [
@@ -79,6 +101,7 @@ export const analyzeClothingImage = async (base64Image: string, retryCount = 0):
 
 export const suggestOutfit = async (profile: UserProfile, items: ClothingItem[], occasion: string, retryCount = 0): Promise<{ suggestion: string, recommendedItemIds: string[] }> => {
   try {
+    const client = getAi();
     const wardrobeInventory = items.map(item => ({
       id: item.id,
       category: item.category,
@@ -111,7 +134,7 @@ export const suggestOutfit = async (profile: UserProfile, items: ClothingItem[],
       2. 'recommendedItemIds': An array of the IDs of the selected items.
     `;
 
-    const response = await ai.models.generateContent({
+    const response = await client.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
@@ -154,6 +177,7 @@ export const suggestOutfit = async (profile: UserProfile, items: ClothingItem[],
 
 const generateSingleAngleTryOn = async (userPhoto: string, items: ClothingItem[], angle: string, retryCount = 0): Promise<string> => {
     try {
+        const client = getAi();
         const parts = [];
     
         // 1. Add User Photo
@@ -193,7 +217,7 @@ const generateSingleAngleTryOn = async (userPhoto: string, items: ClothingItem[]
         
         parts.push({ text: prompt });
     
-        const response = await ai.models.generateContent({
+        const response = await client.models.generateContent({
           model: 'gemini-2.5-flash-image',
           contents: { parts: parts },
           config: {}
