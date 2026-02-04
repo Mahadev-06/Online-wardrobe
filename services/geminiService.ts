@@ -4,27 +4,44 @@ import { ClothingItem, UserProfile, TryOnImages } from "../types";
 
 // Safely initialize AI to prevent top-level crashes if env var is missing
 let ai: GoogleGenAI | null = null;
+let keyStatus: 'OK' | 'MISSING' | 'INVALID_FORMAT' = 'MISSING';
 
 try {
   // process.env.API_KEY is replaced by Vite at build time
   const apiKey = process.env.API_KEY;
-  if (apiKey && typeof apiKey === 'string' && apiKey.length > 0) {
+  
+  if (!apiKey || typeof apiKey !== 'string' || apiKey.length === 0) {
+      console.warn("Gemini API Key is missing.");
+      keyStatus = 'MISSING';
+  } else if (!apiKey.startsWith('AIza')) {
+      console.warn("Gemini API Key appears to be invalid (should start with 'AIza'). You may have used a Project ID.");
+      keyStatus = 'INVALID_FORMAT';
+      // We still attempt initialization in case of weird edge cases, but warn loudly
       ai = new GoogleGenAI({ apiKey });
   } else {
-      console.warn("Gemini API Key is missing. AI features will not work.");
+      ai = new GoogleGenAI({ apiKey });
+      keyStatus = 'OK';
   }
 } catch (e) {
   console.error("Failed to initialize GoogleGenAI:", e);
 }
 
 // Helper to check status in UI
+export const getAiStatus = () => {
+    return keyStatus;
+};
+
+// Kept for backward compatibility
 export const isAiConfigured = () => {
-    return ai !== null;
+    return keyStatus === 'OK';
 };
 
 // Helper to access AI instance safely
 const getAi = () => {
     if (!ai) {
+        if (keyStatus === 'INVALID_FORMAT') {
+             throw new Error("INVALID_KEY_FORMAT");
+        }
         throw new Error("MISSING_API_KEY");
     }
     return ai;
@@ -39,6 +56,12 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const analyzeClothingImage = async (base64Image: string, retryCount = 0): Promise<Partial<ClothingItem>> => {
   try {
     const client = getAi();
+    
+    // Double check status at runtime
+    if (keyStatus === 'INVALID_FORMAT') {
+        throw new Error("INVALID_KEY_FORMAT");
+    }
+
     const data = cleanBase64(base64Image);
     
     const response = await client.models.generateContent({
@@ -88,6 +111,9 @@ export const analyzeClothingImage = async (base64Image: string, retryCount = 0):
     if (error.message === "MISSING_API_KEY") {
         throw new Error("API Key Missing. Please add API_KEY to Vercel Environment Variables.");
     }
+    if (error.message === "INVALID_KEY_FORMAT" || keyStatus === 'INVALID_FORMAT') {
+        throw new Error("Invalid API Key Format. It looks like you used a Project ID. The key must start with 'AIza'.");
+    }
 
     // Handle Rate Limits (429 / RESOURCE_EXHAUSTED)
     const isRateLimit = error?.status === 429 || 
@@ -111,6 +137,11 @@ export const analyzeClothingImage = async (base64Image: string, retryCount = 0):
 export const suggestOutfit = async (profile: UserProfile, items: ClothingItem[], occasion: string, retryCount = 0): Promise<{ suggestion: string, recommendedItemIds: string[] }> => {
   try {
     const client = getAi();
+    
+    if (keyStatus === 'INVALID_FORMAT') {
+        return { suggestion: "Invalid API Key. Please use a key starting with 'AIza', not a Project ID.", recommendedItemIds: [] };
+    }
+
     const wardrobeInventory = items.map(item => ({
       id: item.id,
       category: item.category,
@@ -169,6 +200,9 @@ export const suggestOutfit = async (profile: UserProfile, items: ClothingItem[],
   } catch (error: any) {
     if (error.message === "MISSING_API_KEY") {
         return { suggestion: "AI Stylist is offline. Please configure the API_KEY in Vercel settings.", recommendedItemIds: [] };
+    }
+    if (error.message === "INVALID_KEY_FORMAT") {
+        return { suggestion: "Invalid API Key. Please check your Vercel settings.", recommendedItemIds: [] };
     }
 
     const isRateLimit = error?.status === 429 || 
@@ -248,6 +282,9 @@ const generateSingleAngleTryOn = async (userPhoto: string, items: ClothingItem[]
         if (error.message === "MISSING_API_KEY") {
             throw new Error("API Key Missing. Check Vercel Settings.");
         }
+        if (error.message === "INVALID_KEY_FORMAT" || keyStatus === 'INVALID_FORMAT') {
+            throw new Error("Invalid API Key Format. Must start with 'AIza'.");
+        }
 
         // Handle Rate Limits (429 / RESOURCE_EXHAUSTED)
         const isRateLimit = error?.status === 429 || 
@@ -273,8 +310,6 @@ export const generateVirtualTryOn = async (userPhoto: string, items: ClothingIte
 
 export const generateTryOnTurnaround = async (userPhoto: string, items: ClothingItem[]): Promise<TryOnImages> => {
     try {
-        // Run requests SEQUENTIALLY with strict delays to avoid rate limits (429 RESOURCE_EXHAUSTED).
-        
         const front = await generateSingleAngleTryOn(userPhoto, items, "Front View");
         await delay(4000); // 4s delay
         

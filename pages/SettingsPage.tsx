@@ -2,11 +2,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
 import { UserProfile } from '../types';
-import { User, Ruler, Weight, Palette, Save, LogOut, Camera, Trash2, Users, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, Ruler, Weight, Palette, Save, LogOut, Camera, Trash2, Users, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { compressImage } from '../utils/imageHelpers';
 import { useToast } from '../context/ToastContext';
-import { isAiConfigured } from '../services/geminiService';
+import { getAiStatus } from '../services/geminiService';
 
 const SettingsPage: React.FC = () => {
   const { profile, setProfile, logout } = useWardrobe();
@@ -15,7 +15,8 @@ const SettingsPage: React.FC = () => {
   const [formData, setFormData] = useState<UserProfile | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const aiStatus = isAiConfigured();
+  
+  const status = getAiStatus();
 
   useEffect(() => {
     if (profile) setFormData(profile);
@@ -49,17 +50,63 @@ const SettingsPage: React.FC = () => {
 
   if (!formData) return null;
 
+  // Determine status display
+  let statusColor = 'bg-red-50 border-red-200 text-red-700';
+  let statusIcon = <AlertCircle size={16} />;
+  let statusText = 'AI Config Missing';
+
+  if (status === 'OK') {
+      statusColor = 'bg-green-50 border-green-200 text-green-700';
+      statusIcon = <CheckCircle size={16} />;
+      statusText = 'AI System Online';
+  } else if (status === 'INVALID_FORMAT') {
+      statusColor = 'bg-amber-50 border-amber-200 text-amber-700';
+      statusIcon = <AlertTriangle size={16} />;
+      statusText = 'Invalid Key Format';
+  }
+
   return (
     <div className="px-4 py-8 md:px-12 md:py-14 pb-32 max-w-4xl mx-auto page-enter">
       <div className="flex justify-between items-center mb-6 md:mb-10">
         <h1 className="text-3xl font-black text-p_dark tracking-tight">SETTINGS</h1>
         
         {/* AI Status Indicator */}
-        <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${aiStatus ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
-            {aiStatus ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
-            <span className="text-xs font-bold uppercase tracking-wider">{aiStatus ? 'AI System Online' : 'AI Config Missing'}</span>
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-full border ${statusColor}`}>
+            {statusIcon}
+            <span className="text-xs font-bold uppercase tracking-wider">{statusText}</span>
         </div>
       </div>
+      
+      {status === 'INVALID_FORMAT' && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 text-sm text-amber-800 flex items-start gap-3">
+              <AlertTriangle className="shrink-0 mt-0.5" size={18} />
+              <div>
+                  <p className="font-bold">Check your API Key</p>
+                  <p>The key provided looks like a Project ID (e.g., "gen-lang-client..."). Please ensure you are using a valid API Key from Google AI Studio, which always starts with "AIza".</p>
+              </div>
+          </div>
+      )}
+
+      {status === 'MISSING' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-8 text-sm text-blue-900 flex items-start gap-4 shadow-sm">
+             <Info className="shrink-0 mt-1 text-blue-600" size={24} />
+             <div>
+                 <h3 className="font-black text-lg text-blue-800 mb-2">Final Step: Connect AI</h3>
+                 <p className="mb-4 leading-relaxed">To enable the Stylist and Virtual Try-On features, you need to add your Google Gemini API Key to your deployment settings.</p>
+                 
+                 <div className="bg-white/60 p-4 rounded-xl border border-blue-100">
+                     <p className="font-bold text-xs uppercase tracking-widest text-blue-500 mb-2">Vercel Instructions</p>
+                     <ol className="list-decimal ml-4 space-y-2 font-medium">
+                         <li>Go to your Vercel Project Dashboard.</li>
+                         <li>Navigate to <b>Settings</b> &gt; <b>Environment Variables</b>.</li>
+                         <li>Add a new variable with Key: <code className="bg-white px-2 py-0.5 rounded border border-blue-200">API_KEY</code></li>
+                         <li>Paste your API Key as the Value.</li>
+                         <li>Go to <b>Deployments</b> and click <b>Redeploy</b> on the latest build.</li>
+                     </ol>
+                 </div>
+             </div>
+          </div>
+      )}
 
       <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-lg border border-p_teal/10 p-6 md:p-12 mb-10">
         <h2 className="text-xl md:text-2xl font-bold text-p_dark mb-6 md:mb-8 flex items-center gap-3">

@@ -57,8 +57,13 @@ const UploadPage: React.FC = () => {
       setAnalysisResult(result);
       setIsAiGenerated(true);
       toast.success("AI Analysis Complete!");
-    } catch (error) {
-      toast.error("AI analysis failed. Please fill details manually.");
+    } catch (error: any) {
+      console.error("Analysis Failed:", error);
+      // Show the actual error message to the user
+      const errorMessage = error?.message || "AI analysis failed";
+      toast.error(errorMessage);
+      
+      // Fallback to manual entry silently so they can continue
       setAnalysisResult({
           category: ClothingCategory.TOP,
           color: '',
