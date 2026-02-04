@@ -1,0 +1,8 @@
+{
+  "name": "Online Wardrobe",
+  "description": "A smart digital closet that organizes your clothes, suggests outfits based on your profile using Gemini AI, and helps you plan looks.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}

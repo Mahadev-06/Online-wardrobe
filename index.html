@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Wardrobe</title>
+    <!-- Using Tailwind CDN for simplicity. For production scaling, migrating to PostCSS is recommended but this works for Vercel. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              p_dark: 'var(--color-p-dark)',
+              p_red: 'var(--color-p-red)',
+              p_brown: 'var(--color-p-brown)',
+              p_teal: 'var(--color-p-teal)',
+              p_cream: 'var(--color-p-cream)',
+              p_light: 'var(--color-p-light)',
+              white: 'var(--color-white)',
+              black: 'var(--color-black)',
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              cotta: ['Cotta', '"Playfair Display"', 'serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        /* Default Theme */
+        --color-p-dark: #244855;
+        --color-p-red: #E64833;
+        --color-p-brown: #874F41;
+        --color-p-teal: #90AEAD;
+        --color-p-cream: #FBE9D0;
+        --color-p-light: #FFF8F0;
+        --color-white: #ffffff;
+        --color-black: #000000;
+      }
+
+      /* Transitions */
+      body, div, p, h1, h2, h3, h4, span, button, input, select, textarea {
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 300ms;
+      }
+
+      /* Custom scrollbar for webkit */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--color-p-cream); 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-p-teal); 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--color-p-dark); 
+      }
+      
+      /* Page Transition Animation */
+      .page-enter {
+        animation: fadeIn 0.5s ease-out forwards;
+        will-change: transform, opacity;
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Hover Animations */
+      .btn-hover {
+        transition: all 0.2s ease;
+      }
+      .btn-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      }
+      .btn-hover:active {
+        transform: scale(0.98);
+      }
+
+      /* Aurora Background */
+      .aurora-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+      }
+      .aurora-container canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* --- MAGIC BENTO CARD STYLES --- */
+      :root {
+        --glow-radius: 400px;
+        --card-bg: var(--color-white);
+        --card-border: rgba(144, 174, 173, 0.2);
+        --glow-color: rgba(230, 72, 51, 0.15);
+        --glow-border-color: rgba(230, 72, 51, 0.5);
+      }
+
+      .magic-bento-card {
+        position: relative;
+        overflow: hidden;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        --glow-x: 50%;
+        --glow-y: 50%;
+        --glow-opacity: 0;
+      }
+
+      .magic-bento-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px -10px rgba(36, 72, 85, 0.1);
+      }
+
+      .magic-bento-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(var(--glow-radius) circle at var(--glow-x) var(--glow-y), var(--glow-color), transparent 100%);
+        opacity: var(--glow-opacity);
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .magic-bento-card::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: radial-gradient(300px circle at var(--glow-x) var(--glow-y), var(--glow-border-color), transparent 40%);
+        opacity: var(--glow-opacity);
+        border-radius: inherit;
+        z-index: 0;
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: xor;
+        -webkit-mask-composite: xor;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .magic-bento-content {
+        position: relative;
+        z-index: 10;
+        height: 100%;
+        width: 100%;
+      }
+      
+      @font-face {
+        font-family: 'Cotta';
+        src: local('Cotta'), url('https://fonts.cdnfonts.com/s/93649/CottaFree-Regular.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+        font-display: swap;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.3",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "ogl": "https://esm.sh/ogl@^1.0.11",
+    "framer-motion": "https://esm.sh/framer-motion@^12.31.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-p_cream text-p_dark font-sans antialiased">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
