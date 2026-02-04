@@ -17,10 +17,15 @@ try {
   console.error("Failed to initialize GoogleGenAI:", e);
 }
 
+// Helper to check status in UI
+export const isAiConfigured = () => {
+    return ai !== null;
+};
+
 // Helper to access AI instance safely
 const getAi = () => {
     if (!ai) {
-        throw new Error("Gemini API Key is not configured. Please add API_KEY to your environment variables.");
+        throw new Error("MISSING_API_KEY");
     }
     return ai;
 };
@@ -80,6 +85,10 @@ export const analyzeClothingImage = async (base64Image: string, retryCount = 0):
     }
     throw new Error("No response from AI");
   } catch (error: any) {
+    if (error.message === "MISSING_API_KEY") {
+        throw new Error("API Key Missing. Please add API_KEY to Vercel Environment Variables.");
+    }
+
     // Handle Rate Limits (429 / RESOURCE_EXHAUSTED)
     const isRateLimit = error?.status === 429 || 
                         error?.status === 'RESOURCE_EXHAUSTED' || 
@@ -158,6 +167,10 @@ export const suggestOutfit = async (profile: UserProfile, items: ClothingItem[],
     throw new Error("No suggestion generated");
 
   } catch (error: any) {
+    if (error.message === "MISSING_API_KEY") {
+        return { suggestion: "AI Stylist is offline. Please configure the API_KEY in Vercel settings.", recommendedItemIds: [] };
+    }
+
     const isRateLimit = error?.status === 429 || 
                         error?.status === 'RESOURCE_EXHAUSTED' || 
                         (error?.message && error.message.includes('429')) ||
@@ -232,6 +245,10 @@ const generateSingleAngleTryOn = async (userPhoto: string, items: ClothingItem[]
     
         throw new Error(`No image generated for ${angle}`);
       } catch (error: any) {
+        if (error.message === "MISSING_API_KEY") {
+            throw new Error("API Key Missing. Check Vercel Settings.");
+        }
+
         // Handle Rate Limits (429 / RESOURCE_EXHAUSTED)
         const isRateLimit = error?.status === 429 || 
                             error?.status === 'RESOURCE_EXHAUSTED' || 
