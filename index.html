@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>Online Wardrobe — AI-Powered Style Engine</title>
+    <meta name="description" content="Digitize your wardrobe, get AI outfit suggestions, and manage your style with an intelligent fashion assistant." />
+    <meta name="theme-color" content="#244855" />
+
+    <!-- Fonts (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="bg-p_cream text-p_dark font-sans antialiased">
+    <!-- React root -->
+    <div id="root"></div>
+
+    <!-- Fallback error overlay — shown only if the app fails to boot -->
+    <div id="app-error-overlay">
+      <h2 style="font-size:24px;font-weight:bold;margin-bottom:16px;">Application Error</h2>
+      <p style="margin-bottom:24px;">The application failed to start. Please check the console for details.</p>
+      <pre
+        id="error-message"
+        style="background:white;padding:16px;border-radius:8px;max-width:800px;overflow:auto;text-align:left;"
+      ></pre>
+      <button
+        onclick="window.location.reload()"
+        style="margin-top:24px;padding:12px 24px;background:#244855;color:white;border:none;border-radius:8px;cursor:pointer;"
+      >
+        Reload Page
+      </button>
+    </div>
+
+    <!-- Global startup-crash handler -->
+    <script>
+      window.onerror = function (message, source, lineno, colno, error) {
+        var overlay = document.getElementById('app-error-overlay');
+        var errorMsg = document.getElementById('error-message');
+        if (overlay && errorMsg) {
+          overlay.style.display = 'flex';
+          errorMsg.innerText =
+            message + '\n\n' + source + ':' + lineno + '\n\n' + (error ? error.stack : '');
+        }
+      };
+    </script>
+
+    <!-- Vite entry point (handles all bundling, imports, and Tailwind via PostCSS) -->
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
