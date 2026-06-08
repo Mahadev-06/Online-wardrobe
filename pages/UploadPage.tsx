@@ -367,14 +367,27 @@ const UploadPage: React.FC = () => {
                             }
                         }}
                         className={`group relative aspect-square rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-300 shadow-sm
-                            ${selectedId === item.id ? 'ring-2 ring-p_teal ring-offset-2 ring-offset-[#0a0f12]' : 'hover:ring-2 hover:ring-white/20 hover:ring-offset-2 hover:ring-offset-[#0a0f12]'} 
+                            ${selectedId === item.id ? 'scale-[0.98]' : 'hover:scale-[1.01]'} 
                             ${item.status === 'error' ? 'opacity-70 grayscale' : ''}
                             ${item.status === 'pending' ? 'animate-laser-scan border-p_teal/40' : ''}
-                            ${item.status === 'rejected' ? 'animate-reject-shake ring-2 ring-p_red ring-offset-2 ring-offset-[#0a0f12] bg-p_red/5' : ''}
+                            ${item.status === 'rejected' ? 'animate-reject-shake bg-p_red/5' : ''}
                             ${item.isExiting ? 'upload-card-exit' : ''}
                         `}
                     >
                         <img src={item.image} alt="Upload" className={`w-full h-full object-cover transition-all duration-300 ${item.status === 'rejected' ? 'brightness-50 grayscale' : ''}`} />
+                        
+                        {/* Hover Border Overlay */}
+                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/20 rounded-[2rem] transition-colors duration-300 pointer-events-none z-10" />
+
+                        {/* Selection Border Overlay */}
+                        {selectedId === item.id && (
+                            <div className="absolute inset-0 border-2 border-p_teal rounded-[2rem] pointer-events-none z-20" />
+                        )}
+
+                        {/* Rejected Border Overlay */}
+                        {item.status === 'rejected' && (
+                            <div className="absolute inset-0 border-2 border-p_red rounded-[2rem] pointer-events-none z-20" />
+                        )}
                         
                         {/* Status Overlay */}
                         <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
