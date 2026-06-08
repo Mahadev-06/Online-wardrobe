@@ -31,7 +31,7 @@ export async function analyzeClothingImage(base64Image: string): Promise<Analysi
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const prompt = `
 You are an expert fashion AI and wardrobe supervisor.
@@ -110,7 +110,7 @@ export async function generateOutfitRecommendation(
 
     try {
         // Use flash for speed and reliability
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         // Map real UUIDs to simple short IDs so the AI doesn't mangle them
         const idMap = new Map<string, string>(); // shortId -> realId

@@ -206,6 +206,7 @@ const UploadPage: React.FC = () => {
               } : u));
 
           } catch (err) {
+              console.error("AI Analysis Error during upload:", err);
               setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: 'ready' } : u));
           }
       }
