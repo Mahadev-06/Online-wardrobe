@@ -3,8 +3,25 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = process.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
+const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash"];
+
+async function generateWithFallback(prompt: string, imageParts: any[]) {
+  let lastError = null;
+  for (const modelName of MODELS) {
+    try {
+      console.log(`[Backend API] Attempting analyze with model: ${modelName}`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      return await model.generateContent([prompt, ...imageParts]);
+    } catch (err) {
+      console.warn(`[Backend API] Model ${modelName} failed or unavailable:`, err);
+      lastError = err;
+    }
+  }
+  throw lastError || new Error("All fallback models failed.");
+}
+
 export default async function handler(req: any, res: any) {
-  // CORS configuration for local development or Vercel edge environments
+  // CORS configuration
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -31,7 +48,6 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `
 You are an expert fashion AI and wardrobe supervisor.
 Analyze this image and return a STRICT JSON object answering the following:
@@ -48,7 +64,7 @@ Analyze this image and return a STRICT JSON object answering the following:
    - season: array of strings (summer, winter, all-season)
    - material: string (Cotton, Denim, Leather, Polyester, Silk, Wool, Linen, etc. - choose the closest matching fabric type)
 
-DO NOT return markdown code blocks like \`\`\`json. Return strictly the raw JSON structure!
+Return ONLY the raw JSON structure!
 `;
     const base64Data = image.split(',')[1] || image;
     const imageParts = [
@@ -60,9 +76,25 @@ DO NOT return markdown code blocks like \`\`\`json. Return strictly the raw JSON
       }
     ];
 
-    const result = await model.generateContent([prompt, ...imageParts]);
-    const responseText = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    const parsed = JSON.parse(responseText);
+    const result = await generateWithFallback(prompt, imageParts);
+    const rawText = result.response.text();
+    
+    // Robust JSON extraction
+    let parsed: any = null;
+    const cleaned = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (_) {
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      }
+    }
+
+    if (!parsed || typeof parsed.is_clothing !== 'boolean') {
+      throw new Error("AI returned unexpected format: " + rawText);
+    }
+
     return res.status(200).json(parsed);
   } catch (err: any) {
     console.error("Server API Analyze Error:", err);

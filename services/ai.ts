@@ -8,6 +8,27 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 // Determine if we are running in local development mode
 const isLocal = (import.meta as any).env.DEV;
 
+const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash"];
+
+async function localGenerateWithFallback(prompt: string, imageParts?: any[]) {
+    let lastError = null;
+    for (const modelName of MODELS) {
+        try {
+            console.log(`[Local SDK] Attempting generation with model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            if (imageParts && imageParts.length > 0) {
+                return await model.generateContent([prompt, ...imageParts]);
+            } else {
+                return await model.generateContent(prompt);
+            }
+        } catch (err) {
+            console.warn(`[Local SDK] Model ${modelName} failed or unavailable:`, err);
+            lastError = err;
+        }
+    }
+    throw lastError || new Error("All fallback models failed.");
+}
+
 interface AnalysisResult {
     is_clothing: boolean;
     confidence: number;
@@ -30,7 +51,6 @@ async function analyzeLocally(base64Image: string): Promise<AnalysisResult> {
     if (!API_KEY) {
         throw new Error("Gemini API Key missing.");
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `
 You are an expert fashion AI and wardrobe supervisor.
 Analyze this image and return a STRICT JSON object answering the following:
@@ -59,7 +79,7 @@ DO NOT return markdown code blocks like \`\`\`json. Return strictly the raw JSON
         }
     ];
 
-    const result = await model.generateContent([prompt, ...imageParts]);
+    const result = await localGenerateWithFallback(prompt, imageParts);
     const responseText = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(responseText) as AnalysisResult;
 }
@@ -73,7 +93,6 @@ async function recommendLocally(
     occasion: string,
     weather: string
 ): Promise<{ success: boolean; outfitItemIds: string[]; reasoning: string }> {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const idMap = new Map<string, string>();
     const safePool = availableClothes.map((c, idx) => {
         const shortId = `item_${idx + 1}`;
@@ -104,7 +123,7 @@ RULES:
 Return ONLY this JSON (no markdown, no extra text):
 {"outfitItemIds": ["item_X", "item_Y"], "reasoning": "Brief 1-2 sentence explanation."}`;
 
-    const result = await model.generateContent(prompt);
+    const result = await localGenerateWithFallback(prompt);
     const rawText = result.response.text();
     
     let parsed: any = null;

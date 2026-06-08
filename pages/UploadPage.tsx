@@ -25,6 +25,7 @@ interface UploadItem {
     data: Partial<ClothingItem>;
     rejectReason?: string;
     isExiting?: boolean;
+    aiFailed?: boolean;
 }
 
 const UploadPage: React.FC = () => {
@@ -157,7 +158,7 @@ const UploadPage: React.FC = () => {
   };
 
   const processUploadsWithAI = async (itemsToProcess: UploadItem[]) => {
-      for (const item of itemsToProcess) {
+      await Promise.all(itemsToProcess.map(async (item) => {
           try {
               const aiData = await analyzeClothingImage(item.image);
               
@@ -170,7 +171,7 @@ const UploadPage: React.FC = () => {
                       status: 'rejected',
                       rejectReason
                   } : u));
-                  continue;
+                  return;
               }
 
               // Update item with AI data
@@ -191,9 +192,9 @@ const UploadPage: React.FC = () => {
 
           } catch (err) {
               console.error("AI Analysis Error during upload:", err);
-              setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: 'ready' } : u));
+              setUploads(prev => prev.map(u => u.id === item.id ? { ...u, status: 'ready', aiFailed: true } : u));
           }
-      }
+      }));
   };
 
   const removeUpload = (id: string, e?: React.MouseEvent) => {
@@ -468,6 +469,17 @@ const UploadPage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="space-y-6 relative z-10">
+                            {selectedItem.aiFailed && (
+                                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-start gap-3">
+                                    <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+                                    <div>
+                                        <h4 className="text-yellow-500 font-bold text-sm uppercase tracking-wide">AI Analysis Failed</h4>
+                                        <p className="text-gray-400 text-xs mt-1 font-medium leading-relaxed">
+                                            The AI service is currently busy or unavailable. Please fill in the clothing details manually below.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                             {/* Form Fields */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
