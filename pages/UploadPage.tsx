@@ -164,28 +164,12 @@ const UploadPage: React.FC = () => {
               if (!aiData.is_clothing || aiData.confidence < 0.6) {
                   const rejectReason = aiData.message || 'Not recognized as clothing.';
                   
-                  // Mark as rejected in state
+                  // Mark as rejected in state and keep it there
                   setUploads(prev => prev.map(u => u.id === item.id ? { 
                       ...u, 
                       status: 'rejected',
                       rejectReason
                   } : u));
-                  
-                  // Wait 1.5 seconds for user to see the rejection feedback
-                  await new Promise(resolve => setTimeout(resolve, 1500));
-                  
-                  // Trigger exit animation
-                  setUploads(prev => prev.map(u => u.id === item.id ? { 
-                      ...u, 
-                      isExiting: true 
-                  } : u));
-                  
-                  // Wait 300ms for exit animation to complete
-                  await new Promise(resolve => setTimeout(resolve, 300));
-                  
-                  // Remove from uploads
-                  setUploads(prev => prev.filter(u => u.id !== item.id));
-                  setSelectedId(prev => prev === item.id ? null : prev);
                   continue;
               }
 
@@ -402,14 +386,23 @@ const UploadPage: React.FC = () => {
                                     <Check size={12} strokeWidth={3} />
                                 </div>
                             )}
-                            {item.status === 'rejected' && (
-                                <div className="absolute inset-0 bg-p_red/85 flex flex-col items-center justify-center p-2 text-center backdrop-blur-xs">
-                                    <AlertTriangle className="w-8 h-8 text-white animate-bounce mb-1" />
-                                    <span className="text-[10px] text-white font-black tracking-wide uppercase">Not Clothing</span>
-                                    <span className="text-[9px] text-white/95 mt-1 line-clamp-2 leading-tight px-1 font-medium">{item.rejectReason}</span>
-                                </div>
-                            )}
                         </div>
+
+                        {/* Rejected Overlay with Dismiss Button */}
+                        {item.status === 'rejected' && (
+                            <div className="absolute inset-0 bg-p_red/85 flex flex-col items-center justify-center p-2 text-center backdrop-blur-xs z-30">
+                                <button 
+                                    onClick={(e) => removeUpload(item.id, e)}
+                                    className="absolute top-2 right-2 bg-black/40 p-1.5 rounded-full text-white hover:bg-red-500 transition-all shadow-sm"
+                                    title="Dismiss"
+                                >
+                                    <X size={12} />
+                                </button>
+                                <AlertTriangle className="w-6 h-6 text-white animate-bounce mb-1" />
+                                <span className="text-[10px] text-white font-black tracking-wide uppercase">Not Clothing</span>
+                                <span className="text-[9px] text-white/95 mt-1 line-clamp-2 leading-tight px-1 font-medium">{item.rejectReason}</span>
+                            </div>
+                        )}
 
                         {/* Remove Button */}
                         {item.status !== 'rejected' && (
