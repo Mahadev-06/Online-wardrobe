@@ -186,6 +186,7 @@ const UploadPage: React.FC = () => {
                     color: aiData.metadata?.color_primary || '',
                     style: (aiData.metadata?.occasion || []).join(', '),
                     material: aiData.metadata?.material || '',
+                    seasonSuitability: aiData.metadata?.season || [],
                     description: `${aiData.metadata?.color_primary} ${aiData.metadata?.pattern} ${aiData.metadata?.category}`
                   } 
               } : u));
@@ -219,7 +220,7 @@ const UploadPage: React.FC = () => {
           return;
       }
 
-      validItems.forEach(item => {
+       validItems.forEach(item => {
           const newItem: ClothingItem = {
               id: item.id,
               image: item.image,
@@ -228,6 +229,7 @@ const UploadPage: React.FC = () => {
               style: item.data.style || 'Unknown',
               material: item.data.material || 'Unknown',
               description: item.data.description || 'Uploaded item',
+              seasonSuitability: item.data.seasonSuitability || [],
               dateAdded: Date.now()
           };
           addClothingItem(newItem);
@@ -251,14 +253,14 @@ const UploadPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-6 md:px-12 md:py-14 pb-8 md:pb-14 max-w-7xl mx-auto page-enter">
+    <div className="px-6 py-10 max-w-7xl mx-auto page-enter pb-24">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-            <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">UPLOAD ITEMS</h1>
-            <p className="text-gray-400 mt-2 font-medium">Add photos in bulk or one by one</p>
+            <h1 className="text-2xl font-bold text-white tracking-tight">Upload Items</h1>
+            <p className="text-gray-400 mt-1 text-sm">Add photos in bulk or one by one</p>
         </div>
         {inlineMessage && (
-            <div className={`px-4 py-2 rounded-xl text-sm font-bold animate-fade-in ${inlineMessage.type === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-p_teal/20 text-p_teal border border-p_teal/30'}`}>
+            <div className={`px-4 py-2 rounded-full text-sm font-medium animate-fade-in ${inlineMessage.type === 'error' ? 'bg-red-500/10 text-red-400' : 'bg-p_teal/10 text-p_teal'}`}>
                 {inlineMessage.text}
             </div>
         )}
@@ -267,307 +269,248 @@ const UploadPage: React.FC = () => {
                 <>
                     <button 
                         onClick={() => setUploads([])}
-                        className="px-4 py-2 btn-glass-secondary border border-white/10 text-gray-400 font-bold hover:text-white rounded-xl transition-all shadow-sm flex items-center gap-2"
+                        className="px-5 py-2.5 btn-glass-secondary text-gray-400 text-sm flex items-center gap-2"
                     >
-                        <Trash2 size={18} /> Clear All
+                        <Trash2 size={16} /> Clear All
                     </button>
                     <button 
                         onClick={saveAllValid}
-                        className="px-6 py-3 btn-glass-primary text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1 flex items-center gap-2"
+                        className="px-6 py-2.5 btn-glass-primary text-white text-sm flex items-center gap-2"
                     >
-                        <Check size={20} /> Save All Valid
+                        <Check size={16} /> Save All Valid
                     </button>
                 </>
             )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Column: Upload Grid */}
-        <div className="lg:col-span-5 space-y-6">
-            {/* Dropzone */}
-            <div 
-                onDragOver={!queueFull ? handleDragOver : undefined}
-                onDragEnter={!queueFull ? handleDragEnter : undefined}
-                onDragLeave={!queueFull ? handleDragLeave : undefined}
-                onDrop={!queueFull ? handleDrop : undefined}
-                className={`border border-dashed rounded-[2.5rem] transition-all duration-500 cursor-pointer group relative overflow-hidden backdrop-blur-md shadow-sm
-                    ${isDragging ? 'animate-drag-pulse border-p_teal bg-p_teal/5 scale-[1.015]' : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'} 
-                    ${queueFull ? 'bg-white/5 border-white/5 opacity-70 cursor-not-allowed' : ''}
-                    ${!queueFull && uploads.length === 0 
-                        ? 'h-64 flex flex-col items-center justify-center' 
-                        : 'h-32 flex items-center justify-center'
-                    }`}
-                onClick={handleDropzoneClick}
-            >
-                <div className="absolute inset-0 bg-gradient-to-br from-p_teal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                
-                <div className="flex flex-col items-center text-center p-6 pointer-events-none relative z-10">
-                    {queueFull ? (
-                        <>
-                            <AlertTriangle className="text-gray-400 w-10 h-10 mb-3 group-hover:scale-110 transition-transform duration-300" />
-                            <p className="text-white font-black text-xl tracking-tight">Queue Full (8/8)</p>
-                            <p className="text-gray-400 text-sm mt-1 font-medium">Save these items to add more</p>
-                        </>
-                    ) : isDragging ? (
-                        <>
-                            <UploadCloud className="text-p_teal w-12 h-12 mb-3 animate-bounce" />
-                            <p className="text-p_teal font-black text-xl">Drop Photos Here!</p>
-                            <p className="text-gray-400 text-sm mt-1">Release to add to wardrobe</p>
-                        </>
-                    ) : (
-                        <>
-                            <UploadCloud className={`text-p_teal w-10 h-10 mb-3 group-hover:scale-110 transition-transform duration-300 ${uploads.length > 0 ? 'scale-75' : ''}`} />
-                            {uploads.length === 0 ? (
-                                <>
-                                    <p className="text-white font-black text-xl tracking-tight">Add or Drag Photos</p>
-                                    <p className="text-gray-400 text-sm mt-1 font-medium">Support bulk upload (max 8)</p>
-                                </>
-                            ) : (
-                                <p className="text-white font-bold tracking-wide">Add More Photos ({uploads.length}/8)</p>
-                            )}
-                        </>
-                    )}
+      {uploads.length === 0 ? (
+        <div 
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={handleDropzoneClick}
+            className={`w-full max-w-3xl mx-auto mt-10 border-2 border-dashed rounded-[2.5rem] flex flex-col items-center justify-center p-20 cursor-pointer transition-colors duration-300
+                ${isDragging ? 'border-p_teal bg-p_teal/5' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'}`}
+        >
+            <UploadCloud className={`w-16 h-16 text-p_teal mb-4 ${isDragging ? 'animate-bounce' : ''}`} />
+            <h2 className="text-2xl font-bold text-white mb-2">Drag & Drop Photos Here</h2>
+            <p className="text-gray-400 text-sm">Or click to browse from your device (Max 8 photos)</p>
+            <button className="mt-8 px-6 py-2.5 btn-glass-secondary text-sm">Select Files</button>
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/*" 
+                multiple
+                onChange={handleFileChange}
+            />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Column: Upload Grid */}
+            <div className="lg:col-span-5 space-y-6">
+                {/* Mini Dropzone */}
+                <div 
+                    onDragOver={!queueFull ? handleDragOver : undefined}
+                    onDragEnter={!queueFull ? handleDragEnter : undefined}
+                    onDragLeave={!queueFull ? handleDragLeave : undefined}
+                    onDrop={!queueFull ? handleDrop : undefined}
+                    onClick={handleDropzoneClick}
+                    className={`border border-dashed rounded-[2.5rem] p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-300
+                        ${isDragging ? 'border-p_teal bg-p_teal/5' : 'border-white/10 bg-white/5 hover:bg-white/10'} 
+                        ${queueFull ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    <UploadCloud className="text-gray-400 w-8 h-8 mb-2" />
+                    <p className="text-white text-sm font-medium">{queueFull ? 'Queue Full (8/8)' : 'Add More Photos'}</p>
+                    <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        accept="image/*" 
+                        multiple
+                        disabled={queueFull}
+                        onChange={handleFileChange}
+                    />
                 </div>
-                <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    className="hidden" 
-                    accept="image/*" 
-                    multiple
-                    disabled={queueFull}
-                    onChange={handleFileChange}
-                />
-            </div>
 
-            {/* Grid of Items */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                {uploads.map((item) => (
-                    <div 
-                        key={item.id}
-                        onClick={() => {
-                            if (item.status !== 'rejected') {
-                                setSelectedId(item.id);
-                            }
-                        }}
-                        className={`group relative aspect-square rounded-[2rem] overflow-hidden cursor-pointer transition-all duration-300 shadow-sm
-                            ${selectedId === item.id ? 'scale-[0.98]' : 'hover:scale-[1.01]'} 
-                            ${item.status === 'error' ? 'opacity-70 grayscale' : ''}
-                            ${item.status === 'pending' ? 'animate-laser-scan border-p_teal/40' : ''}
-                            ${item.status === 'rejected' ? 'animate-reject-shake bg-p_red/5' : ''}
-                            ${item.isExiting ? 'upload-card-exit' : ''}
-                        `}
-                    >
-                        <img src={item.image} alt="Upload" className={`w-full h-full object-cover transition-all duration-300 ${item.status === 'rejected' ? 'brightness-50 grayscale' : ''}`} />
-                        
-                        {/* Hover Border Overlay */}
-                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-white/20 rounded-[2rem] transition-colors duration-300 pointer-events-none z-10" />
+                {/* Grid of Items */}
+                <div className="grid grid-cols-3 gap-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    {uploads.map((item) => (
+                        <div 
+                            key={item.id}
+                            onClick={() => {
+                                if (item.status !== 'rejected') setSelectedId(item.id);
+                            }}
+                            className={`group relative aspect-square rounded-[1.5rem] overflow-hidden cursor-pointer transition-all duration-300
+                                ${selectedId === item.id ? 'ring-2 ring-p_teal ring-offset-2 ring-offset-p_cream' : 'hover:opacity-80'} 
+                                ${item.status === 'rejected' ? 'opacity-50 grayscale' : ''}
+                            `}
+                        >
+                            <img src={item.image} alt="Upload" className="w-full h-full object-cover" />
+                            
+                            {/* Status Overlay */}
+                            <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center pointer-events-none transition-opacity">
+                                {item.status === 'pending' && (
+                                    <Loader2 className="w-6 h-6 text-white animate-spin drop-shadow-md" />
+                                )}
+                                {item.status === 'ready' && !item.aiFailed && (
+                                    <div className="absolute top-2 right-2 bg-p_teal text-white p-1 rounded-full">
+                                        <Check size={12} strokeWidth={3} />
+                                    </div>
+                                )}
+                                {item.status === 'ready' && item.aiFailed && (
+                                    <div className="absolute top-2 right-2 bg-yellow-500 text-white p-1 rounded-full">
+                                        <AlertTriangle size={12} strokeWidth={3} />
+                                    </div>
+                                )}
+                            </div>
 
-                        {/* Selection Border Overlay */}
-                        {selectedId === item.id && (
-                            <div className="absolute inset-0 border-2 border-p_teal rounded-[2rem] pointer-events-none z-20" />
-                        )}
-
-                        {/* Rejected Border Overlay */}
-                        {item.status === 'rejected' && (
-                            <div className="absolute inset-0 border-2 border-p_red rounded-[2rem] pointer-events-none z-20" />
-                        )}
-                        
-                        {/* Status Overlay */}
-                        <div className="absolute inset-0 bg-black/10 flex items-center justify-center pointer-events-none">
-                            {item.status === 'pending' && (
-                                <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center backdrop-blur-xs">
-                                    <Loader2 className="w-8 h-8 text-white animate-spin mb-1" />
-                                    <span className="text-[10px] text-white font-bold tracking-wider uppercase bg-p_dark/80 px-2 py-0.5 rounded-full">Analyzing...</span>
+                            {/* Rejected Overlay */}
+                            {item.status === 'rejected' && (
+                                <div className="absolute inset-0 bg-red-500/80 flex flex-col items-center justify-center p-2 text-center z-30">
+                                    <button 
+                                        onClick={(e) => removeUpload(item.id, e)}
+                                        className="absolute top-2 right-2 bg-black/40 p-1 rounded-full text-white hover:bg-black/60 pointer-events-auto"
+                                    >
+                                        <X size={12} />
+                                    </button>
+                                    <AlertTriangle className="w-5 h-5 text-white mb-1" />
+                                    <span className="text-[9px] text-white font-bold leading-tight line-clamp-2">{item.rejectReason}</span>
                                 </div>
                             )}
-                            {item.status === 'ready' && (
-                                <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full shadow-sm">
-                                    <Check size={12} strokeWidth={3} />
-                                </div>
-                            )}
-                        </div>
 
-                        {/* Rejected Overlay with Dismiss Button */}
-                        {item.status === 'rejected' && (
-                            <div className="absolute inset-0 bg-p_red/85 flex flex-col items-center justify-center p-2 text-center backdrop-blur-xs z-30">
+                            {/* Remove Button */}
+                            {item.status !== 'rejected' && (
                                 <button 
                                     onClick={(e) => removeUpload(item.id, e)}
-                                    className="absolute top-2 right-2 bg-black/40 p-1.5 rounded-full text-white hover:bg-red-500 transition-all shadow-sm"
-                                    title="Dismiss"
+                                    className="absolute top-2 left-2 bg-black/40 p-1 rounded-full text-white hover:bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                     <X size={12} />
                                 </button>
-                                <AlertTriangle className="w-6 h-6 text-white animate-bounce mb-1" />
-                                <span className="text-[10px] text-white font-black tracking-wide uppercase">Not Clothing</span>
-                                <span className="text-[9px] text-white/95 mt-1 line-clamp-2 leading-tight px-1 font-medium">{item.rejectReason}</span>
-                            </div>
-                        )}
-
-                        {/* Remove Button */}
-                        {item.status !== 'rejected' && (
-                            <button 
-                                onClick={(e) => removeUpload(item.id, e)}
-                                className="absolute top-2 left-2 bg-gray-800/80 p-1.5 rounded-full text-white border border-white/10 hover:bg-red-500 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
-                            >
-                                X
-                            </button>
-                        )}
-                    </div>
-                ))}
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
 
-        {/* Right Column: Editor */}
-        <div className="lg:col-span-7">
-            {selectedItem ? (
-                <div className="glass-panel p-6 md:p-8 relative animate-fade-in shadow-[0_8px_30px_rgb(0,0,0,0.3)] border border-white/10 group/form">
-                    <div className="absolute inset-0 bg-gradient-to-br from-p_teal/5 to-transparent opacity-0 group-hover/form:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]"></div>
-                    
-                    <div className="flex flex-col md:flex-row gap-6 mb-8 relative z-10">
-                        <div className="w-32 h-32 md:w-48 md:h-48 rounded-[2rem] overflow-hidden shrink-0 border border-white/10 shadow-sm bg-white/5 p-2">
-                            <img src={selectedItem.image} className="w-full h-full object-cover rounded-2xl" />
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h2 className="text-2xl font-black text-white tracking-tight">
-                                        {selectedItem.status === 'pending' 
-                                            ? 'ANALYZING...' 
-                                            : selectedItem.status === 'rejected' 
-                                                ? 'REJECTED' 
-                                                : 'EDIT DETAILS'}
-                                    </h2>
-                                    <p className="text-sm text-gray-400 font-medium mt-1">
-                                        {selectedItem.status === 'pending' 
-                                            ? 'AI Processing' 
-                                            : selectedItem.status === 'rejected' 
-                                                ? 'Invalid Clothing Item' 
-                                                : 'Manual Entry'}
-                                    </p>
-                                </div>
+            {/* Right Column: Editor */}
+            <div className="lg:col-span-7">
+                {selectedItem ? (
+                    <div className="bg-white/5 p-6 md:p-8 rounded-[2.5rem] border border-white/5">
+                        <div className="flex flex-col md:flex-row gap-6 mb-8 items-center md:items-start">
+                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-[2rem] overflow-hidden shrink-0 border border-white/5">
+                                <img src={selectedItem.image} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 text-center md:text-left mt-4 md:mt-0">
+                                <h2 className="text-xl font-bold text-white">
+                                    {selectedItem.status === 'pending' ? 'Analyzing...' : 'Edit Details'}
+                                </h2>
+                                <p className="text-sm text-gray-400 mt-1">
+                                    {selectedItem.status === 'pending' ? 'AI Processing in progress' : 'Update the AI generated tags if needed'}
+                                </p>
                             </div>
                         </div>
-                    </div>
 
-                    {selectedItem.status === 'pending' ? (
-                        <div className="py-12 flex flex-col items-center justify-center text-center bg-white/5 border border-dashed border-p_teal/30 rounded-3xl p-6 relative z-10 shadow-inner">
-                            <Loader2 className="w-12 h-12 text-p_teal animate-spin mb-4" />
-                            <h3 className="text-xl font-black text-white tracking-wide uppercase">AI ANALYZING ITEM...</h3>
-                            <p className="text-gray-400 text-sm mt-2 max-w-sm font-medium">
-                                Please wait while our fashion AI determines the category, color, material, and suitability.
-                            </p>
-                        </div>
-                    ) : selectedItem.status === 'rejected' ? (
-                        <div className="py-12 flex flex-col items-center justify-center text-center bg-red-500/10 border border-dashed border-red-500/30 rounded-3xl p-6 animate-pulse relative z-10 shadow-inner">
-                            <AlertTriangle className="w-12 h-12 text-red-400 mb-4" />
-                            <h3 className="text-xl font-black text-red-400 tracking-wide uppercase">REJECTED: NOT CLOTHING</h3>
-                            <p className="text-gray-400 text-sm mt-2 max-w-sm font-medium">
-                                {selectedItem.rejectReason || "This image doesn't appear to be a clothing item and will be removed."}
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="space-y-6 relative z-10">
-                            {selectedItem.aiFailed && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 flex items-start gap-3">
-                                    <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
+                        {selectedItem.status === 'pending' ? (
+                            <div className="py-16 flex flex-col items-center justify-center text-center">
+                                <Loader2 className="w-10 h-10 text-p_teal animate-spin mb-4" />
+                                <p className="text-gray-400 text-sm">Extracting fashion attributes...</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-6">
+                                {selectedItem.aiFailed && (
+                                    <div className="bg-yellow-500/10 text-yellow-500 p-4 rounded-2xl text-sm border border-yellow-500/20">
+                                        AI analysis is currently unavailable. Please fill in the details manually.
+                                    </div>
+                                )}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <h4 className="text-yellow-500 font-bold text-sm uppercase tracking-wide">AI Analysis Failed</h4>
-                                        <p className="text-gray-400 text-xs mt-1 font-medium leading-relaxed">
-                                            The AI service is currently busy or unavailable. Please fill in the clothing details manually below.
-                                        </p>
+                                        <CustomSelect 
+                                            label="Category"
+                                            value={selectedItem.data.category || ''}
+                                            onChange={(val) => updateItemData(selectedItem.id, { category: val as ClothingCategory })}
+                                            options={Object.values(ClothingCategory)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-2">Color</label>
+                                        <input 
+                                            type="text"
+                                            value={selectedItem.data.color}
+                                            onChange={(e) => updateItemData(selectedItem.id, { color: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-p_teal/30 focus:bg-white/10 outline-none transition"
+                                            placeholder="e.g. Navy Blue"
+                                        />
                                     </div>
                                 </div>
-                            )}
-                            {/* Form Fields */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                                 <div>
-                                    <CustomSelect 
-                                        label="Category"
-                                        value={selectedItem.data.category || ''}
-                                        onChange={(val) => updateItemData(selectedItem.id, { category: val as ClothingCategory })}
-                                        options={Object.values(ClothingCategory)}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Color</label>
+                                    <label className="block text-xs font-medium text-gray-400 mb-2">Style</label>
                                     <input 
                                         type="text"
-                                        value={selectedItem.data.color}
-                                        onChange={(e) => updateItemData(selectedItem.id, { color: e.target.value })}
-                                        className="w-full p-4 rounded-2xl glass-input border border-white/10 font-bold text-white focus:border-p_teal outline-none transition-colors hover:bg-white/5"
-                                        placeholder="e.g. Navy Blue"
+                                        value={selectedItem.data.style}
+                                        onChange={(e) => updateItemData(selectedItem.id, { style: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-p_teal/30 focus:bg-white/10 outline-none transition mb-3"
+                                        placeholder="e.g. Casual, Streetwear"
+                                    />
+                                    <div className="flex flex-wrap gap-2">
+                                        {COMMON_STYLES.map(style => (
+                                            <button
+                                                key={style}
+                                                onClick={() => addTag(selectedItem.id, 'style', style)}
+                                                className="px-3 py-1.5 text-[11px] btn-glass-secondary text-gray-300"
+                                            >
+                                                + {style}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-400 mb-2">Material</label>
+                                    <input 
+                                        type="text"
+                                        value={selectedItem.data.material}
+                                        onChange={(e) => updateItemData(selectedItem.id, { material: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-p_teal/30 focus:bg-white/10 outline-none transition mb-3"
+                                        placeholder="e.g. Cotton, Denim"
+                                    />
+                                    <div className="flex flex-wrap gap-2">
+                                        {COMMON_MATERIALS.map(mat => (
+                                            <button
+                                                key={mat}
+                                                onClick={() => addTag(selectedItem.id, 'material', mat)}
+                                                className="px-3 py-1.5 text-[11px] btn-glass-secondary text-gray-300"
+                                            >
+                                                + {mat}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-400 mb-2">Description</label>
+                                    <textarea 
+                                        value={selectedItem.data.description}
+                                        onChange={(e) => updateItemData(selectedItem.id, { description: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/5 text-sm text-white focus:border-p_teal/30 focus:bg-white/10 outline-none transition h-24 resize-none"
                                     />
                                 </div>
                             </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Style</label>
-                                <input 
-                                    type="text"
-                                    value={selectedItem.data.style}
-                                    onChange={(e) => updateItemData(selectedItem.id, { style: e.target.value })}
-                                    className="w-full p-4 rounded-2xl glass-input border border-white/10 font-bold text-white focus:border-p_teal outline-none mb-3 transition-colors hover:bg-white/5"
-                                    placeholder="e.g. Casual, Streetwear"
-                                />
-                                <div className="flex flex-wrap gap-2">
-                                    {COMMON_STYLES.map(style => (
-                                        <button
-                                            key={style}
-                                            onClick={() => addTag(selectedItem.id, 'style', style)}
-                                            className="px-3 py-1.5 text-xs font-bold btn-glass-secondary rounded-xl transition-all shadow-sm hover:text-white"
-                                        >
-                                            + {style}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Material</label>
-                                <input 
-                                    type="text"
-                                    value={selectedItem.data.material}
-                                    onChange={(e) => updateItemData(selectedItem.id, { material: e.target.value })}
-                                    className="w-full p-4 rounded-2xl glass-input border border-white/10 font-bold text-white focus:border-p_teal outline-none mb-3 transition-colors hover:bg-white/5"
-                                    placeholder="e.g. Cotton, Denim"
-                                />
-                                <div className="flex flex-wrap gap-2">
-                                    {COMMON_MATERIALS.map(mat => (
-                                        <button
-                                            key={mat}
-                                            onClick={() => addTag(selectedItem.id, 'material', mat)}
-                                            className="px-3 py-1.5 text-xs font-bold btn-glass-secondary rounded-xl transition-all shadow-sm hover:text-white"
-                                        >
-                                            + {mat}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Description</label>
-                                <textarea 
-                                    value={selectedItem.data.description}
-                                    onChange={(e) => updateItemData(selectedItem.id, { description: e.target.value })}
-                                    className="w-full p-4 rounded-2xl glass-input border border-white/10 font-medium text-white focus:border-p_teal outline-none h-28 resize-none transition-colors hover:bg-white/5"
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                </div>
-            ) : (
-                <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-8 border border-white/10 shadow-2xl rounded-[2.5rem] bg-white/5 backdrop-blur-2xl group cursor-default">
-                    <Edit3 className="w-12 h-12 text-gray-400 mb-6 group-hover:scale-110 group-hover:text-p_teal transition-all duration-300" />
-                    <h3 className="text-2xl font-bold text-white tracking-tight">No Item Selected</h3>
-                    <p className="text-gray-400 mt-3 max-w-sm font-medium leading-relaxed">Select an image from the grid to edit its details or view analysis results.</p>
-                </div>
-            )}
+                        )}
+                    </div>
+                ) : (
+                    <div className="hidden lg:flex flex-col items-center justify-center h-full min-h-[400px] border border-white/5 rounded-[2.5rem] bg-white/5 text-center">
+                        <Layers className="w-10 h-10 text-gray-500 mb-4" />
+                        <h3 className="text-lg font-medium text-white mb-1">No Item Selected</h3>
+                        <p className="text-gray-400 text-sm">Select an uploaded photo from the grid to edit</p>
+                    </div>
+                )}
+            </div>
         </div>
-
-      </div>
+      )}
     </div>
   );
 };

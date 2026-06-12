@@ -8,7 +8,15 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 // Determine if we are running in local development mode
 const isLocal = (import.meta as any).env.DEV;
 
-const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash"];
+const MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.5-pro",
+    "gemini-flash-latest",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-latest",
+    "gemini-1.5-pro-latest"
+];
 
 async function localGenerateWithFallback(prompt: string, imageParts?: any[]) {
     let lastError = null;
@@ -47,41 +55,48 @@ interface AnalysisResult {
 /**
  * Local implementation of clothing image analysis (direct SDK call)
  */
+/**
+ * Local implementation of clothing image analysis (direct SDK call)
+ */
 async function analyzeLocally(base64Image: string): Promise<AnalysisResult> {
     if (!API_KEY) {
-        throw new Error("Gemini API Key missing.");
+        throw new Error("Gemini API Key is missing. Please add VITE_GEMINI_API_KEY in your local environment (.env.local)");
     }
-    const prompt = `
-You are an expert fashion AI and wardrobe supervisor.
-Analyze this image and return a STRICT JSON object answering the following:
+    try {
+        const prompt = `You are a professional fashion AI and wardrobe supervisor.
+Analyze the provided image of a clothing item, footwear, or fashion accessory.
+Return a STRICT JSON object with the following fields:
 
-1. is_clothing: boolean (Is this image clearly a standalone piece of clothing or footwear? Return false if it is a human face, randomly cropped scenery, an animal, or unidentifiable object).
-2. confidence: number (0.0 to 1.0)
-3. message: string (If is_clothing is false, explain why).
-4. metadata: object (If is_clothing is true, provide the following details):
-   - category: (Choose ONE: "Top", "Bottom", "Dress", "Shoes", "Outerwear", "Accessory")
-   - color_primary: string
-   - color_secondary: string
-   - pattern: string (Solid, Striped, Printed, Checked, etc.)
-   - occasion: array of strings (casual, formal, party, business, lounge, activewear)
-   - season: array of strings (summer, winter, all-season)
-   - material: string (Cotton, Denim, Leather, Polyester, Silk, Wool, Linen, etc. - choose the closest matching fabric type)
+1. is_clothing: boolean (True if this image clearly depicts a standalone clothing piece, pair of shoes, or fashion accessory. Return false if the image contains human faces, pets, scenery, or non-fashion items).
+2. confidence: number (Confidence score between 0.0 and 1.0)
+3. message: string (Explain the classification decision. If is_clothing is false, explain why).
+4. metadata: object (Include ONLY if is_clothing is true):
+   - category: (MUST be one of: "Top", "Bottom", "Dress", "Shoes", "Outerwear", "Accessory")
+   - color_primary: string (Main dominant color, e.g. Navy Blue, Emerald Green, Charcoal Grey, Crimson)
+   - color_secondary: string (Secondary color or pattern details, or "None")
+   - pattern: string (Solid, Striped, Printed, Checked, Polka Dot, Floral, etc.)
+   - occasion: array of strings (Selected from: casual, formal, party, business, lounge, activewear)
+   - season: array of strings (Selected from: summer, winter, all-season)
+   - material: string (Cotton, Denim, Leather, Polyester, Silk, Wool, Linen, etc. - identify or choose closest matching fabric)
 
-DO NOT return markdown code blocks like \`\`\`json. Return strictly the raw JSON structure!
-`;
-    const base64Data = base64Image.split(',')[1] || base64Image;
-    const imageParts = [
-        {
-            inlineData: {
-                data: base64Data,
-                mimeType: "image/jpeg"
+DO NOT return markdown code blocks like \`\`\`json. Return strictly the raw JSON structure!`;
+        const base64Data = base64Image.split(',')[1] || base64Image;
+        const imageParts = [
+            {
+                inlineData: {
+                    data: base64Data,
+                    mimeType: "image/jpeg"
+                }
             }
-        }
-    ];
+        ];
 
-    const result = await localGenerateWithFallback(prompt, imageParts);
-    const responseText = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(responseText) as AnalysisResult;
+        const result = await localGenerateWithFallback(prompt, imageParts);
+        const responseText = result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(responseText) as AnalysisResult;
+    } catch (err) {
+        console.error("Local analyzeLocally error:", err);
+        throw err;
+    }
 }
 
 /**
@@ -103,25 +118,39 @@ async function recommendLocally(
             color: c.color || 'Unknown',
             style: c.style || 'Unknown',
             description: c.description || '',
+            seasons: c.seasonSuitability || []
         };
     });
 
-    const prompt = `You are a fashion stylist. Pick the best outfit from the wardrobe below.
+    const prompt = `You are an elite, high-end personal fashion stylist and image consultant. Your client is seeking a personalized look from their wardrobe that matches their body profile, the occasion, and the weather.
 
 OCCASION: ${occasion}
 WEATHER: ${weather}
-USER: Height ${profile.height || 170}cm
 
-WARDROBE:
-${safePool.map(item => `- ${item.id}: ${item.category}, ${item.color}, ${item.style}`).join('\n')}
+CLIENT PROFILE:
+- Gender: ${profile.gender || 'Not specified'}
+- Height: ${profile.height || 170} cm
+- Weight: ${profile.weight || 65} kg
+- Body Type: ${profile.bodyType || 'Average'}
+- Skin Tone: ${profile.skinTone || 'Not specified'} (Hex: ${profile.skinToneHex || 'N/A'})
+- Style Preference: ${profile.stylePreference || 'Not specified'}
+
+WARDROBE ITEMS AVAILABLE:
+${safePool.map(item => `- ${item.id}: ${item.category}, color: ${item.color}, style/occasion tags: ${item.style}, seasons: ${item.seasons.join(', ')}, description: ${item.description}`).join('\n')}
 
 RULES:
-1. Pick ONLY IDs from the wardrobe above (like item_1, item_2, etc.)
-2. An outfit needs: [Top + Bottom] OR [Dress]. Add Shoes if available.
-3. Match colors that look good together for the occasion.
+1. Selection: Pick ONLY item IDs listed in the wardrobe above (e.g., item_1, item_2, etc.).
+2. Outfit Structure: The outfit must contain either [Top + Bottom] or [Dress]. You should also select Shoes, and optionally Outerwear (highly recommended if weather is cold, winter, or rainy) and Accessories (watches, bags, jewelry) if they are in the wardrobe and fit the look.
+3. Aesthetic Standards: Mix colors, textures, and styles to curate a high-fashion, cohesive look. Respect the client's body profile (height/weight/body type/skin tone) and style preferences.
+4. CRITICAL — Weather Suitability: Check if there are wardrobe items suitable for the current weather (e.g. if the weather is freezing/winter, the user needs long pants, warm tops, or coats). If no clothes in the wardrobe are appropriate for the current weather, you MUST return an empty array for "outfitItemIds" (i.e. []) and write a very concise stylist's recommendation in the "reasoning" field explaining why and suggesting what they should add to their wardrobe (e.g. "Because it is freezing winter and your digital closet only contains lightweight summer items, no outfit can be recommended. I recommend adding sweaters or a winter coat to your closet.").
+5. CRITICAL — Personalized Reasoning: Your reasoning paragraph MUST explicitly reference the client's body type ("${profile.bodyType || 'Average'}"), skin tone ("${profile.skinTone || 'Medium'}"), height (${profile.height || 170}cm), and weight (${profile.weight || 65}kg) by name. Keep it extremely concise (1-2 sentences, max 40 words total).
+6. Response Format: Return ONLY a raw JSON object matching the schema below. No markdown formatting, no code blocks, no trailing text.
 
-Return ONLY this JSON (no markdown, no extra text):
-{"outfitItemIds": ["item_X", "item_Y"], "reasoning": "Brief 1-2 sentence explanation."}`;
+JSON Schema:
+{
+    "outfitItemIds": ["item_1", "item_2", ...],
+    "reasoning": "A highly concise, professional, and personalized explanation (strictly 1-2 sentences, max 40 words total) from a premium stylist's perspective. You MUST mention the client's body type, skin tone, height, and weight by name. Discuss how the outfit fits their body metrics and weather concisely. If no outfit was selected due to weather mismatch, explain the reason and provide a very concise recommendation of what they should add to their closet."
+}`;
 
     const result = await localGenerateWithFallback(prompt);
     const rawText = result.response.text();
@@ -220,15 +249,15 @@ export async function generateOutfitRecommendation(
         console.log("[Fashion AI] Generating recommendation locally using direct Gemini SDK...");
         try {
             if (!API_KEY) {
-                return { success: false, outfitItemIds: [], reasoning: "Gemini API Key is missing. Add it to .env.local" };
+                return { success: false, outfitItemIds: [], reasoning: "Gemini API Key is missing. Please add VITE_GEMINI_API_KEY in your local environment (.env.local)" };
             }
             return await recommendLocally(availableClothes, profile, occasion, weather);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Local AI Recommendation Error:", err);
             return {
                 success: false,
                 outfitItemIds: [],
-                reasoning: "Failed to generate recommendation. Check your local API key and connection."
+                reasoning: `Failed to generate AI recommendation. Error: ${err.message || 'Unknown API Error'}`
             };
         }
     }
@@ -248,7 +277,7 @@ export async function generateOutfitRecommendation(
             return {
                 success: false,
                 outfitItemIds: [],
-                reasoning: errText || "Failed to generate recommendation."
+                reasoning: `Server API Error: ${errText || "Failed to generate recommendation."}`
             };
         }
 
@@ -258,7 +287,83 @@ export async function generateOutfitRecommendation(
         return {
             success: false,
             outfitItemIds: [],
-            reasoning: "Failed to generate look due to a network or AI service error. Please try again."
+            reasoning: `Network Error: ${err.message || "Failed to connect to AI service."}`
         };
+    }
+}
+
+/**
+ * Evaluates a manually constructed outfit and gives a brutally honest fashion review.
+ */
+export async function reviewOutfit(
+    selectedItems: ClothingItem[],
+    profile: UserProfile
+): Promise<{ success: boolean; score: number; review: string }> {
+    if (selectedItems.length === 0) {
+        return { success: false, score: 0, review: "You haven't selected any clothes to review." };
+    }
+
+    const itemsDescription = selectedItems.map(i => `- ${i.category}: ${i.color} ${i.style} ${i.description}`).join('\n');
+    
+    const prompt = `You are an elite, world-class fashion critic and stylist. Critique this outfit curated by the client.
+
+OUTFIT PIECES SELECTED:
+${itemsDescription}
+
+CLIENT PROFILE:
+- Gender: ${profile.gender || 'Not specified'}
+- Height: ${profile.height || 170} cm
+- Weight: ${profile.weight || 65} kg
+- Body Type: ${profile.bodyType || 'Average'}
+- Skin Tone: ${profile.skinTone || 'Not specified'} (Hex: ${profile.skinToneHex || 'Not specified'})
+- Style Preference: ${profile.stylePreference || 'Not specified'}
+
+STYLING GUIDELINES:
+Evaluate this outfit based on elite fashion principles: color theory and contrast matching their ${profile.skinTone || 'medium'} skin tone, structural proportions complementing their ${profile.bodyType || 'average'} body type at ${profile.height || 170}cm and ${profile.weight || 65}kg, texture synergy, and style cohesion.
+
+CRITICAL — Personalized Critique:
+- You MUST explicitly reference the client's body type ("${profile.bodyType || 'Average'}"), skin tone ("${profile.skinTone || 'Medium'}"), height (${profile.height || 170}cm), and weight (${profile.weight || 65}kg) in your review.
+- Be completely honest, analytical, and professional. If a piece doesn't flatter their ${profile.bodyType || 'average'} body type, say so diplomatically.
+- For example: "For your ${profile.bodyType || 'average'} frame at ${profile.height || 170}cm, this oversized silhouette may add unnecessary visual bulk — a more structured fit would better define your waist."
+- Or: "The warm undertones of this top beautifully complement your ${profile.skinTone || 'medium'} complexion, creating a harmonious color story."
+
+Response Format: Return ONLY a raw JSON object matching the schema below. No markdown, no code blocks.
+
+JSON Schema:
+{
+    "score": 8,
+    "review": "A sophisticated, analytical, and deeply personalized critique (3-4 sentences). You MUST mention the client's body type, skin tone, height, and weight. Use high-end fashion vocabulary to explain color coordination against their skin tone, how the silhouette works with their body type and proportions, and overall style alignment. Be honest — point out any clashes in formality, silhouette weight, or color tone relative to their specific physique."
+}`;
+
+    try {
+        if (!API_KEY) {
+            throw new Error("Gemini API Key is missing. Please add VITE_GEMINI_API_KEY in your local environment (.env.local)");
+        }
+        const result = await localGenerateWithFallback(prompt);
+        const rawText = result.response.text();
+        
+        let parsed: any = null;
+        const cleaned = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+        try {
+            parsed = JSON.parse(cleaned);
+        } catch (_) {
+            const jsonMatch = rawText.match(/\{[\s\S]*"score"[\s\S]*"review"[\s\S]*\}/);
+            if (jsonMatch) {
+                parsed = JSON.parse(jsonMatch[0]);
+            }
+        }
+
+        if (!parsed || typeof parsed.score !== 'number' || !parsed.review) {
+            throw new Error("AI returned unexpected format");
+        }
+
+        return {
+            success: true,
+            score: parsed.score,
+            review: parsed.review
+        };
+    } catch (err: any) {
+        console.error("Review Error:", err);
+        return { success: false, score: 0, review: `Failed to review outfit. Error: ${err.message || 'Unknown AI Error'}` };
     }
 }

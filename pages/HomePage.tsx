@@ -1,10 +1,11 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
-import { CloudSun, Shirt, Sparkles, ArrowRight, Layers, Plus, Thermometer, MapPin, CloudRain, CloudSnow, Sun, Cloud, CloudFog, Loader2, RefreshCw, CloudOff, Bookmark, Wand2 } from 'lucide-react';
+import { CloudSun, Shirt, Sparkles, ArrowRight, Layers, Plus, Thermometer, MapPin, CloudRain, CloudSnow, Sun, Cloud, CloudFog, Loader2, RefreshCw, CloudOff, Bookmark, Wand2, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { ClothingCategory } from '../types';
+import { ClothingCategory, ClothingItem } from '../types';
 import MagicBentoCard from '../components/MagicBentoCard';
+import { generateOutfitRecommendation } from '../services/ai';
 
 interface WeatherData {
     temp: number;
@@ -17,13 +18,18 @@ interface WeatherData {
 }
 
 const HomePage: React.FC = () => {
-  const { profile, clothes, savedOutfits } = useWardrobe();
+  const { 
+    profile, 
+    clothes, 
+    savedOutfits, 
+    weather, 
+    loadingWeather, 
+    weatherError, 
+    recommendation, 
+    loadingRec, 
+    recError 
+  } = useWardrobe();
   const [greeting, setGreeting] = useState('Hello');
-  
-  // Weather State
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loadingWeather, setLoadingWeather] = useState(true);
-  const [weatherError, setWeatherError] = useState<string | null>(null);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -32,95 +38,12 @@ const HomePage: React.FC = () => {
     else setGreeting('Good Evening');
   }, []);
 
-  // Fetch Weather
-  const fetchWeather = async (latitude: number, longitude: number, isFallback = false) => {
-      try {
-          const weatherRes = await fetch(
-              `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,is_day`
-          );
-          if (!weatherRes.ok) throw new Error("Weather fetch failed");
-          const weatherData = await weatherRes.json();
-          
-          let locationName = "New York, US";
-          if (!isFallback) {
-              try {
-                  const geoRes = await fetch(
-                      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
-                  );
-                  const geoData = await geoRes.json();
-                  locationName = `${geoData.city || geoData.locality || 'Local'}, ${geoData.countryCode || ''}`;
-              } catch (e) {
-                  // Ignore reverse geocoding errors, use fallback name
-              }
-          }
-
-          const current = weatherData.current;
-          const condition = getWeatherLabel(current.weather_code);
-          const advice = getStyleAdvice(current.temperature_2m, current.weather_code);
-
-          setWeather({
-              temp: Math.round(current.temperature_2m),
-              humidity: current.relative_humidity_2m,
-              code: current.weather_code,
-              isDay: current.is_day === 1,
-              condition: condition,
-              location: locationName,
-              advice: advice
-          });
-          setWeatherError(null);
-      } catch (err) {
-          console.error("Weather error:", err);
-          setWeatherError("Unable to load weather");
-      } finally {
-          setLoadingWeather(false);
+  const resolvedRecommendationItems = useMemo(() => {
+      if (!recommendation || !recommendation.outfitItemIds || recommendation.outfitItemIds.length === 0) {
+          return [];
       }
-  };
-
-  useEffect(() => {
-    const defaultLat = 40.7128;
-    const defaultLon = -74.0060;
-
-    if (!navigator.geolocation) {
-        fetchWeather(defaultLat, defaultLon, true);
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            fetchWeather(position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
-            console.warn("Geo error, using fallback:", error);
-            fetchWeather(defaultLat, defaultLon, true);
-        },
-        { timeout: 5000 }
-    );
-  }, []);
-
-  const suggestionDisplay = useMemo(() => {
-      if (savedOutfits.length > 0) {
-          const random = savedOutfits[Math.floor(Math.random() * savedOutfits.length)];
-          return { items: random.items.slice(0, 4), label: 'From your favorites', id: random.id };
-      }
-
-      const tops = clothes.filter(c => c.category === ClothingCategory.TOP || c.category === ClothingCategory.DRESS);
-      const bottoms = clothes.filter(c => c.category === ClothingCategory.BOTTOM);
-      const shoes = clothes.filter(c => c.category === ClothingCategory.SHOES);
-
-      if (tops.length > 0 && bottoms.length > 0) {
-          const randomTop = tops[Math.floor(Math.random() * tops.length)];
-          const randomBottom = bottoms[Math.floor(Math.random() * bottoms.length)];
-          const randomShoes = shoes.length > 0 ? shoes[Math.floor(Math.random() * shoes.length)] : null;
-          
-          return { 
-              items: [randomTop, randomBottom, randomShoes].filter(Boolean), 
-              label: 'Daily Auto-Suggestion',
-              id: 'auto'
-          };
-      }
-
-      return null;
-  }, [clothes, savedOutfits]);
+      return recommendation.outfitItemIds.map(id => clothes.find(c => c.id === id)).filter(Boolean) as ClothingItem[];
+  }, [recommendation, clothes]);
 
   // Helper for Weather Icon
   const WeatherIcon = ({ code, isDay, size = 48, className = "" }: { code: number, isDay: boolean, size?: number, className?: string }) => {
@@ -200,20 +123,37 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="text-right hidden sm:block text-white">
+                <div className="text-right hidden sm:flex flex-col justify-between h-full items-end text-white max-w-[220px]">
                      {weather && (
-                         <>
-                            <p className="font-bold text-lg">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
-                            <p className="text-gray-400 text-sm mt-1 max-w-[150px] leading-relaxed">
-                                <Shirt size={14} className="inline mr-1 text-p_teal" />
-                                {weather.advice}
-                            </p>
-                         </>
-                     )}
+                          <>
+                             <div className="text-right">
+                                <p className="font-bold text-lg leading-tight">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
+                                <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
+                                    <Shirt size={12} className="inline mr-1 text-p_teal" />
+                                    {weather.advice}
+                                </p>
+                             </div>
+                             
+                             {/* 3-day forecast */}
+                             {weather.forecast && weather.forecast.length > 0 && (
+                                 <div className="flex gap-2 mt-4 border-t border-white/5 pt-3 w-full justify-end">
+                                     {weather.forecast.map((f, idx) => (
+                                         <div key={idx} className="flex flex-col items-center bg-white/5 rounded-xl px-2 py-1 min-w-[52px] border border-white/5">
+                                             <span className="text-[9px] text-gray-400 font-bold uppercase">{f.day}</span>
+                                             <div className="text-p_teal my-0.5">
+                                                 <WeatherIcon code={f.code} isDay={true} size={14} />
+                                             </div>
+                                             <span className="text-[9px] font-black text-white">{f.tempMin}°/{f.tempMax}°</span>
+                                         </div>
+                                     ))}
+                                 </div>
+                             )}
+                          </>
+                      )}
                       {weatherError && (
                           <button 
                              onClick={() => window.location.reload()} 
-                             className="btn-glass-secondary px-3 py-1.5 text-xs rounded-lg transition flex items-center gap-1 ml-auto hover:scale-105 shadow-sm border border-white/10"
+                             className="btn-glass-secondary px-3 py-1.5 text-xs rounded-[2.5rem] flex items-center gap-1 ml-auto border border-white/10 animate-fade-in"
                           >
                              <RefreshCw size={12} /> Retry
                           </button>
@@ -246,43 +186,72 @@ const HomePage: React.FC = () => {
             </div>
         </MagicBentoCard>
 
-        {/* Card 4: Outfit of the Day (2x2 - Large Feature) */}
-        <MagicBentoCard to="/stylist" className="md:col-span-2 md:row-span-2 glass-panel relative group min-h-[300px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        {/* Card 4: Outfit Recommendation (2x2 - Large Feature) */}
+        <MagicBentoCard to="/stylist" className="md:col-span-2 md:row-span-2 glass-panel relative group min-h-[350px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-start p-6 md:p-8 gap-4">
 
-            <div className="flex justify-between items-start relative z-10">
+            <div className="flex justify-between items-start relative z-10 w-full">
                 <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-p_teal text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider shadow-md">Daily Pick</span>
+                    <div className="flex items-center gap-2 mb-1">
+                        <span className="bg-p_teal text-white text-[10px] font-bold px-2 py-1 rounded-[2rem] uppercase tracking-wider shadow-md">Recommendation</span>
                     </div>
                     <h3 className="text-2xl font-black text-white leading-tight mt-2">
-                         {suggestionDisplay ? suggestionDisplay.label : "Start your collection"}
+                         {loadingRec ? "Stylist is thinking..." : 
+                          resolvedRecommendationItems.length > 0 ? "Today's Curated Look" : "Outfit Not Available"}
                     </h3>
                 </div>
-                <div className="bg-gray-800/50 backdrop-blur-md border border-white/10 p-2 rounded-full text-white shadow-sm group-hover:bg-gray-700 transition-colors duration-300">
-                    <ArrowRight size={20} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </div>
+
+            {loadingRec ? (
+                <div className="flex-1 flex flex-col items-center justify-center py-6 relative z-10">
+                    <Loader2 className="w-10 h-10 text-p_teal animate-spin mb-2" />
+                    <p className="text-gray-400 text-xs font-medium">Curating from your closet...</p>
                 </div>
-            </div>
-
-            <div className="flex-1 flex items-center justify-center py-6 relative z-10">
-                 {suggestionDisplay ? (
-                    <div className="flex -space-x-4">
-                        {suggestionDisplay.items.map((item, idx) => (
-                            <div key={idx} className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-gray-800 bg-gray-900 shadow-lg overflow-hidden transform transition-transform duration-500 group-hover:scale-105 group-hover:shadow-xl group-hover:translate-y-[-5px]" style={{zIndex: 10-idx, transitionDelay: `${idx * 50}ms`}}>
-                                <img src={item?.image} className="w-full h-full object-cover" alt="Clothing Item" />
-                            </div>
-                        ))}
+            ) : resolvedRecommendationItems.length > 0 ? (
+                <>
+                    <div className="flex-1 flex items-center justify-center py-4 relative z-10">
+                        <div className="flex -space-x-4">
+                            {resolvedRecommendationItems.map((item, idx) => (
+                                <div key={idx} className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-gray-800 bg-gray-900 shadow-lg overflow-hidden transform transition-transform duration-500 group-hover:scale-105 group-hover:shadow-xl group-hover:translate-y-[-5px]" style={{zIndex: 10-idx, transitionDelay: `${idx * 50}ms`}}>
+                                    <img src={item.image} className="w-full h-full object-cover" alt="Recommended Item" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                 ) : (
+                    
+                    {recommendation?.reasoning && (
+                        <div className="relative z-10 bg-black/20 border border-white/5 rounded-2xl p-4 mb-2 backdrop-blur-sm">
+                            <p className="text-xs text-gray-300 leading-relaxed italic">
+                                "{recommendation.reasoning}"
+                            </p>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="flex-1 flex flex-col justify-center py-6 relative z-10">
                     <div className="text-center text-gray-500">
-                        <Shirt size={64} className="mx-auto mb-2 opacity-50 group-hover:scale-110 transition-transform duration-300" />
-                        <p>Upload items to unlock</p>
+                        {clothes.length < 2 ? (
+                            <>
+                                <Shirt size={56} className="mx-auto mb-2 opacity-40 group-hover:scale-110 transition-transform duration-300" />
+                                <p className="text-sm">Upload at least 2 items to get recommendations</p>
+                            </>
+                        ) : (
+                            <>
+                                <AlertTriangle size={48} className="mx-auto mb-2 text-yellow-500/80 animate-pulse" />
+                                <p className="text-white font-bold text-lg mb-2">No suitable clothes for this weather</p>
+                                {recommendation?.reasoning ? (
+                                    <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-2xl p-4 text-left">
+                                        <p className="text-xs text-yellow-400/90 leading-relaxed font-medium">
+                                            {recommendation.reasoning}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-gray-400">Add clothes matching current weather conditions.</p>
+                                )}
+                            </>
+                        )}
                     </div>
-                 )}
-            </div>
-
-            <p className="text-xs font-bold text-p_teal uppercase tracking-widest relative z-10 group-hover:text-white transition-colors">
-                {suggestionDisplay ? "Tap to view details" : "Tap to upload"}
-            </p>
+                </div>
+            )}
         </MagicBentoCard>
 
         {/* Card 5: Quick Add (1x2 - Tall) */}

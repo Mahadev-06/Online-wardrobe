@@ -42,7 +42,7 @@ const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '
     };
   }, []);
 
-  const baseClasses = `magic-bento-card rounded-3xl p-6 ${className}`;
+  const baseClasses = `magic-bento-card rounded-[2.5rem] p-6 ${className}`;
 
   if (to) {
     return (

@@ -20,8 +20,8 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
         {/* Liquid Glass Spinner Container */}
         <div className="w-24 h-24 mb-8 relative flex items-center justify-center">
           {/* Glass panels rotating */}
-          <div className="absolute inset-0 bg-white/5 border border-white/10 shadow-xl backdrop-blur-sm rounded-3xl animate-spin" style={{ animationDuration: '4s' }} />
-          <div className="absolute inset-0 bg-p_teal/5 border border-p_teal/10 shadow-lg backdrop-blur-md rounded-3xl animate-spin" style={{ animationDuration: '5s', animationDirection: 'reverse' }} />
+          <div className="absolute inset-0 bg-white/5 border border-white/10 shadow-xl backdrop-blur-sm rounded-[2.5rem] animate-spin" style={{ animationDuration: '4s' }} />
+          <div className="absolute inset-0 bg-p_teal/5 border border-p_teal/10 shadow-lg backdrop-blur-md rounded-[2.5rem] animate-spin" style={{ animationDuration: '5s', animationDirection: 'reverse' }} />
           
           <div className="absolute inset-0 flex items-center justify-center text-p_teal animate-pulse">
             <Sparkles size={32} />

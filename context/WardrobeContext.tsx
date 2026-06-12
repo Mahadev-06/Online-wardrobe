@@ -7,6 +7,25 @@ import React, {
 } from 'react';
 import { ClothingItem, UserProfile, Outfit, CalendarEvent, AuthUser, ClothingCategory } from '../types';
 import { supabase } from '../services/supabase';
+import { generateOutfitRecommendation } from '../services/ai';
+
+export interface ForecastDay {
+  day: string;
+  tempMin: number;
+  tempMax: number;
+  code: number;
+}
+
+export interface WeatherData {
+  temp: number;
+  condition: string;
+  humidity: number;
+  location: string;
+  isDay: boolean;
+  advice: string;
+  code: number;
+  forecast: ForecastDay[];
+}
 
 interface WardrobeContextType {
   user: AuthUser | null;
@@ -14,6 +33,13 @@ interface WardrobeContextType {
   signupWithEmail: (email: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
+  
+  weather: WeatherData | null;
+  loadingWeather: boolean;
+  weatherError: string | null;
+  recommendation: { outfitItemIds: string[]; reasoning: string } | null;
+  loadingRec: boolean;
+  recError: string | null;
 
   profile: UserProfile | null;
   setProfile: (profile: UserProfile) => Promise<void>;
@@ -39,6 +65,16 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [savedOutfits, setSavedOutfits] = useState<Outfit[]>([]);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Weather Caching
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [loadingWeather, setLoadingWeather] = useState(true);
+  const [weatherError, setWeatherError] = useState<string | null>(null);
+
+  // Recommendation Caching
+  const [recommendation, setRecommendation] = useState<{ outfitItemIds: string[]; reasoning: string } | null>(null);
+  const [loadingRec, setLoadingRec] = useState(false);
+  const [recError, setRecError] = useState<string | null>(null);
 
   useEffect(() => {
     // Safety timeout: if session check takes > 5s, stop loading anyway
@@ -81,6 +117,169 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
     };
   }, []);
 
+  // Weather Utilities
+  const getWeatherLabel = (code: number) => {
+      if (code === 0) return "Clear Sky";
+      if (code === 1 || code === 2 || code === 3) return "Partly Cloudy";
+      if (code >= 45 && code <= 48) return "Foggy";
+      if (code >= 51 && code <= 55) return "Drizzle";
+      if (code >= 56 && code <= 57) return "Freezing Drizzle";
+      if (code >= 61 && code <= 65) return "Rainy";
+      if (code >= 66 && code <= 67) return "Freezing Rain";
+      if (code >= 71 && code <= 77) return "Snow";
+      if (code >= 80 && code <= 82) return "Showers";
+      if (code >= 95 && code <= 99) return "Thunderstorm";
+      return "Unknown";
+  };
+
+  const getStyleAdvice = (temp: number, code: number) => {
+      if (code >= 61 && code <= 67) return "Don't forget an umbrella!";
+      if (code >= 71) return "Wear thick layers & boots.";
+      if (temp < 5) return "Heavy coat recommended.";
+      if (temp < 15) return "Perfect for layering.";
+      if (temp < 22) return "Light jacket or sweater.";
+      if (temp < 28) return "T-shirt weather!";
+      return "Stay cool, wear breathable fabrics.";
+  };
+
+  const fetchWeather = async (latitude: number, longitude: number, isFallback = false) => {
+      try {
+          const weatherRes = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`
+          );
+          if (!weatherRes.ok) throw new Error("Weather fetch failed");
+          const weatherData = await weatherRes.json();
+          
+          let locationName = "New York, US";
+          if (!isFallback) {
+              try {
+                  const geoRes = await fetch(
+                      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+                  );
+                  const geoData = await geoRes.json();
+                  locationName = `${geoData.city || geoData.locality || 'Local'}, ${geoData.countryCode || ''}`;
+              } catch (e) {
+                  // Ignore
+              }
+          }
+
+          const current = weatherData.current;
+          const daily = weatherData.daily;
+          
+          const condition = getWeatherLabel(current.weather_code);
+          const advice = getStyleAdvice(current.temperature_2m, current.weather_code);
+
+          const forecast: ForecastDay[] = [];
+          if (daily && daily.time) {
+              for (let i = 0; i < Math.min(3, daily.time.length); i++) {
+                  const dateStr = daily.time[i];
+                  const dayName = new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' });
+                  forecast.push({
+                      day: i === 0 ? "Today" : dayName,
+                      tempMin: Math.round(daily.temperature_2m_min[i]),
+                      tempMax: Math.round(daily.temperature_2m_max[i]),
+                      code: daily.weather_code[i]
+                  });
+              }
+          }
+
+          setWeather({
+              temp: Math.round(current.temperature_2m),
+              humidity: current.relative_humidity_2m,
+              code: current.weather_code,
+              isDay: current.is_day === 1,
+              condition: condition,
+              location: locationName,
+              advice: advice,
+              forecast: forecast
+          });
+          setWeatherError(null);
+      } catch (err) {
+          console.error("Weather error:", err);
+          setWeatherError("Unable to load weather");
+      } finally {
+          setLoadingWeather(false);
+      }
+  };
+
+  useEffect(() => {
+    if (!user) {
+      setWeather(null);
+      setRecommendation(null);
+      return;
+    }
+
+    const defaultLat = 40.7128;
+    const defaultLon = -74.0060;
+
+    setLoadingWeather(true);
+    if (!navigator.geolocation) {
+        fetchWeather(defaultLat, defaultLon, true);
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+            console.warn("Geo error, using fallback:", error);
+            fetchWeather(defaultLat, defaultLon, true);
+        },
+        { timeout: 5000 }
+    );
+  }, [user]);
+
+  // AI Recommendation useEffect
+  useEffect(() => {
+    if (!weather || clothes.length < 2) {
+      setRecommendation(null);
+      return;
+    }
+
+    let isMounted = true;
+    const loadRecommendation = async () => {
+      setLoadingRec(true);
+      setRecError(null);
+      try {
+        const weatherContext = `${weather.temp}°C, ${weather.condition} (${weather.advice})`;
+        const res = await generateOutfitRecommendation(
+          clothes,
+          profile || { name: 'User', gender: 'Other', height: 170, weight: 65, skinTone: 'Medium', skinToneHex: '#E0AC69', bodyType: 'Average' },
+          'Casual',
+          weatherContext
+        );
+        if (isMounted) {
+          if (res.success) {
+            setRecommendation({
+              outfitItemIds: res.outfitItemIds || [],
+              reasoning: res.reasoning
+            });
+          } else {
+            setRecommendation({
+              outfitItemIds: [],
+              reasoning: res.reasoning
+            });
+          }
+        }
+      } catch (err: any) {
+        console.error("Failed to load daily recommendation:", err);
+        if (isMounted) {
+          setRecError("Could not load recommendation");
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingRec(false);
+        }
+      }
+    };
+
+    loadRecommendation();
+    return () => {
+      isMounted = false;
+    };
+  }, [weather?.condition, weather?.temp, clothes.length, profile]);
+
   useEffect(() => {
     if (!user) {
       setProfileState(null);
@@ -106,6 +305,7 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
             weight: prof.weight,
             skinTone: prof.skin_tone,
             skinToneHex: prof.skin_tone_hex,
+            bodyType: prof.body_type || 'Average',
           });
         }
 
@@ -123,6 +323,7 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
             style: c.style,
             material: c.material,
             description: c.description,
+            seasonSuitability: c.season_suitability || [],
             dateAdded: new Date(c.created_at).getTime(),
           })));
         }
@@ -146,6 +347,7 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
                 style: dbItem.style,
                 material: dbItem.material,
                 description: dbItem.description,
+                seasonSuitability: dbItem.season_suitability || [],
                 dateAdded: new Date(dbItem.created_at).getTime(),
               };
             }).filter(Boolean);
@@ -250,6 +452,7 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
             weight: p.weight,
             skin_tone: p.skinTone,
             skin_tone_hex: p.skinToneHex,
+            body_type: p.bodyType || 'Average',
             updated_at: new Date().toISOString()
         });
         if (error) throw error;
@@ -278,7 +481,8 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
           color: item.color,
           style: item.style,
           material: item.material,
-          description: item.description
+          description: item.description,
+          season_suitability: item.seasonSuitability || []
       };
       
       const { data, error } = await supabase.from('clothing_items').insert(dbItem).select().single();
@@ -365,6 +569,8 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
     <WardrobeContext.Provider
       value={{
         user, loginWithEmail, signupWithEmail, logout, loading,
+        weather, loadingWeather, weatherError,
+        recommendation, loadingRec, recError,
         profile, setProfile,
         clothes, addClothingItem, deleteClothingItem,
         savedOutfits, saveOutfit, deleteOutfit,

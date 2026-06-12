@@ -39,6 +39,7 @@ export interface UserProfile {
   weight: number; // kg
   skinTone: string; // Description
   skinToneHex: string; // Hex code for the mannequin
+  bodyType: string; // e.g. "Slim", "Athletic", "Average", "Curvy", "Plus Size"
   stylePreference?: string;
   bodyPhoto?: string; // Base64 full body photo
 }

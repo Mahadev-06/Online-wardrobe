@@ -42,17 +42,14 @@ const AppContent: React.FC = () => {
 
   // ── Gate 3: Profile exists → Render Main App ───────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0a0f12] text-white">
+    <div className="min-h-screen bg-p_cream text-white">
       <Navigation
         isExpanded={isSidebarExpanded}
         toggleSidebar={() => setIsSidebarExpanded((prev) => !prev)}
       />
 
-      {/* Main Content — shifts right on desktop when sidebar expands */}
       <main
-        className={`transition-all duration-300 ease-in-out ${
-          isSidebarExpanded ? 'md:pl-64' : 'md:pl-20'
-        } min-h-screen pt-28 md:pt-0 pb-24 md:pb-0`}
+        className={`transition-all duration-300 ease-in-out md:pl-32 min-h-screen pt-20 md:pt-0 pb-28 md:pb-0`}
       >
         <Routes>
           <Route path="/"           element={<Navigate to="/dashboard" replace />} />

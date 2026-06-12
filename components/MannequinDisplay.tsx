@@ -68,7 +68,7 @@ const MannequinDisplay: React.FC<MannequinDisplayProps> = ({ profile, top, botto
 
             {/* Torso */}
             <div 
-                className="rounded-3xl relative z-10"
+                className="rounded-[2.5rem] relative z-10"
                 style={{ 
                     width: `${torsoWidth}px`, 
                     height: `${torsoHeight}px`, 
@@ -76,7 +76,7 @@ const MannequinDisplay: React.FC<MannequinDisplayProps> = ({ profile, top, botto
                 }}
             >
                 {/* Torso Shading for shape */}
-                <div className="absolute inset-0 bg-black/5 rounded-3xl" />
+                <div className="absolute inset-0 bg-black/5 rounded-[2.5rem]" />
             </div>
 
             {/* Right Arm */}

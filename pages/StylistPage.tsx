@@ -1,27 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
 import { ClothingItem } from '../types';
-import { generateOutfitRecommendation } from '../services/ai';
-import { Sparkles, Save, X, Loader2, RefreshCw, AlertCircle, ChevronDown } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { generateOutfitRecommendation, reviewOutfit } from '../services/ai';
+import { Sparkles, Loader2, RefreshCw, AlertCircle, Quote, CheckCircle, Lightbulb, Shirt, Square, Footprints, ChevronDown, X, Layers, Watch } from 'lucide-react';
 
-import CustomSelect from '../components/CustomSelect';
+interface SlotBoxProps {
+    label: string;
+    item: ClothingItem | null;
+    icon: React.ReactNode;
+    isActive: boolean;
+    onClick: () => void;
+    onClear: () => void;
+    className?: string;
+}
+
+const SlotBox: React.FC<SlotBoxProps> = ({ 
+    label, 
+    item, 
+    icon, 
+    isActive, 
+    onClick, 
+    onClear,
+    className = ""
+}) => {
+    return (
+        <div 
+            onClick={onClick}
+            className={`rounded-[2rem] border-2 cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-center p-4 ${className} ${
+                item 
+                    ? 'bg-white border-p_dark/10 shadow-sm hover:shadow-md' 
+                    : isActive 
+                        ? 'border-dashed border-p_red bg-p_red/5 shadow-[0_0_15px_rgba(255,90,80,0.1)]' 
+                        : 'border-dashed border-p_dark/15 bg-white/20 hover:border-p_dark/30 hover:bg-white/45'
+            }`}
+        >
+            {item ? (
+                <>
+                    <img 
+                        src={item.image} 
+                        alt={label} 
+                        className="w-full h-full object-contain p-1.5 transition-transform duration-500 hover:scale-105 animate-scale-in" 
+                    />
+                    {/* Clear Button */}
+                    <button 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onClear();
+                        }}
+                        className="absolute top-2.5 right-2.5 z-20 w-6 h-6 rounded-full bg-p_dark/5 border border-p_dark/10 hover:bg-p_red hover:text-white flex items-center justify-center text-p_dark/50 hover:border-transparent transition-all shadow-sm cursor-pointer"
+                        title="Remove Item"
+                    >
+                        <X size={10} />
+                    </button>
+                    {/* Item label */}
+                    <div className="absolute bottom-2 left-0 right-0 text-center z-10 pointer-events-none">
+                        <span className="font-mono text-[8px] font-black uppercase tracking-wider text-p_dark/60 bg-white/80 px-2 py-0.5 rounded-full border border-p_dark/5">{item.color}</span>
+                    </div>
+                </>
+            ) : (
+                <div className="flex flex-col items-center justify-center text-center gap-1.5">
+                    <div className="text-[#1A2238] opacity-65">
+                        {icon}
+                    </div>
+                    <span className="font-mono text-[10px] font-black uppercase tracking-widest text-[#1A2238] opacity-75 mt-0.5">
+                        {label}
+                    </span>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const StylistPage: React.FC = () => {
     const { clothes, profile, saveOutfit } = useWardrobe();
-    const navigate = useNavigate();
     const [inlineMessage, setInlineMessage] = useState<{text: string, type: 'error' | 'success'} | null>(null);
 
+    // Dropdowns open state
+    const [isOccasionOpen, setIsOccasionOpen] = useState(false);
+    const [isWeatherOpen, setIsWeatherOpen] = useState(false);
+
+    // Auto Mode State
     const [occasion, setOccasion] = useState('Casual Day Out');
     const [weather, setWeather] = useState('Sunny and Mild');
-    
     const [loading, setLoading] = useState(false);
-    const [generatedOutfit, setGeneratedOutfit] = useState<{items: ClothingItem[], reasoning: string} | null>(null);
+    // Mode State
+    const [stylistNotes, setStylistNotes] = useState<string>('');
+    const [manualTopId, setManualTopId] = useState<string>('');
+    const [manualBottomId, setManualBottomId] = useState<string>('');
+    const [manualShoesId, setManualShoesId] = useState<string>('');
+    const [manualOuterwearId, setManualOuterwearId] = useState<string>('');
+    const [manualAccessoryId, setManualAccessoryId] = useState<string>('');
+    const [activeTab, setActiveTab] = useState<'Outerwear' | 'Top' | 'Bottom' | 'Shoes' | 'Accessory'>('Top');
+    const [reviewing, setReviewing] = useState(false);
+    const [reviewResult, setReviewResult] = useState<{score: number, review: string} | null>(null);
 
-    // Auto-clear message after 3 seconds
+    const manualTop = clothes.find(c => c.id === manualTopId) || null;
+    const manualBottom = clothes.find(c => c.id === manualBottomId) || null;
+    const manualShoes = clothes.find(c => c.id === manualShoesId) || null;
+    const manualOuterwear = clothes.find(c => c.id === manualOuterwearId) || null;
+    const manualAccessory = clothes.find(c => c.id === manualAccessoryId) || null;
+
     useEffect(() => {
       if (inlineMessage) {
-          const timer = setTimeout(() => setInlineMessage(null), 3000);
+          const timer = setTimeout(() => setInlineMessage(null), 4000);
           return () => clearTimeout(timer);
       }
     }, [inlineMessage]);
@@ -46,12 +127,26 @@ const StylistPage: React.FC = () => {
                 const selectedItems = res.outfitItemIds
                     .map(id => clothes.find(c => c.id === id))
                     .filter(Boolean) as ClothingItem[];
+                setManualTopId(selectedItems.find(i => i.category === 'Top' || i.category === 'Dress')?.id || '');
+                setManualBottomId(selectedItems.find(i => i.category === 'Bottom')?.id || '');
+                setManualShoesId(selectedItems.find(i => i.category === 'Shoes')?.id || '');
+                setManualOuterwearId(selectedItems.find(i => i.category === 'Outerwear')?.id || '');
+                setManualAccessoryId(selectedItems.find(i => i.category === 'Accessory')?.id || '');
                 
-                setGeneratedOutfit({ items: selectedItems, reasoning: res.reasoning });
-                setInlineMessage({text: "Look generated!", type: 'success'});
+                setStylistNotes(res.reasoning);
+                setReviewResult(null); // Clear manual reviews
+                
+                // Automatically save it to the closet
+                saveOutfit({
+                    id: Date.now().toString(),
+                    items: selectedItems,
+                    date: new Date().toISOString(),
+                    notes: res.reasoning
+                });
+                setInlineMessage({text: "Outfit generated and saved to Closet!", type: 'success'});
             } else {
                 setInlineMessage({text: res.reasoning, type: 'error'});
-                setGeneratedOutfit(null);
+                setStylistNotes('');
             }
         } catch (err) {
             setInlineMessage({text: "Failed to generate look. Try again.", type: 'error'});
@@ -60,135 +155,462 @@ const StylistPage: React.FC = () => {
         }
     };
 
-    const handleSaveOutfit = () => {
-        if (!generatedOutfit) return;
-        saveOutfit({
-            id: Date.now().toString(),
-            items: generatedOutfit.items,
-            date: new Date().toISOString(),
-            notes: generatedOutfit.reasoning
-        });
-        setInlineMessage({text: "Outfit saved to Closet!", type: 'success'});
-        navigate('/closet', { state: { activeTab: 'outfits' } });
+    const handleReview = async () => {
+        setInlineMessage(null);
+        if (!profile) return;
+        
+        const selected = [manualTop, manualBottom, manualShoes, manualOuterwear, manualAccessory].filter(Boolean) as ClothingItem[];
+        if (selected.length === 0) {
+            setInlineMessage({text: "Select at least one item to review.", type: 'error'});
+            return;
+        }
+
+        setReviewing(true);
+        try {
+            const res = await reviewOutfit(selected, profile);
+            if (res.success) {
+                setReviewResult({ score: res.score, review: res.review });
+            } else {
+                setInlineMessage({text: res.review, type: 'error'});
+            }
+        } catch (err) {
+            setInlineMessage({text: "Failed to review outfit.", type: 'error'});
+        } finally {
+            setReviewing(false);
+        }
     };
 
+    const handleSuggestAlternative = () => {
+        setReviewResult(null);
+        handleGenerate();
+    };
+
+    const handleClearNotes = (id: string, setter: (val: string) => void) => {
+        setter(id);
+        setStylistNotes(''); // Clear AI notes when user makes a manual change
+        setReviewResult(null);
+    };
+
+    const tops = clothes.filter(c => c.category === 'Top' || c.category === 'Dress');
+    const bottoms = clothes.filter(c => c.category === 'Bottom');
+    const shoes = clothes.filter(c => c.category === 'Shoes');
+    const outerwears = clothes.filter(c => c.category === 'Outerwear');
+    const accessories = clothes.filter(c => c.category === 'Accessory');
+
     return (
-        <div className="px-4 py-8 md:px-12 md:py-14 pb-8 md:pb-14 min-h-screen max-w-[1200px] mx-auto page-enter">
-            <div className="mb-10 text-center">
-                <div className="inline-flex items-center justify-center mb-4 transition-transform hover:scale-110 duration-300">
-                    <Sparkles className="w-14 h-14 text-p_teal" />
+        <div className="px-4 py-8 md:px-12 md:py-10 max-w-[1600px] mx-auto page-enter pb-24">
+            {inlineMessage && (
+                <div className={`px-5 py-3 rounded-full text-sm font-bold mb-6 flex items-center gap-2 animate-fade-in ${
+                    inlineMessage.type === 'error' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-p_teal/10 text-p_teal border border-p_teal/20'
+                }`}>
+                    {inlineMessage.type === 'error' ? <AlertCircle size={16} /> : <Sparkles size={16} />}
+                    {inlineMessage.text}
                 </div>
-                <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">AI STYLIST</h1>
-                <p className="text-gray-400 mt-4 max-w-lg mx-auto font-medium">
-                    Let our intelligent AI analyze your current wardrobe and build the perfect look based on rules and standard color theory.
-                </p>
-            </div>
+            )}
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            <div className="flex flex-col lg:flex-row min-h-[calc(100vh-160px)] rounded-[2.5rem] overflow-hidden bg-[#F3E8D6] shadow-xl border border-p_dark/10">
                 
-                {/* Configuration Panel */}
-                <div className="md:col-span-5 glass-panel p-6 md:p-8 relative z-20 shadow-[0_8px_30px_rgb(0,0,0,0.3)] border border-white/10 group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-p_teal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]"></div>
+                {/* Left Area: Style Board Canvas */}
+                <div className="flex-1 p-6 md:p-10 flex flex-col gap-6 bg-[#F3E8D6]">
                     
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <Sparkles size={20} className="text-p_teal" /> Parameters
-                    </h3>
-
-                    {inlineMessage && (
-                        <div className={`mb-6 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 animate-fade-in ${
-                            inlineMessage.type === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-p_teal/20 text-p_teal border border-p_teal/30'
-                        }`}>
-                            {inlineMessage.type === 'error' ? <AlertCircle size={16} /> : <Sparkles size={16} />}
-                            {inlineMessage.text}
-                        </div>
-                    )}
-                    
-                    <CustomSelect 
-                        label="Occasion / Mood"
-                        value={occasion}
-                        onChange={setOccasion}
-                        options={["Casual Day Out", "Date Night", "Business Office", "Party / Club", "Gym / Activewear", "Lounging at Home", "Formal Event"]}
-                    />
-
-                    <div className="h-4"></div>
-
-                    <CustomSelect 
-                        label="Local Weather"
-                        value={weather}
-                        onChange={setWeather}
-                        options={["Sunny and Mild", "Hot Summer", "Cold Winter", "Rainy / Breezy"]}
-                    />
-
-                    <button 
-                        onClick={handleGenerate}
-                        disabled={loading}
-                        className="w-full mt-6 py-4 btn-glass-primary text-white rounded-2xl font-black uppercase tracking-wider transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-p_teal/20 flex justify-center items-center gap-3 group/btn relative overflow-hidden"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
-                        {loading ? (
-                            <Loader2 className="animate-spin w-6 h-6 text-white" />
-                        ) : (
-                            <>
-                                <RefreshCw className="w-5 h-5 group-hover/btn:rotate-180 transition-transform duration-700" />
-                                Generate Look
-                            </>
-                        )}
-                    </button>
-                </div>
-
-                {/* Results Panel */}
-                <div className="md:col-span-7 relative z-10">
-                    {loading ? (
-                        <div className="h-full min-h-[400px] flex flex-col justify-center items-center bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-[2.5rem] p-8 animate-pulse">
-                            <Sparkles className="w-12 h-12 text-p_teal mb-4 animate-bounce" />
-                            <p className="font-bold text-xl text-white tracking-tight">Designing your outfit...</p>
-                            <p className="text-gray-400 text-sm mt-2 font-medium">Matching colors and occasions.</p>
-                        </div>
-                    ) : generatedOutfit ? (
-                        <div className="glass-panel p-6 md:p-8 animate-fade-in relative shadow-2xl border border-white/10">
-                            <div className="bg-[#0a0f12]/50 backdrop-blur-md p-6 rounded-3xl mb-8 relative border border-white/5 shadow-inner">
-                                <h3 className="font-black text-p_teal text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
-                                    <Sparkles size={14} /> Stylist Reasoning
-                                </h3>
-                                <p className="text-gray-300 font-medium italic leading-relaxed">"{generatedOutfit.reasoning}"</p>
+                    {/* Top Action Bar */}
+                    <div className="flex flex-col md:flex-row justify-center items-center gap-3 w-full mb-2">
+                        {/* Selector Row (Side-by-side on mobile) */}
+                        <div className="flex gap-2 w-full md:w-auto flex-1 md:flex-none">
+                            {/* Occasion Selector */}
+                            <div className="relative flex-1 md:flex-none">
+                                <button 
+                                    onClick={() => { setIsOccasionOpen(!isOccasionOpen); setIsWeatherOpen(false); }}
+                                    className="h-12 px-4 md:px-5 bg-white border border-p_dark/10 rounded-[1.25rem] font-bold text-p_dark flex items-center justify-between gap-2 md:gap-3 shadow-sm hover:bg-p_brown/20 transition-all cursor-pointer w-full md:min-w-[150px]"
+                                >
+                                    <span className="text-xs md:text-sm truncate">{occasion.split(' ')[0]}</span>
+                                    <ChevronDown className="w-4 h-4 text-p_dark/60 shrink-0" />
+                                </button>
+                                {isOccasionOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsOccasionOpen(false)}></div>
+                                        <div className="absolute z-50 w-full mt-1 bg-white border border-p_dark/10 rounded-[1.25rem] shadow-lg overflow-hidden animate-scale-in max-h-60 overflow-y-auto p-1.5 scrollbar-hide">
+                                            {["Casual", "Date Night", "Business", "Party", "Activewear", "Lounging", "Formal"].map(opt => (
+                                                <div 
+                                                    key={opt}
+                                                    className={`p-2.5 font-bold text-xs cursor-pointer transition-all rounded-[0.75rem] mb-1 last:mb-0 ${occasion.startsWith(opt) ? 'bg-p_teal/10 text-p_teal' : 'text-p_dark/75 hover:bg-p_brown/30 hover:text-p_dark'}`}
+                                                    onClick={() => { 
+                                                        const mapped = opt === "Casual" ? "Casual Day Out" :
+                                                                       opt === "Business" ? "Business Office" :
+                                                                       opt === "Party" ? "Party / Club" :
+                                                                       opt === "Lounging" ? "Lounging at Home" :
+                                                                       opt === "Formal" ? "Formal Event" : opt;
+                                                        setOccasion(mapped); 
+                                                        setIsOccasionOpen(false); 
+                                                    }}
+                                                >
+                                                    {opt}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
-                            <div className="flex flex-wrap gap-4 justify-center py-6 mb-8">
-                                {generatedOutfit.items.map(item => (
-                                    <div key={item.id} className="w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 shadow-sm p-4 transform hover:scale-105 transition-all duration-300 cursor-pointer relative group">
-                                        <img src={item.image} className="w-full h-full object-contain drop-shadow-md" alt={item.category} />
-                                        <div className="absolute inset-0 bg-[#0a0f12]/80 text-white text-xs font-bold flex flex-col justify-center items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl backdrop-blur-sm p-2 text-center border border-white/10">
-                                            <span className="uppercase text-[10px] text-p_teal tracking-widest mb-1">{item.category}</span>
-                                            {item.color}
+                            {/* Weather Selector */}
+                            <div className="relative flex-1 md:flex-none">
+                                <button 
+                                    onClick={() => { setIsWeatherOpen(!isWeatherOpen); setIsOccasionOpen(false); }}
+                                    className="h-12 px-4 md:px-5 bg-white border border-p_dark/10 rounded-[1.25rem] font-bold text-p_dark flex items-center justify-between gap-2 md:gap-3 shadow-sm hover:bg-p_brown/20 transition-all cursor-pointer w-full md:min-w-[150px]"
+                                >
+                                    <span className="text-xs md:text-sm truncate">{weather.split(' ')[0]}</span>
+                                    <ChevronDown className="w-4 h-4 text-p_dark/60 shrink-0" />
+                                </button>
+                                {isWeatherOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsWeatherOpen(false)}></div>
+                                        <div className="absolute z-50 w-full mt-1 bg-white border border-p_dark/10 rounded-[1.25rem] shadow-lg overflow-hidden animate-scale-in max-h-60 overflow-y-auto p-1.5 scrollbar-hide">
+                                            {["Sunny and Mild", "Hot Summer", "Cold Winter", "Rainy / Breezy"].map(opt => (
+                                                <div 
+                                                    key={opt}
+                                                    className={`p-2.5 font-bold text-xs cursor-pointer transition-all rounded-[0.75rem] mb-1 last:mb-0 ${weather === opt ? 'bg-p_teal/10 text-p_teal' : 'text-p_dark/75 hover:bg-p_brown/30 hover:text-p_dark'}`}
+                                                    onClick={() => { 
+                                                        setWeather(opt); 
+                                                        setIsWeatherOpen(false); 
+                                                    }}
+                                                >
+                                                    {opt.split(' ')[0]}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Action Row (Side-by-side on mobile) */}
+                        <div className="flex gap-2 w-full md:w-auto shrink-0 justify-center">
+                            {/* Reset button */}
+                            <button 
+                                onClick={() => {
+                                    setManualTopId('');
+                                    setManualBottomId('');
+                                    setManualShoesId('');
+                                    setManualOuterwearId('');
+                                    setManualAccessoryId('');
+                                    setStylistNotes('');
+                                    setReviewResult(null);
+                                }}
+                                className="w-12 h-12 bg-white border border-p_dark/10 rounded-[1.25rem] flex items-center justify-center text-p_dark/70 hover:text-p_dark hover:bg-p_brown/20 transition-all cursor-pointer shadow-sm active:scale-95 transform shrink-0"
+                                title="Reset Board"
+                            >
+                                <RefreshCw className="w-4 h-4 shrink-0" />
+                            </button>
+
+                            {/* AI Stylist button */}
+                            <button 
+                                onClick={handleGenerate}
+                                disabled={loading}
+                                className="h-12 flex-1 md:flex-none md:px-6 bg-p_red hover:bg-[#E04B42] text-white font-bold rounded-[1.25rem] flex items-center justify-center gap-2 transition-all transform active:scale-95 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                            >
+                                {loading ? (
+                                    <Loader2 className="animate-spin w-4 h-4 shrink-0" strokeWidth={2.5} />
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-4 h-4 shrink-0" />
+                                        <span className="text-sm">AI Stylist</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main Style Board Card */}
+                    <div className="bg-white rounded-[2.5rem] border border-p_dark/10 shadow-sm p-6 md:p-8 flex-1 flex flex-col min-h-[480px]">
+                        
+                        {/* Style Board Card Header */}
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="font-mono text-sm font-black tracking-widest text-[#526594] uppercase">STYLE BOARD</h3>
+                                <p className="text-[10px] md:text-xs text-p_dark/50 font-bold mt-0.5">Curated for {profile?.name || 'Demo Stylist'}</p>
+                            </div>
+                            <button 
+                                onClick={() => {
+                                    setInlineMessage({ text: "Virtual Try-on coming soon!", type: "success" });
+                                }}
+                                className="px-4 py-2 border border-p_red text-p_red hover:bg-p_red hover:text-white transition-all font-bold text-[10px] md:text-xs rounded-full cursor-pointer hover:scale-102 transform active:scale-98"
+                            >
+                                SETUP TRY-ON
+                            </button>
+                        </div>
+
+                        {/* Canvas Area with Slots in a Triangle */}
+                        {loading ? (
+                            <div className="flex-1 flex flex-col justify-center items-center animate-pulse">
+                                <Sparkles className="w-8 h-8 text-p_teal mb-4 animate-spin-slow" />
+                                <p className="font-bold text-p_dark/60 tracking-tight text-sm">Curating your outfit...</p>
+                            </div>
+                        ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center py-4 gap-4 md:gap-6">
+                                {/* Top Slot */}
+                                <div className="flex justify-center">
+                                    <SlotBox 
+                                        label="ADD TOP" 
+                                        item={manualTop} 
+                                        icon={<Shirt className="w-8 h-8 md:w-10 md:h-10 text-[#526594]" strokeWidth={1.5} />} 
+                                        isActive={activeTab === 'Top'} 
+                                        onClick={() => setActiveTab('Top')}
+                                        onClear={() => handleClearNotes('', setManualTopId)}
+                                        className="w-40 h-40 md:w-48 md:h-48"
+                                    />
+                                </div>
+                                {/* Bottom Slots */}
+                                <div className="flex justify-center gap-4 md:gap-6">
+                                    <SlotBox 
+                                        label="BOTTOM" 
+                                        item={manualBottom} 
+                                        icon={<Square className="w-7 h-7 md:w-8 md:h-8 text-[#526594]" strokeWidth={1.5} />} 
+                                        isActive={activeTab === 'Bottom'} 
+                                        onClick={() => setActiveTab('Bottom')}
+                                        onClear={() => handleClearNotes('', setManualBottomId)}
+                                        className="w-32 h-32 md:w-38 md:h-38"
+                                    />
+                                    <SlotBox 
+                                        label="SHOES" 
+                                        item={manualShoes} 
+                                        icon={<Footprints className="w-7 h-7 md:w-8 md:h-8 text-[#526594]" strokeWidth={1.5} />} 
+                                        isActive={activeTab === 'Shoes'} 
+                                        onClick={() => setActiveTab('Shoes')}
+                                        onClear={() => handleClearNotes('', setManualShoesId)}
+                                        className="w-32 h-32 md:w-38 md:h-38"
+                                    />
+                                </div>
+                                
+                                {/* Extras Row (Outerwear & Accessories) */}
+                                <div className="flex justify-center gap-4 border-t border-p_dark/5 pt-4 w-full max-w-sm mt-2">
+                                    <SlotBox 
+                                        label="JACKET" 
+                                        item={manualOuterwear} 
+                                        icon={<Layers className="w-5 h-5 md:w-6 md:h-6 text-[#526594]" strokeWidth={1.5} />} 
+                                        isActive={activeTab === 'Outerwear'} 
+                                        onClick={() => setActiveTab('Outerwear')}
+                                        onClear={() => handleClearNotes('', setManualOuterwearId)}
+                                        className="w-24 h-24 md:w-28 md:h-28"
+                                    />
+                                    <SlotBox 
+                                        label="ACCESSORY" 
+                                        item={manualAccessory} 
+                                        icon={<Watch className="w-5 h-5 md:w-6 md:h-6 text-[#526594]" strokeWidth={1.5} />} 
+                                        isActive={activeTab === 'Accessory'} 
+                                        onClick={() => setActiveTab('Accessory')}
+                                        onClear={() => handleClearNotes('', setManualAccessoryId)}
+                                        className="w-24 h-24 md:w-28 md:h-28"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Critique / Reasoning Area (Light Theme) */}
+                    {(stylistNotes || reviewResult) && (
+                        <div className="animate-fade-in flex flex-col gap-4">
+                            {stylistNotes && !reviewResult && (
+                                <div className="bg-white rounded-[2rem] border border-p_dark/10 p-6 flex flex-col shadow-sm">
+                                    <div className="flex items-center gap-2 mb-3 text-p_teal">
+                                        <Quote className="w-5 h-5" />
+                                        <h4 className="font-mono font-bold uppercase tracking-widest text-xs">Stylist Notes</h4>
+                                    </div>
+                                    <p className="text-sm text-p_dark/80 leading-relaxed font-medium">
+                                        {stylistNotes}
+                                    </p>
+                                </div>
+                            )}
+
+                            {reviewResult && (
+                                <div className="bg-white rounded-[2rem] border border-purple-500/20 p-6 flex flex-col shadow-sm">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2 text-purple-600">
+                                            <CheckCircle className="w-5 h-5" />
+                                            <h4 className="font-mono font-bold uppercase tracking-widest text-xs">Fashion Critique</h4>
+                                        </div>
+                                        <div className="bg-purple-100 text-purple-700 font-mono font-black px-3 py-1 rounded-full text-xs border border-purple-200">
+                                            {reviewResult.score}/10
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-
-                            <div className="flex gap-4 border-t border-white/10 pt-8">
-                                <button 
-                                    onClick={() => setGeneratedOutfit(null)}
-                                    className="flex-1 py-4 btn-glass-secondary border border-white/10 rounded-2xl font-bold transition-all text-gray-400 hover:text-white hover:bg-white/5"
-                                >
-                                    Discard
-                                </button>
-                                <button 
-                                    onClick={handleSaveOutfit}
-                                    className="flex-1 py-4 btn-glass-primary text-white rounded-2xl font-bold shadow-[0_4px_20px_rgba(45,212,191,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(45,212,191,0.4)] transition-all flex items-center justify-center gap-2 group/save"
-                                >
-                                    <Save className="w-5 h-5 transition-transform group-hover/save:scale-110" /> Save Outfit
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="h-full min-h-[400px] flex flex-col justify-center items-center bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-[2.5rem] p-8 text-center group cursor-default">
-                            <Sparkles className="w-16 h-16 text-gray-400 group-hover:text-p_teal group-hover:scale-110 mb-6 transition-all duration-500" />
-                            <h3 className="font-bold text-2xl text-white tracking-tight">Ready to style</h3>
-                            <p className="text-gray-400 max-w-sm mt-3 font-medium leading-relaxed">Select your occasion and weather on the left pane and hit generate to see magic!</p>
+                                    <p className="text-sm text-p_dark/80 leading-relaxed font-medium mb-4">
+                                        {reviewResult.review}
+                                    </p>
+                                    
+                                    <div className="flex justify-end">
+                                        <button 
+                                            onClick={handleSuggestAlternative}
+                                            className="px-5 py-2.5 bg-p_teal text-white rounded-[2.5rem] font-bold hover:bg-[#E04B42] transition-colors text-xs flex items-center gap-2 cursor-pointer hover:scale-102 transform active:scale-98 shadow-sm"
+                                        >
+                                            <Lightbulb className="w-3.5 h-3.5" /> Suggest Alternative
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
+                {/* Right Area: Wardrobe Sidebar */}
+                <div className="w-full lg:w-[380px] bg-white border-t lg:border-t-0 lg:border-l border-p_dark/10 p-6 flex flex-col shrink-0">
+                    
+                    {/* Sidebar Header */}
+                    <div className="flex items-center gap-3 pb-6 border-b border-p_dark/10 mb-6 shrink-0">
+                        <div className="w-1.5 h-6 bg-p_red rounded-full"></div>
+                        <h2 className="font-black text-xl text-p_dark uppercase tracking-wider font-mono">WARDROBE</h2>
+                    </div>
+
+                    {/* Wardrobe Items Scrollable List */}
+                    <div className="flex-1 overflow-y-auto pr-1 space-y-6 scrollbar-hide">
+                        {/* Tops Section */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-mono text-xs font-bold tracking-widest text-p_dark/55 uppercase">TOPS & DRESSES</h4>
+                                <span className="w-5 h-5 rounded-full bg-p_brown/80 text-p_dark font-bold text-[10px] flex items-center justify-center border border-p_dark/10">{tops.length}</span>
+                            </div>
+                            {tops.length === 0 ? (
+                                <div className="border border-dashed border-p_dark/10 rounded-[1.5rem] p-6 text-center text-xs text-p_dark/45 bg-p_brown/5">
+                                    No tops found
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-2 animate-scale-in">
+                                    {tops.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleClearNotes(item.id === manualTopId ? '' : item.id, setManualTopId)}
+                                            className={`group aspect-square rounded-[1.25rem] border cursor-pointer transition-all overflow-hidden bg-p_brown/10 flex items-center justify-center p-2 ${manualTopId === item.id ? 'border-p_red bg-white ring-2 ring-p_red/10' : 'border-p_dark/10 hover:border-p_dark/25'}`}
+                                            title={`${item.color} ${item.category}`}
+                                        >
+                                            <img src={item.image} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt={item.description} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Bottoms Section */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-mono text-xs font-bold tracking-widest text-p_dark/55 uppercase">BOTTOMS</h4>
+                                <span className="w-5 h-5 rounded-full bg-p_brown/80 text-p_dark font-bold text-[10px] flex items-center justify-center border border-p_dark/10">{bottoms.length}</span>
+                            </div>
+                            {bottoms.length === 0 ? (
+                                <div className="border border-dashed border-p_dark/10 rounded-[1.5rem] p-6 text-center text-xs text-p_dark/45 bg-p_brown/5">
+                                    No bottoms found
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-2 animate-scale-in">
+                                    {bottoms.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleClearNotes(item.id === manualBottomId ? '' : item.id, setManualBottomId)}
+                                            className={`group aspect-square rounded-[1.25rem] border cursor-pointer transition-all overflow-hidden bg-p_brown/10 flex items-center justify-center p-2 ${manualBottomId === item.id ? 'border-p_red bg-white ring-2 ring-p_red/10' : 'border-p_dark/10 hover:border-p_dark/25'}`}
+                                            title={`${item.color} ${item.category}`}
+                                        >
+                                            <img src={item.image} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt={item.description} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Shoes Section */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-mono text-xs font-bold tracking-widest text-p_dark/55 uppercase">SHOES</h4>
+                                <span className="w-5 h-5 rounded-full bg-p_brown/80 text-p_dark font-bold text-[10px] flex items-center justify-center border border-p_dark/10">{shoes.length}</span>
+                            </div>
+                            {shoes.length === 0 ? (
+                                <div className="border border-dashed border-p_dark/10 rounded-[1.5rem] p-6 text-center text-xs text-p_dark/45 bg-p_brown/5">
+                                    No shoes found
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-2 animate-scale-in">
+                                    {shoes.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleClearNotes(item.id === manualShoesId ? '' : item.id, setManualShoesId)}
+                                            className={`group aspect-square rounded-[1.25rem] border cursor-pointer transition-all overflow-hidden bg-p_brown/10 flex items-center justify-center p-2 ${manualShoesId === item.id ? 'border-p_red bg-white ring-2 ring-p_red/10' : 'border-p_dark/10 hover:border-p_dark/25'}`}
+                                            title={`${item.color} ${item.category}`}
+                                        >
+                                            <img src={item.image} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt={item.description} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Outerwear Section */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-mono text-xs font-bold tracking-widest text-p_dark/55 uppercase">OUTERWEAR</h4>
+                                <span className="w-5 h-5 rounded-full bg-p_brown/80 text-p_dark font-bold text-[10px] flex items-center justify-center border border-p_dark/10">{outerwears.length}</span>
+                            </div>
+                            {outerwears.length === 0 ? (
+                                <div className="border border-dashed border-p_dark/10 rounded-[1.5rem] p-6 text-center text-xs text-p_dark/45 bg-p_brown/5">
+                                    No outerwear found
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-2 animate-scale-in">
+                                    {outerwears.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleClearNotes(item.id === manualOuterwearId ? '' : item.id, setManualOuterwearId)}
+                                            className={`group aspect-square rounded-[1.25rem] border cursor-pointer transition-all overflow-hidden bg-p_brown/10 flex items-center justify-center p-2 ${manualOuterwearId === item.id ? 'border-p_red bg-white ring-2 ring-p_red/10' : 'border-p_dark/10 hover:border-p_dark/25'}`}
+                                            title={`${item.color} ${item.category}`}
+                                        >
+                                            <img src={item.image} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt={item.description} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Accessories Section */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="font-mono text-xs font-bold tracking-widest text-p_dark/55 uppercase">ACCESSORIES</h4>
+                                <span className="w-5 h-5 rounded-full bg-p_brown/80 text-p_dark font-bold text-[10px] flex items-center justify-center border border-p_dark/10">{accessories.length}</span>
+                            </div>
+                            {accessories.length === 0 ? (
+                                <div className="border border-dashed border-p_dark/10 rounded-[1.5rem] p-6 text-center text-xs text-p_dark/45 bg-p_brown/5">
+                                    No accessories found
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-2 animate-scale-in">
+                                    {accessories.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleClearNotes(item.id === manualAccessoryId ? '' : item.id, setManualAccessoryId)}
+                                            className={`group aspect-square rounded-[1.25rem] border cursor-pointer transition-all overflow-hidden bg-p_brown/10 flex items-center justify-center p-2 ${manualAccessoryId === item.id ? 'border-p_red bg-white ring-2 ring-p_red/10' : 'border-p_dark/10 hover:border-p_dark/25'}`}
+                                            title={`${item.color} ${item.category}`}
+                                        >
+                                            <img src={item.image} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110" alt={item.description} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Ask for Review Button at Bottom of Sidebar */}
+                    <div className="pt-4 border-t border-p_dark/10 mt-6 shrink-0">
+                        <button 
+                            onClick={handleReview}
+                            disabled={reviewing || (!manualTopId && !manualBottomId && !manualShoesId && !manualOuterwearId && !manualAccessoryId)}
+                            className="group w-full py-3.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold rounded-[1.5rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex justify-center items-center gap-2 hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
+                        >
+                            {reviewing ? (
+                                <Loader2 className="animate-spin w-4 h-4" />
+                            ) : (
+                                <>
+                                    <CheckCircle className="w-4 h-4" />
+                                    <span>Ask AI for Review</span>
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
     );

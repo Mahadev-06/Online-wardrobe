@@ -3,7 +3,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = process.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash"];
+const MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-2.5-pro",
+  "gemini-flash-latest",
+  "gemini-1.5-flash",
+  "gemini-1.5-flash-latest",
+  "gemini-1.5-pro-latest"
+];
 
 async function generateWithFallback(prompt: string, imageParts: any[]) {
   let lastError = null;
@@ -52,7 +60,7 @@ export default async function handler(req: any, res: any) {
 You are an expert fashion AI and wardrobe supervisor.
 Analyze this image and return a STRICT JSON object answering the following:
 
-1. is_clothing: boolean (Is this image clearly a standalone piece of clothing or footwear? Return false if it is a human face, randomly cropped scenery, an animal, or unidentifiable object).
+1. is_clothing: boolean (Is this image clearly a standalone piece of clothing, footwear, or fashion accessory? Return false if it is a human face, an animal/dog/pet, randomly cropped scenery, or an unidentifiable object).
 2. confidence: number (0.0 to 1.0)
 3. message: string (If is_clothing is false, explain why).
 4. metadata: object (If is_clothing is true, provide the following details):

@@ -3,7 +3,14 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const API_KEY = process.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-const MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-3.5-flash"];
+const MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-2.5-pro",
+  "gemini-flash-latest",
+  "gemini-1.5-flash",
+  "gemini-3.5-flash"
+];
 
 async function generateWithFallback(prompt: string) {
   let lastError = null;
@@ -59,25 +66,38 @@ export default async function handler(req: any, res: any) {
             color: c.color || 'Unknown',
             style: c.style || 'Unknown',
             description: c.description || '',
+            seasons: c.season_suitability || c.seasonSuitability || []
         };
     });
 
-    const prompt = `You are a fashion stylist. Pick the best outfit from the wardrobe below.
+    const prompt = `You are an elite, high-end personal fashion stylist and image consultant. Your client is seeking a personalized look from their wardrobe that matches their body profile, the occasion, and the weather.
 
 OCCASION: ${occasion}
 WEATHER: ${weather}
-USER: Height ${profile.height || 170}cm
 
-WARDROBE:
-${safePool.map((item: any) => `- ${item.id}: ${item.category}, ${item.color}, ${item.style}`).join('\n')}
+CLIENT PROFILE:
+- Gender: ${profile.gender || 'Not specified'}
+- Height: ${profile.height || 170} cm
+- Weight: ${profile.weight || 65} kg
+- Body Type: ${profile.bodyType || 'Average'}
+- Skin Tone: ${profile.skinTone || 'Not specified'}
+- Style Preference: ${profile.stylePreference || 'Not specified'}
+
+WARDROBE ITEMS AVAILABLE:
+${safePool.map((item: any) => `- ${item.id}: ${item.category}, color: ${item.color}, style/occasion tags: ${item.style}, seasons: ${item.seasons.join(', ')}, description: ${item.description}`).join('\n')}
 
 RULES:
-1. Pick ONLY IDs from the wardrobe above (like item_1, item_2, etc.)
-2. An outfit needs: [Top + Bottom] OR [Dress]. Add Shoes if available.
-3. Match colors that look good together for the occasion.
+1. Selection: Pick ONLY item IDs listed in the wardrobe above (e.g., item_1, item_2, etc.).
+2. Outfit Structure: The outfit must contain either [Top + Bottom] or [Dress]. You should also select Shoes, and optionally Outerwear (highly recommended if weather is cold, winter, or rainy) and Accessories (watches, bags, jewelry) if they are in the wardrobe and fit the look.
+3. Aesthetic Standards: Mix colors, textures, and styles to curate a high-fashion, cohesive look. Respect the client's body profile (height/weight/skin tone) and style preferences.
+4. CRITICAL — Weather Suitability: Check if there are wardrobe items suitable for the current weather (e.g. if the weather is freezing/winter, the user needs long pants, warm tops, or coats). If no clothes in the wardrobe are appropriate for the current weather, you MUST return an empty array for "outfitItemIds" (i.e. []) and write a very concise stylist's recommendation in the "reasoning" field explaining why and suggesting what they should add to their wardrobe (e.g. "Because it is freezing winter and your digital closet only contains lightweight summer items, no outfit can be recommended. I recommend adding sweaters or a winter coat to your closet.").
+5. Response Format: Return ONLY a raw JSON object matching the schema below. No markdown formatting, no code blocks, no trailing text.
 
-Return ONLY this JSON (no markdown, no extra text):
-{"outfitItemIds": ["item_X", "item_Y"], "reasoning": "Brief 1-2 sentence explanation."}`;
+JSON Schema:
+{
+    "outfitItemIds": ["item_1", "item_2", ...],
+    "reasoning": "A highly concise, professional, and elegant explanation (strictly 1-2 sentences, max 40 words total) from a premium stylist's perspective. You MUST mention the client's body type (e.g., '${profile.bodyType || 'Average'}'), skin tone (e.g., '${profile.skinTone || 'Medium'}'), height, and weight. Discuss color and silhouette briefly. If no outfit was selected due to weather mismatch, explain the reason and provide a very concise recommendation of what they should add to their closet."
+}`;
 
     const result = await generateWithFallback(prompt);
     const rawText = result.response.text();
