@@ -176,6 +176,8 @@ const SettingsPage: React.FC = () => {
                   onChange={handleFileChange}
                />
           </div>
+
+
         </div>
 
         {/* ─── Right Main Content ─── */}
@@ -410,8 +412,15 @@ const SettingsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end">
+            {/* Bottom Actions */}
+            <div className="flex justify-between items-center mt-2 gap-4">
+                <button 
+                    type="button"
+                    onClick={() => setShowLogoutModal(true)}
+                    className="h-12 px-8 bg-red-500/10 border border-red-500/20 text-red-500 font-bold rounded-full hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-sm transform hover:scale-[1.02] active:scale-[0.98] text-sm"
+                >
+                    Log Out
+                </button>
                 <button
                   type="submit"
                   className="h-12 px-10 bg-p_red hover:bg-[#E04B42] text-white font-bold rounded-full shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-sm"
@@ -421,17 +430,6 @@ const SettingsPage: React.FC = () => {
             </div>
           </form>
         </div>
-      </div>
-
-      {/* Bottom Actions */}
-      <div className="px-6 md:px-12 mt-8 mb-6 flex justify-center">
-          <button 
-              type="button"
-              onClick={() => setShowLogoutModal(true)}
-              className="px-8 py-3.5 bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-sm transform hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 rounded-full"
-          >
-              <LogOut size={16} /> Log Out
-          </button>
       </div>
 
       {/* Logout Confirmation Modal */}
