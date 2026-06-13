@@ -54,6 +54,11 @@ interface WardrobeContextType {
 
   calendarEvents: CalendarEvent[];
   addCalendarEvent: (event: CalendarEvent) => Promise<void>;
+
+  customRecommendation: { outfitItemIds: string[]; reasoning: string } | null;
+  customLoading: boolean;
+  generateCustomRecommendation: (occasion: string, weather: string) => Promise<void>;
+  clearCustomRecommendation: () => void;
 }
 
 const WardrobeContext = createContext<WardrobeContextType | undefined>(undefined);
@@ -565,6 +570,34 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  const [customRecommendation, setCustomRecommendation] = useState<{ outfitItemIds: string[]; reasoning: string } | null>(null);
+  const [customLoading, setCustomLoading] = useState(false);
+
+  const generateCustomRecommendation = async (occasion: string, weather: string): Promise<void> => {
+    if (clothes.length < 2 || !profile) return;
+    setCustomLoading(true);
+    try {
+      const res = await generateOutfitRecommendation(clothes, profile, occasion, weather);
+      if (res.success) {
+        setCustomRecommendation({
+          outfitItemIds: res.outfitItemIds || [],
+          reasoning: res.reasoning
+        });
+      } else {
+        throw new Error(res.reasoning);
+      }
+    } catch (err) {
+      console.error("Custom AI Stylist generation failed:", err);
+      throw err;
+    } finally {
+      setCustomLoading(false);
+    }
+  };
+
+  const clearCustomRecommendation = () => {
+    setCustomRecommendation(null);
+  };
+
   return (
     <WardrobeContext.Provider
       value={{
@@ -575,6 +608,7 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
         clothes, addClothingItem, deleteClothingItem,
         savedOutfits, saveOutfit, deleteOutfit,
         calendarEvents, addCalendarEvent,
+        customRecommendation, customLoading, generateCustomRecommendation, clearCustomRecommendation,
       }}
     >
       {children}

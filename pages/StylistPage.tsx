@@ -72,7 +72,15 @@ const SlotBox: React.FC<SlotBoxProps> = ({
 };
 
 const StylistPage: React.FC = () => {
-    const { clothes, profile, saveOutfit } = useWardrobe();
+    const { 
+        clothes, 
+        profile, 
+        saveOutfit,
+        customRecommendation,
+        customLoading,
+        generateCustomRecommendation,
+        clearCustomRecommendation
+    } = useWardrobe();
     const [inlineMessage, setInlineMessage] = useState<{text: string, type: 'error' | 'success'} | null>(null);
 
     // Dropdowns open state
@@ -82,7 +90,6 @@ const StylistPage: React.FC = () => {
     // Auto Mode State
     const [occasion, setOccasion] = useState('Casual Day Out');
     const [weather, setWeather] = useState('Sunny and Mild');
-    const [loading, setLoading] = useState(false);
     // Mode State
     const [stylistNotes, setStylistNotes] = useState<string>('');
     const [manualTopId, setManualTopId] = useState<string>('');
@@ -100,12 +107,34 @@ const StylistPage: React.FC = () => {
     const manualOuterwear = clothes.find(c => c.id === manualOuterwearId) || null;
     const manualAccessory = clothes.find(c => c.id === manualAccessoryId) || null;
 
+    const hasSelectedItems = !!(manualTopId || manualBottomId || manualShoesId || manualOuterwearId || manualAccessoryId);
+    const showReviewButton = !customLoading && !stylistNotes && hasSelectedItems;
+
     useEffect(() => {
       if (inlineMessage) {
           const timer = setTimeout(() => setInlineMessage(null), 4000);
           return () => clearTimeout(timer);
       }
     }, [inlineMessage]);
+
+    useEffect(() => {
+        if (customRecommendation) {
+            const selectedItems = customRecommendation.outfitItemIds
+                .map(id => clothes.find(c => c.id === id))
+                .filter(Boolean) as ClothingItem[];
+            setManualTopId(selectedItems.find(i => i.category === 'Top' || i.category === 'Dress')?.id || '');
+            setManualBottomId(selectedItems.find(i => i.category === 'Bottom')?.id || '');
+            setManualShoesId(selectedItems.find(i => i.category === 'Shoes')?.id || '');
+            setManualOuterwearId(selectedItems.find(i => i.category === 'Outerwear')?.id || '');
+            setManualAccessoryId(selectedItems.find(i => i.category === 'Accessory')?.id || '');
+            
+            setStylistNotes(customRecommendation.reasoning);
+            setReviewResult(null); // Clear manual reviews
+            setInlineMessage({text: "Outfit generated! Check the board below and save it to your closet if you like it.", type: 'success'});
+            
+            clearCustomRecommendation();
+        }
+    }, [customRecommendation]);
 
     const handleGenerate = async () => {
         setInlineMessage(null);
@@ -119,31 +148,10 @@ const StylistPage: React.FC = () => {
             return;
         }
 
-        setLoading(true);
         try {
-            const res = await generateOutfitRecommendation(clothes, profile, occasion, weather);
-            
-            if (res.success) {
-                const selectedItems = res.outfitItemIds
-                    .map(id => clothes.find(c => c.id === id))
-                    .filter(Boolean) as ClothingItem[];
-                setManualTopId(selectedItems.find(i => i.category === 'Top' || i.category === 'Dress')?.id || '');
-                setManualBottomId(selectedItems.find(i => i.category === 'Bottom')?.id || '');
-                setManualShoesId(selectedItems.find(i => i.category === 'Shoes')?.id || '');
-                setManualOuterwearId(selectedItems.find(i => i.category === 'Outerwear')?.id || '');
-                setManualAccessoryId(selectedItems.find(i => i.category === 'Accessory')?.id || '');
-                
-                setStylistNotes(res.reasoning);
-                setReviewResult(null); // Clear manual reviews
-                setInlineMessage({text: "Outfit generated! Check the board below and save it to your closet if you like it.", type: 'success'});
-            } else {
-                setInlineMessage({text: res.reasoning, type: 'error'});
-                setStylistNotes('');
-            }
-        } catch (err) {
-            setInlineMessage({text: "Failed to generate look. Try again.", type: 'error'});
-        } finally {
-            setLoading(false);
+            await generateCustomRecommendation(occasion, weather);
+        } catch (err: any) {
+            setInlineMessage({text: err.message || "Failed to generate look. Try again.", type: 'error'});
         }
     };
 
@@ -320,10 +328,10 @@ const StylistPage: React.FC = () => {
                             {/* AI Stylist button */}
                             <button 
                                 onClick={handleGenerate}
-                                disabled={loading}
+                                disabled={customLoading}
                                 className="h-12 flex-1 md:flex-none md:px-6 bg-p_red hover:bg-[#E04B42] text-white font-bold rounded-[1.25rem] flex items-center justify-center gap-2 transition-all transform active:scale-95 cursor-pointer shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                             >
-                                {loading ? (
+                                {customLoading ? (
                                     <Loader2 className="animate-spin w-4 h-4 shrink-0" strokeWidth={2.5} />
                                 ) : (
                                     <>
@@ -345,10 +353,10 @@ const StylistPage: React.FC = () => {
                                 <p className="text-[10px] md:text-xs text-p_dark/50 font-bold mt-0.5">Curated for {profile?.name || 'Demo Stylist'}</p>
                             </div>
                             <div className="flex gap-2">
-                                {(manualTopId || manualBottomId || manualShoesId || manualOuterwearId || manualAccessoryId) && (
+                                {hasSelectedItems && (
                                     <button 
                                         onClick={handleSaveOutfit}
-                                        className="px-4 py-2 bg-p_teal hover:bg-[#E04B42] text-white font-bold text-[10px] md:text-xs rounded-full cursor-pointer hover:scale-102 transition-all transform active:scale-98 shadow-sm flex items-center gap-1.5"
+                                        className="px-4 py-2 bg-p_teal hover:bg-[#E04B42] text-white font-bold text-[10px] md:text-xs rounded-full cursor-pointer hover:scale-102 transform active:scale-98 shadow-sm flex items-center gap-1.5"
                                     >
                                         <CheckCircle size={12} />
                                         SAVE TO CLOSET
@@ -366,7 +374,7 @@ const StylistPage: React.FC = () => {
                         </div>
 
                         {/* Canvas Area with Slots in a Triangle */}
-                        {loading ? (
+                        {customLoading ? (
                             <div className="flex-1 flex flex-col justify-center items-center animate-pulse">
                                 <Sparkles className="w-8 h-8 text-p_teal mb-4 animate-spin-slow" />
                                 <p className="font-bold text-p_dark/60 tracking-tight text-sm">Curating your outfit...</p>
@@ -619,22 +627,24 @@ const StylistPage: React.FC = () => {
                     </div>
 
                     {/* Ask for Review Button at Bottom of Sidebar */}
-                    <div className="pt-4 border-t border-p_dark/10 mt-6 shrink-0">
-                        <button 
-                            onClick={handleReview}
-                            disabled={reviewing || (!manualTopId && !manualBottomId && !manualShoesId && !manualOuterwearId && !manualAccessoryId)}
-                            className="group w-full py-3.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold rounded-[1.5rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex justify-center items-center gap-2 hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
-                        >
-                            {reviewing ? (
-                                <Loader2 className="animate-spin w-4 h-4" />
-                            ) : (
-                                <>
-                                    <CheckCircle className="w-4 h-4" />
-                                    <span>Ask AI for Review</span>
-                                </>
-                            )}
-                        </button>
-                    </div>
+                    {showReviewButton && (
+                        <div className="pt-4 border-t border-p_dark/10 mt-6 shrink-0 animate-fade-in">
+                            <button 
+                                onClick={handleReview}
+                                disabled={reviewing}
+                                className="group w-full py-3.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-bold rounded-[1.5rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed flex justify-center items-center gap-2 hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
+                            >
+                                {reviewing ? (
+                                    <Loader2 className="animate-spin w-4 h-4" />
+                                ) : (
+                                    <>
+                                        <CheckCircle className="w-4 h-4" />
+                                        <span>Ask AI for Review</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
 
                 </div>
             </div>
