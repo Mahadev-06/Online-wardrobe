@@ -80,18 +80,18 @@ const CalendarPage: React.FC = () => {
       <div className="glass-panel overflow-hidden shadow-xl">
 
         {/* Month Navigation Header */}
-        <div className="flex items-center justify-between p-6 md:p-8 border-b border-p_dark/10">
+        <div className="flex items-center justify-between p-6 md:p-8 border-b-2 border-[#0a0f1a]">
           <button
             onClick={handlePrevMonth}
-            className="p-3 rounded-full btn-glass-secondary border border-p_dark/15 text-p_dark hover:text-p_dark/80"
+            className="p-3 rounded-none btn-glass-secondary border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-105 shadow-[2px_2px_0_#0a0f1a] transition-all"
             aria-label="Previous month"
           >
             <ChevronLeft size={22} />
           </button>
-          <h2 className="text-xl md:text-2xl font-black text-p_dark">{monthLabel}</h2>
+          <h2 className="text-xl md:text-2xl font-black text-[#0a0f1a]">{monthLabel}</h2>
           <button
             onClick={handleNextMonth}
-            className="p-3 rounded-full btn-glass-secondary border border-p_dark/15 text-p_dark hover:text-p_dark/80"
+            className="p-3 rounded-none btn-glass-secondary border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-105 shadow-[2px_2px_0_#0a0f1a] transition-all"
             aria-label="Next month"
           >
             <ChevronRight size={22} />
@@ -99,11 +99,11 @@ const CalendarPage: React.FC = () => {
         </div>
 
         {/* Day-of-week headers */}
-        <div className="grid grid-cols-7 border-b border-p_dark/10 bg-p_dark/5">
+        <div className="grid grid-cols-7 border-b-2 border-[#0a0f1a] bg-gray-100">
           {DAYS_OF_WEEK.map((d) => (
             <div
               key={d}
-              className="py-3 md:py-4 text-center text-[10px] md:text-xs font-black text-p_dark/60 uppercase tracking-widest"
+              className="py-3 md:py-4 text-center text-[10px] md:text-xs font-black text-[#0a0f1a] uppercase tracking-widest"
             >
               {d}
             </div>
@@ -116,7 +116,7 @@ const CalendarPage: React.FC = () => {
           {Array.from({ length: firstDayOfMonth }).map((_, i) => (
             <div
               key={`empty-${i}`}
-              className="min-h-[80px] md:min-h-[120px] bg-p_dark/5 border-b border-r border-p_dark/10"
+              className="min-h-[80px] md:min-h-[120px] bg-gray-100/40 border-b border-r border-[#0a0f1a]"
             />
           ))}
 
@@ -132,16 +132,16 @@ const CalendarPage: React.FC = () => {
               <button
                 key={day}
                 onClick={() => openModal(day)}
-                className={`min-h-[80px] md:min-h-[120px] p-2 md:p-3 border-b border-r border-p_dark/10 cursor-pointer hover:bg-p_dark/5 transition relative group text-left w-full ${
-                  isToday ? 'bg-p_teal/10' : ''
+                className={`min-h-[80px] md:min-h-[120px] p-2 md:p-3 border-b border-r border-[#0a0f1a] cursor-pointer hover:bg-gray-50 transition relative group text-left w-full ${
+                  isToday ? 'bg-[#FF5A50]/15' : ''
                 }`}
                 aria-label={`${monthLabel} ${day}`}
               >
                 <span
-                  className={`text-xs md:text-sm font-bold w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full transition ${
+                  className={`text-xs md:text-sm font-black w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-none border border-[#0a0f1a] shadow-[1.5px_1.5px_0_#0a0f1a] transition ${
                     isToday
-                      ? 'bg-p_teal/90 text-white shadow-sm shadow-p_teal/30 border border-p_dark/10'
-                      : 'text-p_dark/60 group-hover:text-p_dark group-hover:bg-p_dark/5'
+                      ? 'bg-[#FF5A50] text-white'
+                      : 'text-[#0a0f1a]/70 group-hover:text-[#0a0f1a] group-hover:bg-gray-100'
                   }`}
                 >
                   {day}
@@ -151,7 +151,7 @@ const CalendarPage: React.FC = () => {
                   {events.map((evt, idx) => (
                     <div
                       key={idx}
-                      className="text-[9px] md:text-xs font-bold bg-p_teal/10 border border-p_teal/35 text-p_dark px-2 py-1 rounded-[2.5rem] truncate shadow-sm"
+                      className="text-[9px] md:text-xs font-bold bg-[#FF5A50] border border-[#0a0f1a] text-white px-2 py-1 rounded-none truncate shadow-[1.5px_1.5px_0_#0a0f1a]"
                       title={evt.title}
                     >
                       {evt.title}
@@ -160,7 +160,7 @@ const CalendarPage: React.FC = () => {
                 </div>
 
                 {/* Add hint */}
-                <div className="absolute bottom-1 right-1 md:bottom-2 md:right-2 opacity-0 group-hover:opacity-100 transition text-p_teal/50">
+                <div className="absolute bottom-1 right-1 md:bottom-2 md:right-2 opacity-0 group-hover:opacity-100 transition text-[#FF5A50]/80">
                   <Plus size={14} />
                 </div>
               </button>
@@ -171,26 +171,26 @@ const CalendarPage: React.FC = () => {
 
       {/* Add Event Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-p_dark/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-          <div className="glass-panel rounded-[2rem] w-full max-w-md p-8 shadow-2xl relative animate-scale-in border border-p_dark/10">
+        <div className="fixed inset-0 bg-[#0a0f1a]/85 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+          <div className="glass-panel rounded-none w-full max-w-md p-8 shadow-[6px_6px_0_#0a0f1a] relative animate-scale-in border-2 border-[#0a0f1a]">
             {/* Close Button */}
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-p_dark/5 text-p_dark/60 hover:text-p_dark transition-colors shadow-sm"
+              className="absolute top-4 right-4 p-2 rounded-none border-2 border-[#0a0f1a] bg-white text-[#0a0f1a] hover:bg-gray-100 transition-colors shadow-[2px_2px_0_#0a0f1a]"
               aria-label="Close modal"
             >
               <X size={20} />
             </button>
 
-            <h3 className="text-xl font-black text-p_dark mb-6">
+            <h3 className="text-xl font-black text-[#0a0f1a] mb-6">
               Plan for{' '}
-              <span className="text-p_teal">
+              <span className="text-[#FF5A50]">
                 {currentDate.toLocaleDateString('default', { month: 'long' })} {selectedDay}
               </span>
             </h3>
 
             {errorMessage && (
-                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 text-red-450 rounded-[2.5rem] text-sm font-bold flex items-center gap-2 animate-fade-in">
+                <div className="mb-4 p-3 bg-red-50 text-red-750 border-2 border-[#0a0f1a] rounded-none text-sm font-bold flex items-center gap-2 animate-fade-in shadow-[2px_2px_0_#0a0f1a]">
                     <AlertCircle size={16} />
                     {errorMessage}
                 </div>
@@ -201,7 +201,7 @@ const CalendarPage: React.FC = () => {
               <div>
                 <label
                   htmlFor="event-title"
-                  className="block text-[10px] font-black text-p_dark/60 uppercase tracking-widest mb-2"
+                  className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono"
                 >
                   Occasion / Title
                 </label>
@@ -209,7 +209,7 @@ const CalendarPage: React.FC = () => {
                   id="event-title"
                   type="text"
                   maxLength={80}
-                  className="w-full glass-input rounded-[2.5rem] p-3 focus:border-p_teal focus:outline-none font-medium text-p_dark border border-p_dark/15 transition placeholder:text-p_dark/45 bg-white/40"
+                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
                   placeholder="e.g. Dinner Date"
                   value={eventTitle}
                   onChange={(e) => setEventTitle(e.target.value)}
@@ -218,7 +218,7 @@ const CalendarPage: React.FC = () => {
 
               {/* Outfit Selector */}
               <div>
-                <label className="block text-[10px] font-black text-p_dark/60 uppercase tracking-widest mb-2">
+                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">
                   Select Saved Look
                 </label>
                 <div className="grid grid-cols-2 gap-3 max-h-56 overflow-y-auto pr-1">
@@ -227,10 +227,10 @@ const CalendarPage: React.FC = () => {
                       key={outfit.id}
                       type="button"
                       onClick={() => setSelectedOutfitId(outfit.id)}
-                      className={`border rounded-[2.5rem] p-3 cursor-pointer transition flex flex-col items-center gap-2 ${
+                      className={`border-2 rounded-none p-3 cursor-pointer transition flex flex-col items-center gap-2 ${
                         selectedOutfitId === outfit.id
-                          ? 'border-p_teal/50 bg-p_teal/10 shadow-sm'
-                          : 'border-p_dark/10 bg-white/50 hover:border-p_teal/40 hover:bg-white/80'
+                          ? 'border-[#FF5A50] bg-red-50 shadow-[3px_3px_0_#0a0f1a] translate-x-[-1px] translate-y-[-1px]'
+                          : 'border-[#0a0f1a] bg-white shadow-[2px_2px_0_#0a0f1a] hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex -space-x-2 justify-center">
@@ -238,20 +238,20 @@ const CalendarPage: React.FC = () => {
                           <img
                             key={idx}
                             src={item.image}
-                            className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-sm"
+                            className="w-10 h-10 rounded-none border border-[#0a0f1a] object-cover shadow-[1px_1px_0_#0a0f1a]"
                             alt={item.category}
                           />
                         ))}
                       </div>
-                      <p className="text-[10px] font-bold text-p_dark/60 uppercase tracking-wide">
+                      <p className="text-[10px] font-bold text-[#0a0f1a]/60 uppercase tracking-wide">
                         {outfit.items.length} Item{outfit.items.length !== 1 ? 's' : ''}
                       </p>
                     </button>
                   ))}
                   {savedOutfits.length === 0 && (
-                    <p className="text-sm text-p_dark/50 col-span-2 text-center py-6 border-2 border-dashed border-p_dark/15 rounded-[2.5rem] font-medium">
+                    <p className="text-sm text-[#0a0f1a]/60 col-span-2 text-center py-6 border-2 border-dashed border-[#0a0f1a] rounded-none font-bold bg-gray-50">
                       No saved looks yet.{' '}
-                      <span className="text-p_teal">Go to Closet to create one!</span>
+                      <span className="text-[#FF5A50]">Go to Closet to create one!</span>
                     </p>
                   )}
                 </div>
@@ -261,13 +261,13 @@ const CalendarPage: React.FC = () => {
               <div className="flex gap-4 mt-8">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 text-p_dark font-bold btn-glass-secondary border border-p_dark/15 rounded-[2.5rem] hover:text-p_dark/80"
+                  className="flex-1 py-3 text-[#0a0f1a] font-bold bg-gray-100 border-2 border-[#0a0f1a] rounded-none shadow-[3px_3px_0_#0a0f1a] hover:bg-gray-200 hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAddEvent}
-                  className="flex-1 py-3 btn-glass-primary text-white font-bold rounded-[2.5rem]"
+                  className="flex-1 py-3 bg-[#FF5A50] border-2 border-[#0a0f1a] text-white font-bold rounded-none shadow-[3px_3px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] transition-all"
                 >
                   Save Plan
                 </button>

@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
+import { Button } from "../components/ui/button";
 import { createPortal } from 'react-dom';
 import { useWardrobe } from '../context/WardrobeContext';
 import { UserProfile } from '../types';
@@ -52,8 +52,6 @@ const SettingsPage: React.FC = () => {
       setShowLogoutModal(false);
     }
   };
-  
-
 
   useEffect(() => {
     if (profile) setFormData(profile);
@@ -96,19 +94,18 @@ const SettingsPage: React.FC = () => {
   if (!formData) return null;
 
   return (
-    <div className="min-h-screen page-enter pb-24 bg-p_cream max-w-[1600px] mx-auto">
-      
+    <div className="min-h-screen page-enter pb-24 max-w-5xl mx-auto px-4 md:px-8 pt-8">
       {/* Toast Notification */}
       {inlineMessage && createPortal(
           <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[99999] animate-slide-up">
-              <div className={`px-5 py-3 rounded-full shadow-2xl flex items-center gap-2 text-sm font-bold border ${
+              <div className={`px-5 py-3 shadow-[4px_4px_0_rgba(255,90,80,0.25)] flex items-center gap-2 text-xs font-mono font-black uppercase border-2 ${
                   inlineMessage.type === 'error' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
-                  inlineMessage.type === 'success' ? 'bg-p_teal/20 text-p_teal border-p_teal/30' :
+                  inlineMessage.type === 'success' ? 'bg-p_teal/20 text-[#FF5A50] border-[#FF5A50]/30' :
                   'bg-blue-500/20 text-blue-500 border-blue-500/30'
               } backdrop-blur-md`}>
-                  {inlineMessage.type === 'success' && <CheckCircle size={16} />}
-                  {inlineMessage.type === 'error' && <AlertCircle size={16} />}
-                  {inlineMessage.type === 'info' && <Info size={16} />}
+                  {inlineMessage.type === 'success' && <CheckCircle size={14} />}
+                  {inlineMessage.type === 'error' && <AlertCircle size={14} />}
+                  {inlineMessage.type === 'info' && <Info size={14} />}
                   {inlineMessage.text}
               </div>
           </div>,
@@ -116,233 +113,241 @@ const SettingsPage: React.FC = () => {
       )}
 
       {/* Page Header */}
-      <div className="px-6 md:px-12 pt-8 pb-6">
-        <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase font-mono">Settings</h1>
-        <p className="text-white/70 text-sm mt-1 font-medium">Manage your personal details and app preferences.</p>
+      <div className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-mono">Settings</h1>
+        <p className="text-gray-400 text-xs font-mono font-bold uppercase mt-1">Manage your personal details and app preferences.</p>
       </div>
 
-      {/* Two-Column Layout */}
-      <div className="px-6 md:px-12 flex flex-col lg:flex-row gap-6">
+      {/* Unified Single-Page Panel */}
+      <div className="glass-panel p-6 md:p-8">
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-8">
 
-        {/* ─── Left Sidebar ─── */}
-        <div className="lg:w-[320px] shrink-0 flex flex-col gap-6">
-          
-          {/* Profile Card */}
-          <div className="glass-panel rounded-[2rem] border border-p_dark/10 p-6 flex flex-col items-center gap-4 shadow-lg text-p_dark">
-              <div 
-                  className="w-28 h-28 bg-white rounded-full border-2 border-p_dark/15 flex items-center justify-center overflow-hidden cursor-pointer relative group shrink-0 shadow-sm"
-                  onClick={() => fileInputRef.current?.click()}
-               >
-                   {formData.bodyPhoto ? (
-                        <>
-                          <img src={formData.bodyPhoto} className="w-full h-full object-cover animate-scale-in" alt="Profile" />
-                          <div className="absolute inset-0 bg-black/45 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Camera className="text-white" size={22} />
-                          </div>
-                        </>
-                   ) : (
-                        <User className="w-10 h-10 text-p_dark/40" />
-                   )}
-               </div>
+          {/* Left Column: Avatar & Log Out */}
+          <div className="md:w-1/3 flex flex-col items-center gap-5 md:border-r-2 md:border-[#0a0f1a] md:pr-8">
+            <h3 className="w-full text-left text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest font-mono">Profile Photo</h3>
 
-               <div className="text-center">
-                   <h3 className="text-p_dark font-bold text-base">{formData.name || 'Your Name'}</h3>
-                   <p className="text-p_dark/60 text-xs mt-0.5">{formData.gender || 'Not set'} · {formData.height ? `${formData.height}cm` : 'Height not set'}</p>
-               </div>
-
-               <div className="flex gap-2 w-full">
-                   <button 
-                       type="button"
-                       onClick={() => fileInputRef.current?.click()}
-                       className="flex-1 px-4 py-2.5 bg-white border border-p_dark/10 rounded-full font-bold text-xs text-p_dark hover:bg-p_dark/5 transition-all shadow-sm cursor-pointer"
-                   >
-                       Change
-                   </button>
-                   {formData.bodyPhoto && (
-                        <button 
-                            type="button"
-                            onClick={() => setFormData({...formData, bodyPhoto: undefined})}
-                            className="px-4 py-2.5 bg-p_red/10 border border-p_red/25 text-p_red hover:bg-p_red hover:text-white transition-all text-xs font-bold rounded-full shadow-sm cursor-pointer"
-                        >
-                           Remove
-                       </button>
-                   )}
-               </div>
-               <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  accept="image/*"
-                  onChange={handleFileChange}
-               />
-          </div>
-        </div>
-
-        {/* ─── Right Main Content ─── */}
-        <div className="flex-1 min-w-0">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            
-            {/* Personal Details Card */}
-            <div className="glass-panel rounded-[2rem] border border-p_dark/10 p-6 md:p-8 shadow-lg text-p_dark">
-              <h3 className="text-xs font-black text-p_dark/60 uppercase tracking-widest font-mono mb-6">Personal Details</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-bold text-p_dark/75 mb-2 uppercase tracking-wide">Display Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-4 py-3 bg-white border border-p_dark/10 rounded-[2rem] outline-none text-p_dark text-sm focus:border-p_red/30 focus:bg-white transition shadow-sm placeholder-p_dark/40"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    placeholder="Enter your name"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-p_dark/75 mb-2 uppercase tracking-wide">Gender</label>
-                  <div className="flex gap-2 p-1 bg-p_dark/5 rounded-[2rem] border border-p_dark/10 animate-scale-in">
-                      <button
-                        type="button"
-                        onClick={() => setFormData({...formData, gender: 'Female'})}
-                        className={`flex-1 py-2.5 rounded-[2.5rem] text-sm font-bold transition cursor-pointer ${formData.gender === 'Female' ? 'bg-p_red text-white shadow-sm' : 'text-p_dark/60 hover:text-p_dark'}`}
-                    >
-                        Female
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setFormData({...formData, gender: 'Male'})}
-                        className={`flex-1 py-2.5 rounded-[2.5rem] text-sm font-bold transition cursor-pointer ${formData.gender === 'Male' ? 'bg-p_red text-white shadow-sm' : 'text-p_dark/60 hover:text-p_dark'}`}
-                    >
-                        Male
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div
+              className="w-32 h-32 bg-gray-50 border-2 border-[#0a0f1a] flex items-center justify-center overflow-hidden cursor-pointer relative group shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] transition-all rounded-none"
+              onClick={() => fileInputRef.current?.click()}
+            >
+               {formData.bodyPhoto ? (
+                    <>
+                      <img src={formData.bodyPhoto} className="w-full h-full object-cover animate-scale-in" alt="Profile" />
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Camera className="text-white animate-pulse" size={24} />
+                      </div>
+                    </>
+               ) : (
+                     <User className="w-12 h-12 text-[#0a0f1a]/30" />
+               )}
             </div>
 
-            {/* Body Measurements Card */}
-            <div className="glass-panel rounded-[2rem] border border-p_dark/10 p-6 md:p-8 shadow-lg text-p_dark">
-              <h3 className="text-xs font-black text-p_dark/60 uppercase tracking-widest font-mono mb-6">Body Measurements</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-bold text-p_dark/75 uppercase tracking-wide">Height</label>
-                    <div className="flex bg-p_dark/5 rounded-full p-0.5 border border-p_dark/10">
-                      {(['cm', 'ft'] as const).map((unit) => (
-                        <button
-                          key={unit}
-                          type="button"
-                          onClick={() => setHeightUnit(unit)}
-                          className={`text-[9px] font-black px-2.5 py-0.5 rounded-full transition cursor-pointer ${
-                            heightUnit === unit ? 'bg-p_red text-white shadow-sm' : 'text-p_dark/60 hover:text-p_dark'
-                          }`}
-                        >
-                          {unit.toUpperCase()}
-                        </button>
-                      ))}
-                    </div>
+            <div className="text-center">
+              <h3 className="text-[#0a0f1a] font-mono font-black uppercase text-base tracking-wider">{formData.name || 'Your Name'}</h3>
+              <p className="text-[#0a0f1a]/60 font-mono text-xs uppercase tracking-wide mt-1">
+                {formData.gender || 'Not set'} · {formData.height ? `${formData.height}cm` : 'Height not set'}
+              </p>
+            </div>
+
+            <div className="flex gap-2 w-full">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 px-3 py-2 bg-gray-100 border-2 border-[#0a0f1a] font-mono font-bold text-[10px] text-[#0a0f1a] hover:bg-gray-200 transition-all cursor-pointer uppercase tracking-wider shadow-[2px_2px_0_#0a0f1a] hover:translate-x-[-0.5px] hover:translate-y-[-0.5px] hover:shadow-[2.5px_2.5px_0_#0a0f1a]"
+              >
+                Change
+              </button>
+              {formData.bodyPhoto && (
+                <button
+                  type="button"
+                  onClick={() => setFormData({...formData, bodyPhoto: undefined})}
+                  className="px-3 py-2 bg-red-500/10 border-2 border-[#0a0f1a] text-[#FF5A50] hover:bg-[#FF5A50] hover:text-white transition-all text-[10px] font-mono font-bold cursor-pointer uppercase tracking-wider shadow-[2px_2px_0_#0a0f1a] hover:translate-x-[-0.5px] hover:translate-y-[-0.5px] hover:shadow-[2.5px_2.5px_0_#0a0f1a]"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+
+            <div className="w-full pt-5 border-t-2 border-[#0a0f1a] mt-2">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="w-full py-3 bg-red-500/10 border-2 border-[#0a0f1a] text-red-600 font-mono font-black text-xs hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] uppercase tracking-widest"
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column: Editable Details */}
+          <div className="flex-1 space-y-6">
+
+            {/* Grid for Personal Details & Measurements */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b-2 border-[#0a0f1a]">
+
+              {/* Display Name */}
+              <div>
+                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Display Name</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="Enter your name"
+                />
+              </div>
+
+              {/* Gender */}
+              <div>
+                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Gender</label>
+                <div className="flex bg-gray-100 p-1 border-2 border-[#0a0f1a] rounded-none shadow-[2px_2px_0_#0a0f1a]">
+                  {(['Female', 'Male', 'Other'] as UserProfile['gender'][]).map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setFormData({...formData, gender: g})}
+                      className={`flex-1 py-2 text-xs font-mono font-bold transition-all uppercase cursor-pointer ${
+                        formData.gender === g
+                          ? 'bg-[#FF5A50] text-white border-2 border-[#0a0f1a] shadow-[2px_2px_0_#0a0f1a]'
+                          : 'bg-transparent text-[#0a0f1a]/65 hover:text-[#0a0f1a] border border-transparent'
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Height */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
+                    <Ruler size={10} /> Height
+                  </label>
+                  <div className="flex bg-gray-100 rounded-none p-0.5 border-2 border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a]">
+                    {(['cm', 'ft'] as const).map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        onClick={() => setHeightUnit(unit)}
+                        className={`text-[8px] font-mono font-black px-1.5 py-0.5 rounded-none cursor-pointer ${
+                          heightUnit === unit ? 'bg-[#FF5A50] text-white border border-[#0a0f1a]' : 'text-[#0a0f1a]/65 hover:text-[#0a0f1a]'
+                        }`}
+                      >
+                        {unit.toUpperCase()}
+                      </button>
+                    ))}
                   </div>
-                  
-                  {heightUnit === 'cm' ? (
+                </div>
+                {heightUnit === 'cm' ? (
+                    <input
+                      type="number"
+                      required
+                      className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
+                      value={formData.height || ''}
+                      onChange={(e) => setFormData({...formData, height: Number(e.target.value)})}
+                      placeholder="e.g. 170"
+                    />
+                ) : (
+                    <div className="flex gap-2">
                       <input
                         type="number"
                         required
-                        className="w-full px-4 py-3 bg-white border border-p_dark/10 rounded-[2rem] outline-none text-p_dark text-sm focus:border-p_red/30 focus:bg-white transition shadow-sm placeholder-p_dark/40"
-                        value={formData.height || ''}
-                        onChange={(e) => setFormData({...formData, height: Number(e.target.value)})}
-                        placeholder="e.g. 170"
+                        min={1}
+                        max={9}
+                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
+                        value={Math.floor((formData.height || 170) / 30.48)}
+                        onChange={(e) => {
+                            const ft = Number(e.target.value);
+                            const currentIn = Math.round(((formData.height || 170) / 2.54) % 12);
+                            setFormData({...formData, height: Math.round(ft * 30.48 + currentIn * 2.54)});
+                        }}
                       />
-                  ) : (
-                      <div className="flex gap-2">
-                        <input
-                          type="number"
-                          required
-                          min={1}
-                          max={9}
-                          className="w-full px-2 py-3 bg-white border border-p_dark/10 rounded-[2rem] outline-none text-p_dark text-sm focus:border-p_red/30 focus:bg-white transition text-center shadow-sm placeholder-p_dark/40"
-                          value={Math.floor((formData.height || 170) / 30.48)}
-                          onChange={(e) => {
-                              const ft = Number(e.target.value);
-                              const currentIn = Math.round(((formData.height || 170) / 2.54) % 12);
-                              setFormData({...formData, height: Math.round(ft * 30.48 + currentIn * 2.54)});
-                          }}
-                        />
-                        <input
-                          type="number"
-                          required
-                          min={0}
-                          max={11}
-                          className="w-full px-2 py-3 bg-white border border-p_dark/10 rounded-[2rem] outline-none text-p_dark text-sm focus:border-p_red/30 focus:bg-white transition text-center shadow-sm placeholder-p_dark/40"
-                          value={Math.round(((formData.height || 170) / 2.54) % 12)}
-                          onChange={(e) => {
-                              const inch = Number(e.target.value);
-                              const currentFt = Math.floor((formData.height || 170) / 30.48);
-                              setFormData({...formData, height: Math.round(currentFt * 30.48 + inch * 2.54)});
-                          }}
-                        />
-                      </div>
-                  )}
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-bold text-p_dark/75 uppercase tracking-wide">Weight</label>
-                    <div className="flex bg-p_dark/5 rounded-full p-0.5 border border-p_dark/10">
-                      {(['kg', 'lbs'] as const).map((unit) => (
-                        <button
-                          key={unit}
-                          type="button"
-                          onClick={() => setWeightUnit(unit)}
-                          className={`text-[9px] font-black px-2.5 py-0.5 rounded-full transition cursor-pointer ${
-                            weightUnit === unit ? 'bg-p_red text-white shadow-sm' : 'text-p_dark/60 hover:text-p_dark'
-                          }`}
-                        >
-                          {unit.toUpperCase()}
-                        </button>
-                      ))}
+                      <input
+                        type="number"
+                        required
+                        min={0}
+                        max={11}
+                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
+                        value={Math.round(((formData.height || 170) / 2.54) % 12)}
+                        onChange={(e) => {
+                            const inch = Number(e.target.value);
+                            const currentFt = Math.floor((formData.height || 170) / 30.48);
+                            setFormData({...formData, height: Math.round(currentFt * 30.48 + inch * 2.54)});
+                        }}
+                      />
                     </div>
+                )}
+              </div>
+
+              {/* Weight */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
+                    <Weight size={10} /> Weight
+                  </label>
+                  <div className="flex bg-gray-100 rounded-none p-0.5 border-2 border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a]">
+                    {(['kg', 'lbs'] as const).map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        onClick={() => setWeightUnit(unit)}
+                        className={`text-[8px] font-mono font-black px-1.5 py-0.5 rounded-none cursor-pointer ${
+                          weightUnit === unit ? 'bg-[#FF5A50] text-white border border-[#0a0f1a]' : 'text-[#0a0f1a]/65 hover:text-[#0a0f1a]'
+                        }`}
+                      >
+                        {unit.toUpperCase()}
+                      </button>
+                    ))}
                   </div>
-                  <input
-                    type="number"
-                    required
-                    className="w-full px-4 py-3 bg-white border border-p_dark/10 rounded-[2rem] outline-none text-p_dark text-sm focus:border-p_red/30 focus:bg-white transition shadow-sm placeholder-p_dark/40"
-                    value={weightUnit === 'kg' ? (formData.weight || '') : Math.round((formData.weight || 65) * 2.20462)}
-                    onChange={(e) => {
-                        const val = Number(e.target.value);
-                        const newKg = weightUnit === 'kg' ? val : val * 0.453592;
-                        setFormData({...formData, weight: Math.round(newKg)});
-                    }}
-                    placeholder={weightUnit === 'kg' ? 'e.g. 65' : 'e.g. 143'}
-                  />
                 </div>
+                <input
+                  type="number"
+                  required
+                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3.5px_3.5px_0_#FF5A50]"
+                  value={weightUnit === 'kg' ? (formData.weight || '') : Math.round((formData.weight || 65) * 2.20462)}
+                  onChange={(e) => {
+                      const val = Number(e.target.value);
+                      const newKg = weightUnit === 'kg' ? val : val * 0.453592;
+                      setFormData({...formData, weight: Math.round(newKg)});
+                  }}
+                  placeholder={weightUnit === 'kg' ? 'e.g. 65' : 'e.g. 143'}
+                />
               </div>
             </div>
 
-            {/* Appearance Card */}
-            <div className="glass-panel rounded-[2rem] border border-p_dark/10 p-6 md:p-8 shadow-lg text-p_dark">
-              <h3 className="text-xs font-black text-p_dark/60 uppercase tracking-widest font-mono mb-6">Appearance</h3>
-              
+            {/* Appearance */}
+            <div className="space-y-6">
+
+              {/* Skin Tone */}
               <div>
-                 <label className="block text-xs font-bold text-p_dark/75 mb-3 uppercase tracking-wide">Skin Tone</label>
-                 <div className="flex justify-center gap-2.5 bg-p_dark/5 p-2.5 rounded-[2.5rem] border border-p_dark/10 shadow-inner max-w-md">
+                 <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Skin Tone</label>
+                 <div className="flex justify-start gap-2 bg-gray-50 p-2 rounded-none border-2 border-[#0a0f1a] shadow-[2px_2px_0_#0a0f1a] max-w-md">
                     {SKIN_TONES.map((tone) => (
                       <button
                         key={tone.name}
                         type="button"
                         onClick={() => setFormData({...formData, skinTone: tone.name, skinToneHex: tone.hex})}
-                        className={`w-9 h-9 md:w-11 md:h-11 rounded-full transition-all duration-300 flex items-center justify-center relative cursor-pointer shrink-0 ${
+                        className={`w-9 h-9 rounded-none transition-all duration-300 flex items-center justify-center relative cursor-pointer shrink-0 border-2 border-[#0a0f1a] shadow-[1.5px_1.5px_0_#0a0f1a] ${
                           formData.skinTone === tone.name
-                            ? 'scale-110 shadow-lg ring-2 ring-white'
-                            : 'opacity-70 hover:opacity-100 hover:scale-105'
+                            ? 'scale-105 border-2 border-[#0a0f1a] bg-[#FF5A50] shadow-[2.5px_2.5px_0_#0a0f1a]'
+                            : 'opacity-80 hover:opacity-100'
                         }`}
                         style={{ backgroundColor: tone.hex }}
                         title={tone.name}
                         aria-label={tone.name}
                       >
                         {formData.skinTone === tone.name && (
-                          <Check size={14} className="text-white/95 stroke-[3px]" />
+                          <Check size={14} className="text-white/95 stroke-[4px]" />
                         )}
                       </button>
                     ))}
@@ -350,58 +355,58 @@ const SettingsPage: React.FC = () => {
               </div>
 
               {/* Body Type */}
-              <div className="mt-6">
-                <label className="block text-xs font-bold text-p_dark/75 mb-3 uppercase tracking-wide">Body Type</label>
-                <div className="grid grid-cols-5 gap-2 max-w-lg">
+              <div>
+                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Body Type</label>
+                <div className="grid grid-cols-5 gap-2 max-w-xl">
                   {BODY_TYPES.map((bt) => (
                     <button
                       key={bt.id}
                       type="button"
                       onClick={() => setFormData({...formData, bodyType: bt.label})}
-                      className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl transition-all duration-300 border cursor-pointer ${
+                      className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-none transition-all duration-300 border-2 border-[#0a0f1a] cursor-pointer ${
                         formData.bodyType === bt.label
-                          ? 'bg-p_red/10 border-p_red/40 shadow-lg scale-105 ring-2 ring-p_red/30'
-                          : 'bg-p_dark/5 border-p_dark/10 opacity-60 hover:opacity-100 hover:scale-105'
+                          ? 'bg-[#FF5A50] text-white shadow-[2px_2px_0_#0a0f1a] translate-x-[-1px] translate-y-[-1px]'
+                          : 'bg-gray-50 text-[#0a0f1a]/60 hover:text-[#0a0f1a] hover:bg-gray-100 shadow-[1px_1px_0_#0a0f1a]'
                       }`}
                     >
                       <div className="w-8 h-12 flex items-center justify-center">
                         {bt.id === 'slim' && (
-                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-p_red' : 'text-p_dark/40'}`}>
+                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-white' : 'text-[#0a0f1a]/45'}`}>
                             <circle cx="12" cy="4" r="3.5" />
                             <path d="M12 8 C9 8 9 12 10 18 L10 32 Q10 35 8 38 M12 8 C15 8 15 12 14 18 L14 32 Q14 35 16 38" stroke="currentColor" strokeWidth="1.5" fill="none" />
                             <rect x="10" y="8" width="4" height="14" rx="2" opacity="0.8" />
                           </svg>
                         )}
                         {bt.id === 'athletic' && (
-                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-p_red' : 'text-p_dark/40'}`}>
+                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-white' : 'text-[#0a0f1a]/45'}`}>
                             <circle cx="12" cy="4" r="3.5" />
                             <path d="M12 8 C7 8 7 13 9 18 L9.5 32 Q9.5 35 7 38 M12 8 C17 8 17 13 15 18 L14.5 32 Q14.5 35 17 38" stroke="currentColor" strokeWidth="1.5" fill="none" />
                             <path d="M8 10 Q12 14 16 10 L16 16 Q12 20 8 16 Z" opacity="0.8" />
                           </svg>
                         )}
                         {bt.id === 'average' && (
-                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-p_red' : 'text-p_dark/40'}`}>
+                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-white' : 'text-[#0a0f1a]/45'}`}>
                             <circle cx="12" cy="4" r="3.5" />
                             <path d="M12 8 C8 8 7.5 13 9.5 18 L9.5 32 Q9.5 35 7.5 38 M12 8 C16 8 16.5 13 14.5 18 L14.5 32 Q14.5 35 16.5 38" stroke="currentColor" strokeWidth="1.5" fill="none" />
                             <path d="M8.5 10 Q12 13 15.5 10 L15.5 17 Q12 20 8.5 17 Z" opacity="0.8" />
                           </svg>
                         )}
                         {bt.id === 'curvy' && (
-                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-p_red' : 'text-p_dark/40'}`}>
+                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-white' : 'text-[#0a0f1a]/45'}`}>
                             <circle cx="12" cy="4" r="3.5" />
                             <path d="M12 8 C7 8 6 13 8 17 C6 19 7 24 9 26 L9 32 Q9 35 7 38 M12 8 C17 8 18 13 16 17 C18 19 17 24 15 26 L15 32 Q15 35 17 38" stroke="currentColor" strokeWidth="1.5" fill="none" />
                             <path d="M8 10 Q12 13 16 10 L16 17 Q12 20 8 17 Z" opacity="0.8" />
                           </svg>
                         )}
                         {bt.id === 'plus_size' && (
-                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-p_red' : 'text-p_dark/40'}`}>
+                          <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-white' : 'text-[#0a0f1a]/45'}`}>
                             <circle cx="12" cy="4" r="3.5" />
                             <path d="M12 8 C6 8 5 14 7 18 C5 20 6 26 8 28 L8.5 32 Q8.5 35 6 38 M12 8 C18 8 19 14 17 18 C19 20 18 26 16 28 L15.5 32 Q15.5 35 18 38" stroke="currentColor" strokeWidth="1.5" fill="none" />
                             <path d="M7 10 Q12 14 17 10 L17.5 18 Q12 22 6.5 18 Z" opacity="0.8" />
                           </svg>
                         )}
                       </div>
-                      <span className={`text-[9px] font-bold tracking-wide ${formData.bodyType === bt.label ? 'text-p_red' : 'text-p_dark/50'}`}>
+                      <span className={`text-[9px] font-mono uppercase ${formData.bodyType === bt.label ? 'text-white font-black' : 'text-[#0a0f1a]/60 font-bold'}`}>
                         {bt.label}
                       </span>
                     </button>
@@ -411,65 +416,49 @@ const SettingsPage: React.FC = () => {
             </div>
 
             {/* Save Button */}
-            <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="h-12 px-10 bg-p_red hover:bg-[#E04B42] text-white font-bold rounded-full shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-sm"
-                >
-                  Save Changes
-                </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {/* Account Actions / Log Out down below */}
-      <div className="px-6 md:px-12 pb-6 mt-6">
-          <div className="glass-panel rounded-[2rem] border border-p_dark/10 p-6 shadow-lg text-p_dark flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                  <h3 className="text-xs font-black text-p_dark/60 uppercase tracking-widest font-mono">Account Actions</h3>
-                  <p className="text-p_dark/50 text-xs mt-1">Exit from your digital wardrobe session securely.</p>
-              </div>
-              <button 
-                  type="button"
-                  onClick={() => setShowLogoutModal(true)}
-                  className="px-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-sm transform hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+            <div className="flex justify-end pt-4">
+              <Button
+                type="submit"
+                variant="default" size="lg" className="py-4 px-10 font-mono font-black text-sm uppercase tracking-wider bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[3px_3px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] rounded-none"
               >
-                  Log Out
-              </button>
+                Save Changes
+              </Button>
+            </div>
           </div>
+        </form>
       </div>
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && createPortal(
-          <div 
+          <div
             ref={modalOverlayRef}
             onClick={handleOverlayClick}
-            className="fixed inset-0 w-screen h-screen z-[99999] flex items-center justify-center p-4 bg-p_dark/60 backdrop-blur-sm animate-fade-in"
+            className="fixed inset-0 w-screen h-screen z-[99999] flex items-center justify-center p-4 bg-[#0a0f1a]/85 backdrop-blur-sm animate-fade-in"
           >
-              <div className="glass-panel rounded-[2.5rem] p-6 max-w-sm w-full border border-p_dark/10 relative shadow-2xl text-p_dark">
-                  <button 
+              <div className="glass-panel p-8 max-w-sm w-full relative shadow-[6px_6px_0_#0a0f1a] text-[#0a0f1a] rounded-none">
+                  <button
                     onClick={() => setShowLogoutModal(false)}
-                    className="absolute top-4 right-4 text-p_dark/50 hover:text-p_dark transition-colors cursor-pointer"
+                    className="absolute top-4 right-4 text-[#0a0f1a]/50 hover:text-[#0a0f1a] transition-colors cursor-pointer"
                   >
                       <X size={18} />
                   </button>
-                  <h3 className="text-lg font-bold text-p_dark mb-2">Log Out?</h3>
-                  <p className="text-p_dark/60 text-sm mb-6">Are you sure you want to log out? You will be returned to the login screen.</p>
-                  
+                  <h3 className="text-lg font-mono font-black uppercase tracking-wider text-[#0a0f1a] mb-2">Log Out?</h3>
+                  <p className="text-[#0a0f1a]/60 font-mono text-xs uppercase tracking-wide mb-6">Are you sure you want to log out? You will be returned to the login screen.</p>
+
                   <div className="flex gap-3">
-                      <button 
+                      <button
+                        type="button"
                         onClick={() => setShowLogoutModal(false)}
-                        className="flex-1 py-2.5 px-4 text-sm font-bold bg-white border border-p_dark/15 rounded-full text-p_dark hover:bg-p_dark/5 transition shadow-sm cursor-pointer"
+                        className="flex-1 py-2.5 px-4 text-xs font-mono font-bold bg-gray-100 border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-200 transition shadow-[2px_2px_0_#0a0f1a] cursor-pointer uppercase tracking-wider rounded-none"
                       >
                           Cancel
                       </button>
-                      <button 
+                      <Button
                         onClick={handleLogout}
-                        className="flex-1 py-2.5 px-4 text-sm font-bold bg-p_red hover:bg-[#E04B42] text-white rounded-full transition shadow-sm cursor-pointer"
+                        variant="default" className="flex-1 py-2.5 px-4 text-xs font-mono font-black bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[2px_2px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#0a0f1a] rounded-none uppercase tracking-wider"
                       >
                           Log Out
-                      </button>
+                      </Button>
                   </div>
               </div>
           </div>,

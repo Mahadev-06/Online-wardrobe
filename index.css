@@ -1,34 +1,50 @@
 /*
  * Online Wardrobe — Global Stylesheet
  * Tailwind CSS v4 (CSS-first configuration)
+ * BRUTALISM DARK THEME
  */
 
 @import "tailwindcss";
 
 /* ============================================================
    DESIGN SYSTEM THEME — Tailwind v4 @theme block
-   Defines all custom tokens: colors, fonts, animations
+   Brutalism Dark Theme Tokens
    ============================================================ */
 @theme {
-  /* ── Brand Colors (Dark Theme mapped to custom palette) ──────────────── */
-  --color-p_dark:  #1A2238;     /* Deep contrast dark slate blue */
+  /* ── Brand Colors (Brutalism Dark) ──────────────────────── */
+  --color-p_dark:  #0a0f1a;     /* Deep dark background */
   --color-p_red:   #FF5A50;     /* Primary brand red */
-  --color-p_brown: #F3E8D6;     /* Secondary brand / Surface cream */
-  --color-p_teal:  #FF5A50;     /* Primary brand red as accent */
-  --color-p_cream: #526594;     /* Background slate blue */
-  --color-p_light: #3E4D75;     /* Slate blue card/surface wrapper */
+  --color-p_brown: #F3E8D6;     /* Accent cream (sparing use) */
+  --color-p_teal:  #FF5A50;     /* Primary red accent */
+  --color-p_cream: #0a0f1a;     /* Background — deep dark */
+  --color-p_light: #0d1325;     /* Card/surface dark */
 
   --color-primary: #FF5A50;
   --color-secondary: #F3E8D6;
-  --color-accent: #526594;
-  --color-background: #526594;
-  --color-surface: #F3E8D6;
+  --color-accent: #FF5A50;
+  --color-background: #0a0f1a;
+  --color-surface: #0d1325;
   --color-text_primary: #FFFFFF;
 
   /* ── Font Families ───────────────────────────────────────── */
   --font-family-sans:  'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-family-cotta: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-family-mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* ── Neo-Brutalism Button Tokens ────────────────────────── */
+  --color-main: #FF5A50;
+  --color-main-foreground: #FFFFFF;
+  --color-border: rgba(255, 255, 255, 0.15);
+  --color-secondary-background: #0d1325;
+  --rounded-base: 0px;
+  --font-base: 800;
+
+  --shadow-shadow: 4px 4px 0 rgba(255, 90, 80, 0.3);
+
+  --spacing-boxShadowX: 4px;
+  --spacing-boxShadowY: 4px;
+  --spacing-reverseBoxShadowX: -4px;
+  --spacing-reverseBoxShadowY: -4px;
 
   /* ── Custom Keyframes ────────────────────────────────────── */
   --animate-fade-in:  fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -71,78 +87,72 @@ html {
 }
 
 body {
-  background-color: #526594; /* background */
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(255, 90, 80, 0.12) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(243, 232, 214, 0.08) 0px, transparent 50%);
+  background-color: #0a0f1a;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(255, 90, 80, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 90, 80, 0.03) 0px, transparent 50%);
   background-attachment: fixed;
-  color: #FFFFFF; /* text-primary */
+  color: #FFFFFF;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
 }
 
-/* ============================================================
-   LIQUID GLASS UTILITIES
-   ============================================================ */
-
-/* Primary Frosted Glass Panel (Dark Default now) */
-/* Primary Frosted Glass Panel (Mapped to Surface F3E8D6) */
-.glass-panel {
-  background: rgba(243, 232, 214, 0.9); /* Surface */
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid rgba(26, 34, 56, 0.1); /* Subtle dark border */
-  box-shadow: 
-    0 8px 32px rgba(26, 34, 56, 0.12),
-    0 1px 2px rgba(26, 34, 56, 0.06),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.3); /* Subtle inner top highlight */
-  border-radius: 36px;
+/* Global selection color */
+::selection {
+  background: rgba(255, 90, 80, 0.4);
+  color: #fff;
 }
 
-/* Keep dark variant the same, maybe even darker */
+/* ============================================================
+   BRUTALIST GLASS PANELS
+   ============================================================ */
+
+/* Primary Panel — White brutalist with sharp edges */
+.glass-panel {
+  background: #ffffff !important;
+  border: 2px solid #0a0f1a !important;
+  box-shadow: 4px 4px 0 #FF5A50 !important;
+  border-radius: 0 !important;
+  color: #0a0f1a !important;
+}
+
 .glass-panel-dark {
-  background: rgba(243, 232, 214, 0.96);
-  backdrop-filter: blur(24px) saturate(130%);
-  -webkit-backdrop-filter: blur(24px) saturate(130%);
-  border: 1px solid rgba(26, 34, 56, 0.15);
-  box-shadow: 
-    0 8px 32px rgba(26, 34, 56, 0.2),
-    0 1px 2px rgba(26, 34, 56, 0.1),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-  border-radius: 36px;
+  background: #ffffff !important;
+  border: 3px solid #0a0f1a !important;
+  box-shadow: 6px 6px 0 #FF5A50 !important;
+  border-radius: 0 !important;
+  color: #0a0f1a !important;
 }
 
 /* Sidebar / Navbar Glass Layering */
 .glass-nav {
-  background: rgba(243, 232, 214, 0.85);
+  background: rgba(13, 19, 37, 0.95);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border-right: 1px solid rgba(26, 34, 56, 0.1);
+  border-right: 2px solid rgba(255, 90, 80, 0.2);
+  color: #FFFFFF;
 }
 
 .glass-nav-dark {
-  background: rgba(243, 232, 214, 0.92);
+  background: rgba(10, 15, 26, 0.98);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border-right: 1px solid rgba(26, 34, 56, 0.12);
+  border-right: 2px solid rgba(255, 90, 80, 0.25);
+  color: #FFFFFF;
 }
 
 /* ============================================================
-   PREMIUM LIQUID GLASS CARD
+   BRUTALIST LIQUID GLASS CARD
    ============================================================ */
 .liquid-glass-card {
   position: relative;
-  background: rgba(243, 232, 214, 0.75); /* Surface cream */
-  backdrop-filter: blur(20px) saturate(130%);
-  -webkit-backdrop-filter: blur(20px) saturate(130%);
-  border: 1px solid rgba(26, 34, 56, 0.1); /* Subtle dark border */
-  box-shadow: 
-    0 4px 20px -2px rgba(26, 34, 56, 0.1),
-    0 1px 2px rgba(26, 34, 56, 0.06),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3); /* Subtle inner top highlight */
-  border-radius: 32px;
-  transition: all 0.7s cubic-bezier(0.32, 0.72, 0, 1);
+  background: #ffffff !important;
+  border: 2px solid #0a0f1a !important;
+  box-shadow: 4px 4px 0 #FF5A50 !important;
+  border-radius: 0 !important;
+  transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
   overflow: hidden;
+  color: #0a0f1a !important;
 }
 
 .liquid-glass-card::before {
@@ -152,9 +162,9 @@ body {
   width: 50%; height: 100%;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.05) 50%, /* Much more subtle highlight sweep */
-    rgba(255, 255, 255, 0) 100%
+    rgba(255, 90, 80, 0) 0%,
+    rgba(255, 90, 80, 0.05) 50%,
+    rgba(255, 90, 80, 0) 100%
   );
   transform: skewX(-25deg);
   pointer-events: none;
@@ -167,16 +177,13 @@ body {
 }
 
 .liquid-glass-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: rgba(255, 255, 255, 0.15); /* Slightly brighter border on hover */
-  box-shadow: 
-    0 20px 40px -12px rgba(0, 0, 0, 0.6),
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.1); /* Brighter inner highlight */
+  transform: translateY(-3px);
+  border-color: #0a0f1a !important;
+  box-shadow: 6px 6px 0 #FF5A50 !important;
 }
 
 /* ============================================================
-   PREMIUM LIQUID GLASS BUTTONS
+   BRUTALIST BUTTONS
    ============================================================ */
 
 .btn-glass-primary,
@@ -185,14 +192,16 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  border-radius: 9999px;
-  font-weight: 600;
+  border-radius: 0;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .btn-glass-primary:active,
@@ -205,71 +214,83 @@ body {
 /* Button - Accent Glass (Red/Action) */
 .btn-glass-accent {
   background: rgba(255, 90, 80, 0.1);
-  border: 1px solid rgba(255, 90, 80, 0.3);
+  border: 2px solid rgba(255, 90, 80, 0.3);
   color: #FF5A50 !important;
+  box-shadow: 3px 3px 0 rgba(255, 90, 80, 0.2);
 }
 .btn-glass-accent:hover {
   background: rgba(255, 90, 80, 0.2);
   border-color: rgba(255, 90, 80, 0.5);
   color: #FFFFFF !important;
+  box-shadow: 4px 4px 0 rgba(255, 90, 80, 0.3);
+  transform: translate(-1px, -1px);
 }
 
-/* Button - Primary Glass (Primary Coral #FF5A50) */
+/* Button - Primary Glass (Primary Red #FF5A50) */
 .btn-glass-primary {
   background: #FF5A50;
-  border: 1px solid rgba(255, 90, 80, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   color: #FFFFFF !important;
+  box-shadow: 3px 3px 0 rgba(255, 255, 255, 0.1);
 }
 .btn-glass-primary:hover {
   background: #E04B42;
-  border-color: rgba(255, 90, 80, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
   color: #FFFFFF !important;
+  box-shadow: 5px 5px 0 rgba(255, 255, 255, 0.15);
+  transform: translate(-2px, -2px);
 }
 
-/* Button - Secondary Glass (Subtle Cream/Sand #F3E8D6) */
+/* Button - Secondary Glass (Subtle) */
 .btn-glass-secondary {
-  background: rgba(243, 232, 214, 0.12);
-  border: 1px solid rgba(243, 232, 214, 0.2);
-  color: #F3E8D6;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  box-shadow: 3px 3px 0 rgba(255, 255, 255, 0.05);
 }
 .btn-glass-secondary:hover {
-  background: rgba(243, 232, 214, 0.2);
-  border-color: rgba(243, 232, 214, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
   color: #FFFFFF;
+  box-shadow: 4px 4px 0 rgba(255, 255, 255, 0.08);
+  transform: translate(-1px, -1px);
 }
 
 /* ============================================================
-   PREMIUM LIQUID GLASS FORMS
+   BRUTALIST FORMS
    ============================================================ */
 .glass-input {
-  background: rgba(255, 255, 255, 0.03); /* Dark glass input */
+  background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9999px;
-  color: #e2e8f0; /* Light text */
-  font-weight: 500;
-  box-shadow: 
-    inset 0 1px 2px rgba(0, 0, 0, 0.2),
-    0 1px 1px rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0;
+  color: #e2e8f0;
+  font-weight: 600;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    2px 2px 0 rgba(0, 0, 0, 0.15);
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .glass-input:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(79, 209, 197, 0.4); /* Teal accent focus */
-  box-shadow: 
-    0 0 0 3px rgba(79, 209, 197, 0.1),
-    inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 90, 80, 0.5);
+  box-shadow:
+    0 0 0 3px rgba(255, 90, 80, 0.1),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================================
-   CUSTOM SCROLLBAR
+   CUSTOM SCROLLBAR — Brutalist Red Accent
    ============================================================ */
 ::-webkit-scrollbar        { width: 6px; height: 6px; }
-::-webkit-scrollbar-track  { background: rgba(0, 0, 0, 0.2); } /* Darker track */
-::-webkit-scrollbar-thumb  { background: rgba(79, 209, 197, 0.3); border-radius: 99px; } /* Teal thumb */
-::-webkit-scrollbar-thumb:hover { background: rgba(79, 209, 197, 0.5); }
+::-webkit-scrollbar-track  { background: rgba(0, 0, 0, 0.3); }
+::-webkit-scrollbar-thumb  { background: rgba(255, 90, 80, 0.4); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 90, 80, 0.6); }
 
 /* ============================================================
    PAGE TRANSITION ANIMATION
@@ -285,7 +306,7 @@ body {
 .btn-hover {
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.btn-hover:hover  { transform: translateY(-1px); }
+.btn-hover:hover  { transform: translateY(-2px); }
 .btn-hover:active { transform: scale(0.97); }
 
 /* ============================================================
@@ -298,7 +319,7 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  opacity: 0.5; /* Dimmed slightly for dark mode */
+  opacity: 0.4;
 }
 .aurora-container canvas {
   display: block;
@@ -306,17 +327,17 @@ body {
 }
 
 /* ============================================================
-   MAGIC BENTO CARD
+   BRUTALIST MAGIC BENTO CARD
    ============================================================ */
 .magic-bento-card {
   position: relative;
   overflow: hidden;
-  background: rgba(243, 232, 214, 0.85); /* Mapped to Surface F3E8D6 */
-  backdrop-filter: blur(20px) saturate(130%);
-  -webkit-backdrop-filter: blur(20px) saturate(130%);
-  border: 1px solid rgba(26, 34, 56, 0.1); /* Subtle dark border */
-  transition: transform 0.7s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.7s cubic-bezier(0.32, 0.72, 0, 1);
-  color: #1A2238; /* Ensure default dark text */
+  background: #ffffff !important;
+  border: 2px solid #0a0f1a !important;
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), box-shadow 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  color: #0a0f1a !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 #FF5A50 !important;
 
   --glow-x: 50%;
   --glow-y: 50%;
@@ -325,7 +346,8 @@ body {
 
 .magic-bento-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 36px -12px rgba(26, 34, 56, 0.2); /* Soft slate shadow */
+  box-shadow: 6px 6px 0 #FF5A50 !important;
+  border-color: #0a0f1a !important;
 }
 
 .magic-bento-card::before {
@@ -334,7 +356,7 @@ body {
   inset: 0;
   background: radial-gradient(
     400px circle at var(--glow-x) var(--glow-y),
-    rgba(255, 90, 80, 0.15), /* Mapped to Primary #FF5A50 glow inside */
+    rgba(255, 90, 80, 0.15),
     transparent 100%
   );
   opacity: var(--glow-opacity);
@@ -349,7 +371,7 @@ body {
   inset: -1px;
   background: radial-gradient(
     300px circle at var(--glow-x) var(--glow-y),
-    rgba(255, 90, 80, 0.45), /* Mapped to Primary #FF5A50 glow edge */
+    rgba(255, 90, 80, 0.45),
     transparent 40%
   );
   opacity: var(--glow-opacity);
@@ -388,7 +410,7 @@ body {
   display: none;
   position: fixed;
   inset: 0;
-  background: #0a0f12; /* Dark error bg */
+  background: #0a0f1a;
   color: #e2e8f0;
   z-index: 9999;
   padding: 40px;
@@ -419,7 +441,7 @@ body {
   left: 0;
   width: 100%;
   height: 4px;
-  background: linear-gradient(to right, rgba(255, 90, 80, 0), rgba(255, 90, 80, 1), rgba(255, 90, 80, 0)); /* Red laser */
+  background: linear-gradient(to right, rgba(255, 90, 80, 0), rgba(255, 90, 80, 1), rgba(255, 90, 80, 0));
   box-shadow: 0 0 12px rgba(255, 90, 80, 1);
   animation: laserScan 2s infinite linear;
   pointer-events: none;
@@ -456,104 +478,178 @@ body {
 }
 
 /* ============================================================
-   HIGH-END COLOR SURFACE & CONTRAST PATTERN OVERRIDES
+   BRUTALISM SURFACE & TEXT OVERRIDES
+   All text on dark surfaces must stay light/white.
    ============================================================ */
 
-/* Outer Shell / Nested Enclosures (Double Bezels) */
-[class*="bg-white/5"][class*="border-white/10"],
-[class*="bg-white/5"][class*="border border-white/"],
-.bg-white\/5 {
-  background-color: rgba(243, 232, 214, 0.08) !important;
-  border-color: rgba(26, 34, 56, 0.15) !important;
-}
-
-/* All text inside light surface cards must remain dark and readable */
-.glass-panel, 
-.glass-panel-dark, 
-.liquid-glass-card, 
+/* All text inside cards stays dark for high contrast white brutalism */
+.glass-panel,
+.glass-panel-dark,
+.liquid-glass-card,
 .magic-bento-card {
-  color: #1A2238 !important; /* text-primary alternative for dark on light */
+  --color-border: #0a0f1a !important;
+  --color-secondary-background: #f3f4f6 !important;
+  --color-foreground: #0a0f1a !important;
+  --color-text_primary: #0a0f1a !important;
+  color: #0a0f1a !important;
 }
 
-/* Force dark colors for headings and titles inside surface cards */
+/* Headings inside cards — dark */
 .glass-panel h1, .glass-panel h2, .glass-panel h3, .glass-panel h4, .glass-panel h5,
 .liquid-glass-card h1, .liquid-glass-card h2, .liquid-glass-card h3, .liquid-glass-card h4,
 .magic-bento-card h1, .magic-bento-card h2, .magic-bento-card h3, .magic-bento-card h4,
-.glass-panel .text-white, .liquid-glass-card .text-white, .magic-bento-card .text-white,
 .glass-panel h3 span, .liquid-glass-card h3 span, .magic-bento-card h3 span {
-  color: #1A2238 !important;
+  color: #0a0f1a !important;
 }
 
-/* Force secondary dark gray for sub-texts inside surface cards */
+/* Override text-white inside panels to inherit the dark color */
+.glass-panel .text-white,
+.glass-panel-dark .text-white,
+.liquid-glass-card .text-white,
+.magic-bento-card .text-white {
+  color: #0a0f1a !important;
+}
+
+/* BUT restore white text for elements inside explicitly dark sub-containers in these cards */
+.glass-panel [class*="bg-p_dark"],
+.glass-panel [class*="bg-[#0a0f1a]"],
+.glass-panel [class*="bg-[#0d1325]"],
+.glass-panel [class*="bg-gray-900"],
+.glass-panel [class*="bg-black"],
+.glass-panel [class*="bg-purple-950"],
+.glass-panel [class*="from-[#0d1325]"],
+.liquid-glass-card [class*="bg-p_dark"],
+.liquid-glass-card [class*="bg-[#0a0f1a]"],
+.liquid-glass-card [class*="bg-[#0d1325]"],
+.liquid-glass-card [class*="bg-gray-900"],
+.liquid-glass-card [class*="bg-black"],
+.liquid-glass-card [class*="from-[#0d1325]"],
+.magic-bento-card [class*="bg-p_dark"],
+.magic-bento-card [class*="bg-[#0a0f1a]"],
+.magic-bento-card [class*="bg-[#0d1325]"],
+.magic-bento-card [class*="bg-gray-900"],
+.magic-bento-card [class*="bg-black"],
+.magic-bento-card [class*="from-[#0d1325]"] {
+  color: #ffffff !important;
+}
+
+/* Restore white text for specific icons or badges inside dark containers */
+.glass-panel [class*="bg-[#0d1325]"] .text-white,
+.liquid-glass-card [class*="bg-[#0d1325]"] .text-white,
+.magic-bento-card [class*="bg-[#0d1325]"] .text-white,
+.glass-panel [class*="from-[#0d1325]"] .text-white,
+.liquid-glass-card [class*="from-[#0d1325]"] .text-white,
+.magic-bento-card [class*="from-[#0d1325]"] .text-white {
+  color: #ffffff !important;
+}
+
+/* Sub-text inside cards — dark gray for readability */
 .glass-panel p, .liquid-glass-card p, .magic-bento-card p,
-.glass-panel span:not(.bg-p_teal):not(.bg-white), 
-.liquid-glass-card span:not(.bg-p_teal):not(.bg-white), 
-.magic-bento-card span:not(.bg-p_teal):not(.bg-white),
 .glass-panel .text-gray-400, .liquid-glass-card .text-gray-400, .magic-bento-card .text-gray-400,
 .glass-panel .text-gray-300, .liquid-glass-card .text-gray-300, .magic-bento-card .text-gray-300,
-.glass-panel .text-gray-500, .liquid-glass-card .text-gray-500, .magic-bento-card .text-gray-500,
-.glass-panel .text-white\/70, .liquid-glass-card .text-white\/70, .magic-bento-card .text-white\/70,
-.glass-panel .text-white\/50, .liquid-glass-card .text-white\/50, .magic-bento-card .text-white\/50 {
-  color: #4A5673 !important;
+.glass-panel .text-gray-500, .liquid-glass-card .text-gray-500, .magic-bento-card .text-gray-500 {
+  color: #4b5563 !important;
 }
 
-/* Sidebar navigation link overrides */
+/* Restore gray text for dark sub-containers */
+.glass-panel [class*="bg-[#0d1325]"] .text-gray-400,
+.liquid-glass-card [class*="bg-[#0d1325]"] .text-gray-400,
+.magic-bento-card [class*="bg-[#0d1325]"] .text-gray-400,
+.glass-panel [class*="from-[#0d1325]"] .text-gray-400,
+.liquid-glass-card [class*="from-[#0d1325]"] .text-gray-400,
+.magic-bento-card [class*="from-[#0d1325]"] .text-gray-400 {
+  color: #9ca3af !important;
+}
+
+/* Sidebar navigation overrides */
 .glass-nav .text-gray-400 {
-  color: #526594 !important;
+  color: #6b7280 !important;
 }
 .glass-nav .text-white {
   color: #FF5A50 !important;
 }
-aside.bg-\[\#0a0f12\]\/80 {
-  background-color: rgba(243, 232, 214, 0.9) !important;
-  border-color: rgba(82, 101, 148, 0.2) !important;
-}
 
-/* Technical metadata and labels should use JetBrains Mono or an equivalent mono face */
-.technical-label, 
-.tech-metadata, 
-.category-badge, 
-[class*="tracking-widest"], 
-.font-mono, 
-label, 
-span[class*="uppercase"], 
+/* Technical labels use monospace */
+.technical-label,
+.tech-metadata,
+.category-badge,
+[class*="tracking-widest"],
+.font-mono,
+label,
+span[class*="uppercase"],
 h3[class*="uppercase"] {
   font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
 }
 
-/* Input fields inside light cards should be light and readable */
+/* Inputs inside cards — light brutalist */
 .glass-panel .glass-input,
 .liquid-glass-card .glass-input,
 .magic-bento-card .glass-input {
-  background: rgba(26, 34, 56, 0.04) !important;
-  border-color: rgba(26, 34, 56, 0.15) !important;
-  color: #1A2238 !important;
+  background: #f3f4f6 !important;
+  border-color: #0a0f1a !important;
+  color: #0a0f1a !important;
+  border-radius: 0 !important;
 }
 .glass-panel .glass-input:focus,
 .liquid-glass-card .glass-input:focus,
 .magic-bento-card .glass-input:focus {
-  background: rgba(26, 34, 56, 0.07) !important;
-  border-color: rgba(255, 90, 80, 0.4) !important;
-  box-shadow: 0 0 0 3px rgba(255, 90, 80, 0.1) !important;
+  background: #ffffff !important;
+  border-color: #FF5A50 !important;
+  box-shadow: 2px 2px 0 #FF5A50 !important;
 }
 .glass-panel .glass-input::placeholder,
 .liquid-glass-card .glass-input::placeholder,
 .magic-bento-card .glass-input::placeholder {
-  color: rgba(26, 34, 56, 0.45) !important;
+  color: #9ca3af !important;
 }
 
-/* Secondary glass buttons inside light cards should remain dark slate and readable */
+/* Secondary buttons inside cards */
 .glass-panel .btn-glass-secondary,
 .liquid-glass-card .btn-glass-secondary,
 .magic-bento-card .btn-glass-secondary {
-  background: rgba(26, 34, 56, 0.05) !important;
-  border-color: rgba(26, 34, 56, 0.15) !important;
-  color: #1A2238 !important;
+  background: #f3f4f6 !important;
+  border-color: #0a0f1a !important;
+  color: #0a0f1a !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 #0a0f1a !important;
 }
 .glass-panel .btn-glass-secondary:hover,
 .liquid-glass-card .btn-glass-secondary:hover,
 .magic-bento-card .btn-glass-secondary:hover {
-  background: rgba(26, 34, 56, 0.1) !important;
-  border-color: rgba(26, 34, 56, 0.25) !important;
-  color: #1A2238 !important;
+  background: #e5e7eb !important;
+  border-color: #0a0f1a !important;
+  color: #0a0f1a !important;
+}
+
+/* ============================================================
+   BRUTALISM UTILITY CLASSES
+   ============================================================ */
+
+/* Thick borders */
+.border-3 {
+  border-width: 3px;
+}
+
+/* Grid overlay pattern (for backgrounds) */
+.brutal-grid-overlay {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Corner accent (brutalist decoration) */
+.brutal-corner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: #FF5A50;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.brutal-corner:hover::after {
+  opacity: 1;
 }

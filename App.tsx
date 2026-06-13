@@ -42,7 +42,7 @@ const AppContent: React.FC = () => {
 
   // ── Gate 3: Profile exists → Render Main App ───────────────────────────────
   return (
-    <div className="min-h-screen bg-p_cream text-white">
+    <div className="min-h-screen bg-[#0a0f1a] text-white">
       <Navigation
         isExpanded={isSidebarExpanded}
         toggleSidebar={() => setIsSidebarExpanded((prev) => !prev)}

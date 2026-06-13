@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { ClothingCategory, ClothingItem } from '../types';
 import MagicBentoCard from '../components/MagicBentoCard';
 import { generateOutfitRecommendation } from '../services/ai';
+import { Skeleton } from '../components/ui/skeleton';
 
 interface WeatherData {
     temp: number;
@@ -81,38 +82,42 @@ const HomePage: React.FC = () => {
                         </h3>
                         <div className="flex items-center gap-4">
                             {loadingWeather ? (
-                                <Loader2 className="animate-spin text-p_teal" size={48} />
-                            ) : weatherError ? (
-                                <CloudSun size={48} className="text-gray-400 opacity-50" />
+                                <div className="flex items-center space-x-4">
+                                    <Skeleton className="h-12 w-12 rounded-full" />
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 sm:w-[250px] w-[100px]" />
+                                        <Skeleton className="h-4 sm:w-[200px] w-[100px]" />
+                                    </div>
+                                </div>
                             ) : (
-                                <div className="text-center md:text-left flex flex-col md:flex-row items-center gap-3">
-                                    <WeatherIcon code={weather!.code} isDay={weather!.isDay} className="text-p_teal" />
-                                </div>
+                                <>
+                                    {weatherError ? (
+                                        <div className="flex flex-col items-center">
+                                            <CloudOff size={32} className="text-gray-500 mb-2" />
+                                            <span className="text-xl font-bold text-gray-500">Offline</span>
+                                            <span className="text-xs text-gray-400 mt-1 uppercase tracking-wider">No weather data</span>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="text-center md:text-left flex flex-col md:flex-row items-center gap-3">
+                                                <WeatherIcon code={weather!.code} isDay={weather!.isDay} className="text-p_teal" />
+                                            </div>
+                                            <div>
+                                                <span className="text-5xl font-black tracking-tighter transition-all group-hover:tracking-normal text-white">{weather?.temp}°</span>
+                                                <div className="text-lg font-medium text-p_teal ml-1">
+                                                    {weather?.condition}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </>
                             )}
-                            
-                            <div>
-                                {loadingWeather ? (
-                                    <div className="flex flex-col items-center">
-                                    <CloudOff size={32} className="text-gray-500 mb-2" />
-                                    <span className="text-xl font-bold text-gray-500">Offline</span>
-                                    <span className="text-xs text-gray-400 mt-1 uppercase tracking-wider">No weather data</span>
-                                </div>
-                                ) : weatherError ? (
-                                    <span className="text-xl font-bold text-p_teal">Offline</span>
-                                ) : (
-                                    <span className="text-5xl font-black tracking-tighter transition-all group-hover:tracking-normal text-white">{weather?.temp}°</span>
-                                )}
-                                
-                                <div className="text-lg font-medium text-p_teal ml-1">
-                                    {loadingWeather ? 'Loading...' : weather?.condition}
-                                </div>
-                            </div>
                         </div>
                     </div>
                     
                     <div className="flex gap-6 text-sm text-gray-400 font-medium mt-6">
                         {loadingWeather ? (
-                             <div className="h-4 w-32 bg-gray-800/50 rounded animate-pulse"></div>
+                             <Skeleton className="h-4 w-32" />
                         ) : weather ? (
                             <>
                                 <span className="flex items-center gap-2"><Thermometer size={16}/> Humidity: {weather.humidity}%</span>
@@ -136,9 +141,9 @@ const HomePage: React.FC = () => {
                              
                              {/* 3-day forecast */}
                              {weather.forecast && weather.forecast.length > 0 && (
-                                 <div className="flex gap-2 mt-4 border-t border-white/5 pt-3 w-full justify-end">
+                                 <div className="flex gap-2 mt-4 border-t border-[#0a0f1a]/10 pt-3 w-full justify-end">
                                      {weather.forecast.map((f, idx) => (
-                                         <div key={idx} className="flex flex-col items-center bg-white/5 rounded-xl px-2 py-1 min-w-[52px] border border-white/5">
+                                         <div key={idx} className="flex flex-col items-center bg-[#0d1325] rounded-xl px-2 py-1 min-w-[52px] border border-[#0a0f1a]/15">
                                              <span className="text-[9px] text-gray-400 font-bold uppercase">{f.day}</span>
                                              <div className="text-p_teal my-0.5">
                                                  <WeatherIcon code={f.code} isDay={true} size={14} />
@@ -202,9 +207,16 @@ const HomePage: React.FC = () => {
             </div>
 
             {loadingRec ? (
-                <div className="flex-1 flex flex-col items-center justify-center py-6 relative z-10">
-                    <Loader2 className="w-10 h-10 text-p_teal animate-spin mb-2" />
-                    <p className="text-gray-400 text-xs font-medium">Curating from your closet...</p>
+                <div className="flex-1 flex flex-col items-center justify-center py-6 relative z-10 w-full gap-6">
+                    <div className="flex -space-x-4">
+                        <Skeleton className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#0d1325]" />
+                        <Skeleton className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#0d1325]" />
+                        <Skeleton className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-[#0d1325]" />
+                    </div>
+                    <div className="w-full space-y-2 max-w-sm px-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                    </div>
                 </div>
             ) : resolvedRecommendationItems.length > 0 ? (
                 <>
@@ -219,8 +231,8 @@ const HomePage: React.FC = () => {
                     </div>
                     
                     {recommendation?.reasoning && (
-                        <div className="relative z-10 bg-black/20 border border-white/5 rounded-2xl p-4 mb-2 backdrop-blur-sm">
-                            <p className="text-xs text-gray-300 leading-relaxed italic">
+                        <div className="relative z-10 bg-gray-100 border border-gray-200 rounded-none p-4 mb-2">
+                            <p className="text-xs text-gray-800 leading-relaxed italic">
                                 "{recommendation.reasoning}"
                             </p>
                         </div>
@@ -236,16 +248,16 @@ const HomePage: React.FC = () => {
                             </>
                         ) : (
                             <>
-                                <AlertTriangle size={48} className="mx-auto mb-2 text-yellow-500/80 animate-pulse" />
-                                <p className="text-white font-bold text-lg mb-2">No suitable clothes for this weather</p>
+                                <AlertTriangle size={48} className="mx-auto mb-2 text-yellow-600 animate-pulse" />
+                                <p className="text-[#0a0f1a] font-bold text-lg mb-2">No suitable clothes for this weather</p>
                                 {recommendation?.reasoning ? (
-                                    <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-2xl p-4 text-left">
-                                        <p className="text-xs text-yellow-400/90 leading-relaxed font-medium">
+                                    <div className="bg-yellow-50 border border-yellow-200 rounded-none p-4 text-left">
+                                        <p className="text-xs text-yellow-800 leading-relaxed font-medium">
                                             {recommendation.reasoning}
                                         </p>
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-gray-400">Add clothes matching current weather conditions.</p>
+                                    <p className="text-xs text-gray-500">Add clothes matching current weather conditions.</p>
                                 )}
                             </>
                         )}
@@ -256,7 +268,7 @@ const HomePage: React.FC = () => {
 
         {/* Card 5: Quick Add (1x2 - Tall) */}
         <MagicBentoCard to="/upload" className="md:row-span-2 glass-panel flex flex-col items-center justify-center text-center gap-6 group min-h-[300px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-            <div className="w-20 h-20 rounded-[2rem] bg-gray-800/50 backdrop-blur-xl border border-white/10 text-white flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-90 transition-all duration-500">
+            <div className="w-20 h-20 bg-gray-100 border-2 border-[#0a0f1a] text-[#0a0f1a] flex items-center justify-center shadow-[3px_3px_0_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-90 transition-all duration-500 rounded-none">
                 <Plus size={40} />
             </div>
             <div>

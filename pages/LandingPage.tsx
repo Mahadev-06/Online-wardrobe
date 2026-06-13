@@ -1,7 +1,8 @@
+import { Button } from "../components/ui/button";
 
-import React from 'react';
-import { Shirt, Sparkles, ArrowRight } from 'lucide-react';
-import BlurText from '../components/BlurText';
+import React, { useRef, useEffect, useState } from 'react';
+import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Shirt, Sparkles, Calendar, CloudSun, Upload, Wand2, Star, Hexagon, Zap, ChevronDown, Layers, Eye, Brain, TrendingUp, Shield, Palette, LayoutGrid } from 'lucide-react';
 import Aurora from '../components/Aurora';
 
 interface LandingPageProps {
@@ -9,111 +10,657 @@ interface LandingPageProps {
   onLogin: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
+/* ─── BRUTALIST REVEAL TEXT ─── */
+const BrutalReveal: React.FC<{ text: string; className?: string; delay?: number }> = ({ text, className = '', delay = 0 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+
   return (
-    <div className="min-h-screen bg-p_dark text-white flex flex-col page-enter relative overflow-hidden">
-      {/* Dynamic Aurora Background */}
-      <Aurora 
-        colorStops={['#E64833', '#90AEAD', '#FBE9D0']} 
-        speed={0.5} 
-        amplitude={1.2}
-      />
-
-      {/* Navbar */}
-      <nav className="p-4 md:p-6 flex justify-between items-center max-w-7xl mx-auto w-full relative z-10">
-        <div className="flex items-center gap-2 group cursor-default">
-            <div className="w-8 h-8 md:w-10 md:h-10 bg-p_teal rounded-[2.5rem] flex items-center justify-center text-white font-cotta text-xl md:text-2xl shadow-lg transform rotate-3 pt-1 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">W</div>
-            <span className="font-cotta text-white text-2xl md:text-3xl tracking-wide transition-colors group-hover:text-gray-300">Wardrobe</span>
-        </div>
-        <div className="flex items-center gap-2 md:gap-4">
-            <button 
-                onClick={onLogin}
-                className="px-3 md:px-6 py-2 text-white font-bold hover:text-gray-300 transition-colors relative group text-sm md:text-base"
-            >
-                Sign In
-                <span className="absolute bottom-1 left-6 right-6 h-0.5 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-            </button>
-            <button 
-                onClick={onSignup}
-                className="px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold rounded-[2.5rem] hover:bg-white/20 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] shadow-lg hover:scale-105 active:scale-[0.98] text-sm md:text-base"
-            >
-                Get Started
-            </button>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 max-w-5xl mx-auto mt-4 md:mt-12 relative z-10">
-        
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 text-white rounded-full text-[10px] uppercase tracking-[0.2em] font-semibold mb-6 md:mb-8 backdrop-blur-sm cursor-default hover:bg-white/10 transition-colors duration-500">
-            <Sparkles size={12} className="text-gray-300 animate-pulse" />
-            <span>Smart Styling System</span>
-        </div>
-        
-        <div className="mb-6 flex flex-col items-center justify-center select-none">
-            <BlurText 
-                text="CLOSET OF THE" 
-                delay={50}
-                animateBy="chars"
-                className="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-tight tracking-tight text-center mb-2 drop-shadow-lg" 
-            />
-            
-            <BlurText 
-                text="FUTURE." 
-                delay={50}
-                animateBy="chars"
-                className="text-4xl sm:text-5xl md:text-7xl font-black text-p_teal leading-tight tracking-tight text-center drop-shadow-lg"
-            />
-        </div>
-        
-        <p className="text-lg md:text-xl text-gray-400 mb-8 md:mb-10 max-w-2xl leading-relaxed font-medium drop-shadow-md opacity-90 px-4">
-            Digitize your wardrobe. Curate your daily aesthetic and plan your outfits with our robust organization tools.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full justify-center px-6">
-            <button 
-                onClick={onSignup}
-                className="group px-8 md:px-10 py-4 bg-p_teal/10 hover:bg-p_teal/20 backdrop-blur-md border border-p_teal/30 text-p_teal rounded-[2.5rem] font-bold text-lg md:text-xl shadow-2xl hover:shadow-p_teal/20 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center justify-center gap-4 hover:scale-105 active:scale-[0.98] w-full sm:w-auto"
-            >
-                <span>Start Styling</span>
-                <div className="w-8 h-8 rounded-full bg-p_teal/20 group-hover:bg-p_teal/30 flex items-center justify-center transition-all duration-500 group-hover:translate-x-1 group-hover:-translate-y-[1px] group-hover:scale-105">
-                    <ArrowRight className="w-4 h-4 text-p_teal" />
-                </div>
-            </button>
-        </div>
-
-        {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-16 md:mt-24 w-full max-w-3xl">
-            <FeatureCard 
-                icon={<Shirt className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-300" />}
-                title="DIGITIZE"
-                desc="Upload your collection and easily categorize materials, styles, and colors."
-            />
-            <FeatureCard 
-                icon={<Sparkles className="w-8 h-8 text-white group-hover:rotate-12 transition-transform duration-300" />}
-                title="ORGANIZE"
-                desc="Build and schedule your favorite outfits efficiently for any occasion."
-            />
-        </div>
-      </div>
-
-      <footer className="p-6 md:p-8 text-center text-gray-500 text-xs md:text-sm mt-auto border-t border-white/10 relative z-10 font-medium">
-        © 2026 Online Wardrobe. Engineered for Style.
-      </footer>
+    <div ref={ref} className={`brutal-reveal-wrapper ${className}`} style={{ overflow: 'hidden' }}>
+      <motion.div
+        initial={{ y: '110%', rotate: 3, opacity: 0 }}
+        animate={isInView ? { y: '0%', rotate: 0, opacity: 1 } : {}}
+        transition={{ duration: 0.8, delay, ease: [0.22, 1.0, 0.36, 1.0] }}
+      >
+        {text}
+      </motion.div>
     </div>
   );
 };
 
-const FeatureCard: React.FC<{icon: React.ReactNode, title: string, desc: string}> = ({ icon, title, desc }) => (
-    <div className="group bg-white/5 border border-white/10 p-1 rounded-[2.5rem] hover:scale-[1.02] transition duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] shadow-xl cursor-default hover:shadow-2xl">
-        <div className="bg-[#050505]/30 backdrop-blur-md p-6 md:p-8 rounded-[calc(2.5rem-0.25rem)] border border-white/5 h-full">
-            <div className="w-12 h-12 md:w-16 md:h-16 bg-white/5 border border-white/10 rounded-[2rem] flex items-center justify-center mb-4 md:mb-6 shadow-sm transition-colors duration-500 group-hover:bg-white/10">
-                {icon}
-            </div>
-            <h3 className="font-extrabold text-white text-lg md:text-xl mb-2 md:mb-3 tracking-wide">{title}</h3>
-            <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium">{desc}</p>
-        </div>
-    </div>
+/* ─── MAGNETIC HOVER BUTTON ─── */
+const MagneticButton: React.FC<{
+  children: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  variant?: 'primary' | 'secondary';
+}> = ({ children, onClick, className = '', variant = 'primary' }) => {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouse = (e: React.MouseEvent) => {
+    const btn = ref.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    setPosition({ x: x * 0.3, y: y * 0.3 });
+  };
+
+  const reset = () => setPosition({ x: 0, y: 0 });
+
+  const baseStyle = variant === 'primary'
+    ? 'bg-[#FF5A50] text-white border-3 border-[#1A2238] shadow-[4px_4px_0_#1A2238] hover:shadow-[6px_6px_0_#1A2238] hover:translate-x-[-2px] hover:translate-y-[-2px]'
+    : 'bg-transparent text-white border-3 border-white/40 hover:bg-white/10';
+
+  return (
+    <motion.button
+      ref={ref}
+      onClick={onClick}
+      onMouseMove={handleMouse}
+      onMouseLeave={reset}
+      animate={{ x: position.x, y: position.y }}
+      transition={{ type: 'spring', stiffness: 150, damping: 15 }}
+      className={`relative font-black text-lg md:text-xl px-8 py-4 transition-all duration-300 cursor-pointer ${baseStyle} ${className}`}
+      whileTap={{ scale: 0.95 }}
+    >
+      {children}
+    </motion.button>
+  );
+};
+
+/* ─── GEOMETRIC FLOATING SHAPE ─── */
+const FloatingShape: React.FC<{
+  icon: React.ReactNode;
+  className?: string;
+  delay?: number;
+  duration?: number;
+}> = ({ icon, className = '', delay = 0, duration = 6 }) => (
+  <motion.div
+    className={`absolute pointer-events-none ${className}`}
+    animate={{
+      y: [0, -20, 0, 20, 0],
+      rotate: [0, 10, 0, -10, 0],
+    }}
+    transition={{
+      duration,
+      repeat: Infinity,
+      ease: 'easeInOut',
+      delay,
+    }}
+  >
+    {icon}
+  </motion.div>
 );
+
+/* ─── SCROLL PROGRESS BAR ─── */
+const ScrollProgress: React.FC = () => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-[#FF5A50] origin-left z-[9999]"
+      style={{ scaleX }}
+    />
+  );
+};
+
+/* ─── FEATURE CARD (BRUTALIST STYLE) ─── */
+const BrutalFeatureCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  index: number;
+}> = ({ icon, title, desc, index }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60, rotate: index % 2 === 0 ? -2 : 2 }}
+      animate={isInView ? { opacity: 1, y: 0, rotate: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative bg-[#1A2238] border-3 border-white/20 p-0 hover:border-[#FF5A50] transition-all duration-500 cursor-default"
+      style={{ boxShadow: '6px 6px 0 rgba(255, 90, 80, 0.3)' }}
+      whileHover={{ y: -6, boxShadow: '10px 10px 0 rgba(255, 90, 80, 0.5)' }}
+    >
+      <div className="p-8">
+        <div className="w-16 h-16 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 flex items-center justify-center mb-6 group-hover:bg-[#FF5A50]/20 transition-colors duration-500">
+          {icon}
+        </div>
+        <h3 className="font-black text-white text-xl md:text-2xl mb-3 tracking-wide uppercase">{title}</h3>
+        <p className="text-gray-400 text-sm md:text-base leading-relaxed font-medium">{desc}</p>
+      </div>
+      {/* Brutalist corner accent */}
+      <div className="absolute top-0 right-0 w-8 h-8 bg-[#FF5A50] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </motion.div>
+  );
+};
+
+/* ─── STATS COUNTER ─── */
+const StatCounter: React.FC<{ value: string; label: string; delay?: number }> = ({ value, label, delay = 0 }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="text-center"
+    >
+      <div className="font-black text-4xl md:text-6xl text-[#FF5A50] tracking-tighter">{value}</div>
+      <div className="text-gray-400 text-sm md:text-base uppercase tracking-[0.15em] mt-2 font-bold">{label}</div>
+    </motion.div>
+  );
+};
+
+/* ─── TESTIMONIAL CARD ─── */
+const TestimonialCard: React.FC<{
+  quote: string;
+  author: string;
+  role: string;
+  index: number;
+}> = ({ quote, author, role, index }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
+      animate={isInView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.15 }}
+      className="bg-[#1A2238]/80 border-2 border-white/10 p-8 relative"
+      style={{ boxShadow: '4px 4px 0 rgba(255, 90, 80, 0.2)' }}
+    >
+      <div className="flex gap-1 mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className="w-4 h-4 fill-[#FF5A50] text-[#FF5A50]" />
+        ))}
+      </div>
+      <p className="text-gray-300 text-base leading-relaxed mb-6 italic">"{quote}"</p>
+      <div>
+        <div className="font-black text-white">{author}</div>
+        <div className="text-gray-500 text-sm">{role}</div>
+      </div>
+      <div className="absolute top-6 right-6 text-6xl font-black text-[#FF5A50]/10">"</div>
+    </motion.div>
+  );
+};
+
+/* ─── MARQUEE STRIP ─── */
+const MarqueeStrip: React.FC<{ texts: string[]; direction?: 'left' | 'right' }> = ({ texts, direction = 'left' }) => (
+  <div className="overflow-hidden py-4 border-y-2 border-white/10 bg-[#FF5A50]/5">
+    <motion.div
+      className="flex gap-12 whitespace-nowrap"
+      animate={{ x: direction === 'left' ? [0, -1920] : [-1920, 0] }}
+      transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+    >
+      {[...texts, ...texts, ...texts].map((text, i) => (
+        <span key={i} className="text-white/20 font-black text-2xl md:text-4xl uppercase tracking-wider flex items-center gap-6">
+          {text}
+          <Hexagon className="w-4 h-4 text-[#FF5A50]/40" />
+        </span>
+      ))}
+    </motion.div>
+  </div>
+);
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN LANDING PAGE
+   ═══════════════════════════════════════════════════════════ */
+const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll();
+  const heroInView = useInView(heroRef, { once: false });
+
+  // Parallax transforms
+  const y1 = useTransform(scrollYProgress, [0, 0.3], [0, -100]);
+  const y2 = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
+  const opacity1 = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const scale1 = useTransform(scrollYProgress, [0, 0.2], [1, 0.9]);
+
+  // Navbar shrink on scroll
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 80);
+    window.addEventListener('scroll', handler);
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+
+  const features = [
+    { icon: <Shirt className="w-8 h-8 text-[#FF5A50]" />, title: 'Digital Closet', desc: 'Upload, categorize, and manage your entire wardrobe digitally. Filter by color, season, or occasion.' },
+    { icon: <Wand2 className="w-8 h-8 text-[#FF5A50]" />, title: 'AI Stylist', desc: 'Get AI-powered outfit recommendations based on your body type, height, weight, and personal style.' },
+    { icon: <Calendar className="w-8 h-8 text-[#FF5A50]" />, title: 'Outfit Calendar', desc: 'Plan and schedule your outfits for the week. Never repeat outfits or struggle with morning decisions.' },
+    { icon: <CloudSun className="w-8 h-8 text-[#FF5A50]" />, title: 'Weather Sync', desc: 'Real-time weather integration that suggests outfits matching today\'s temperature and conditions.' },
+    { icon: <Upload className="w-8 h-8 text-[#FF5A50]" />, title: 'Quick Upload', desc: 'Snap a photo or upload from gallery. AI auto-detects clothing type, color, and season compatibility.' },
+    { icon: <Brain className="w-8 h-8 text-[#FF5A50]" />, title: 'Smart Combos', desc: 'AI analyzes fit, proportions, and color harmony to create perfectly balanced outfit combinations.' },
+  ];
+
+  const testimonials = [
+    { quote: 'This app completely transformed how I get dressed. The AI stylist is incredibly accurate with body-type recommendations.', author: 'Priya M.', role: 'Fashion Enthusiast' },
+    { quote: 'I used to spend 20 minutes picking outfits. Now the calendar feature plans my entire week in seconds.', author: 'Rohan K.', role: 'Working Professional' },
+    { quote: 'The weather sync feature is genius. I never leave the house underdressed or overdressed anymore.', author: 'Ananya S.', role: 'College Student' },
+  ];
+
+  return (
+    <div ref={containerRef} className="min-h-screen bg-[#0a0f1a] text-white overflow-x-hidden relative">
+      <ScrollProgress />
+
+      {/* ═══ NAVBAR ═══ */}
+      <motion.nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? 'bg-[#0a0f1a]/90 backdrop-blur-xl border-b border-white/10 py-3'
+            : 'bg-transparent py-5'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+          {/* Logo */}
+          <motion.div
+            className="flex items-center gap-3 cursor-default group"
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="w-10 h-10 bg-[#FF5A50] flex items-center justify-center text-white font-black text-xl border-2 border-white/20 rotate-3 group-hover:rotate-12 transition-transform duration-500"
+                 style={{ boxShadow: '3px 3px 0 rgba(255,255,255,0.2)' }}>
+              W
+            </div>
+            <span className="font-black text-white text-2xl tracking-tight">
+              WARDROBE
+              <span className="text-[#FF5A50]">.</span>
+            </span>
+          </motion.div>
+
+          {/* Nav Links */}
+          <div className="hidden md:flex items-center gap-8">
+            {['Features', 'How it Works', 'Reviews'].map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                className="text-gray-400 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors duration-300 relative group"
+              >
+                {item}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#FF5A50] group-hover:w-full transition-all duration-300" />
+              </a>
+            ))}
+          </div>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onLogin}
+              className="px-5 py-2.5 text-white font-bold text-sm uppercase tracking-wider hover:text-[#FF5A50] transition-colors relative group cursor-pointer"
+            >
+              Sign In
+              <span className="absolute bottom-1 left-2 right-2 h-0.5 bg-[#FF5A50] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+            </button>
+            <Button
+              onClick={onSignup}
+              variant="default" size="default" className="px-5 py-2.5 bg-[#FF5A50] font-black text-sm uppercase tracking-wider-white/20e84d43] duration-300"
+              style={{ boxShadow: '3px 3px 0 rgba(255,255,255,0.15)' }}
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* ═══ HERO SECTION ═══ */}
+      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden">
+        {/* Aurora Background (subtle) */}
+        <div className="absolute inset-0 opacity-30">
+          <Aurora
+            colorStops={['#FF5A50', '#526594', '#F3E8D6']}
+            speed={0.3}
+            amplitude={0.8}
+          />
+        </div>
+
+        {/* Grid overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+          }}
+        />
+
+        {/* Floating Geometric Shapes */}
+        <FloatingShape
+          icon={<Hexagon className="w-16 h-16 text-[#FF5A50]/15 stroke-1" />}
+          className="top-[15%] left-[8%]"
+          delay={0}
+          duration={7}
+        />
+        <FloatingShape
+          icon={<Star className="w-12 h-12 text-white/10 stroke-1" />}
+          className="top-[25%] right-[12%]"
+          delay={1.5}
+          duration={5}
+        />
+        <FloatingShape
+          icon={<Zap className="w-10 h-10 text-[#FF5A50]/20 stroke-1" />}
+          className="bottom-[30%] left-[15%]"
+          delay={0.8}
+          duration={6}
+        />
+        <FloatingShape
+          icon={<Layers className="w-14 h-14 text-white/8 stroke-1" />}
+          className="bottom-[20%] right-[8%]"
+          delay={2}
+          duration={8}
+        />
+
+        {/* Hero Content */}
+        <motion.div
+          className="relative z-10 max-w-6xl mx-auto text-center"
+          style={{ y: y1, opacity: opacity1, scale: scale1 }}
+        >
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 text-[#FF5A50] text-xs uppercase tracking-[0.2em] font-black mb-10"
+          >
+            <Sparkles size={14} className="animate-pulse" />
+            <span>AI-Powered Smart Wardrobe</span>
+          </motion.div>
+
+          {/* Main Title — Brutalist Typography */}
+          <div className="mb-8 select-none">
+            <BrutalReveal
+              text="YOUR CLOSET,"
+              className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter"
+              delay={0.3}
+            />
+            <BrutalReveal
+              text="REIMAGINED."
+              className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter"
+              delay={0.5}
+            />
+            {/* The word REIMAGINED in the red accent */}
+            <style>{`.brutal-reveal-wrapper:last-child > div { color: #FF5A50; }`}</style>
+          </div>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.8 }}
+            className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
+          >
+            Digitize your wardrobe. Let AI style your outfits based on your body, weather, and mood.
+            Plan your week, never overdress or underdress again.
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 1.0 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <MagneticButton onClick={onSignup} variant="primary">
+              <span className="flex items-center gap-3">
+                Start Styling
+                <ArrowRight className="w-5 h-5" />
+              </span>
+            </MagneticButton>
+            <MagneticButton onClick={onLogin} variant="secondary">
+              <span className="flex items-center gap-3">
+                Sign In
+              </span>
+            </MagneticButton>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <span className="text-gray-500 text-xs uppercase tracking-[0.2em] font-bold">Scroll</span>
+          <ChevronDown className="w-5 h-5 text-[#FF5A50]" />
+        </motion.div>
+      </section>
+
+      {/* ═══ MARQUEE STRIP ═══ */}
+      <MarqueeStrip texts={['DIGITIZE', 'ORGANIZE', 'STYLE', 'AI POWERED', 'WEATHER SYNC', 'SMART COMBOS', 'WARDROBE']} />
+
+      {/* ═══ FEATURES SECTION ═══ */}
+      <section id="features" className="py-24 md:py-32 px-6 relative">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-16 md:mb-20">
+            <BrutalReveal
+              text="FEATURES"
+              className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4"
+            />
+            <motion.div
+              className="w-20 h-1 bg-[#FF5A50] mx-auto mb-6"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            />
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="text-gray-400 text-lg max-w-xl mx-auto"
+            >
+              Everything you need to look your best, powered by artificial intelligence.
+            </motion.p>
+          </div>
+
+          {/* Feature Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((f, i) => (
+              <BrutalFeatureCard key={f.title} icon={f.icon} title={f.title} desc={f.desc} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ HOW IT WORKS ═══ */}
+      <section id="how-it-works" className="py-24 md:py-32 px-6 bg-[#0d1325] relative">
+        {/* Diagonal accent */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-[#FF5A50]" />
+
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <BrutalReveal
+              text="HOW IT WORKS"
+              className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4"
+            />
+            <motion.div
+              className="w-20 h-1 bg-[#FF5A50] mx-auto"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            {[
+              { step: '01', title: 'UPLOAD', desc: 'Snap a photo of your clothes or upload from gallery. AI detects type, color, and season.', icon: <Upload className="w-10 h-10 text-[#FF5A50]" /> },
+              { step: '02', title: 'ORGANIZE', desc: 'Your wardrobe gets auto-categorized. Filter, sort, and view by any attribute instantly.', icon: <LayoutGrid className="w-10 h-10 text-[#FF5A50]" /> },
+              { step: '03', title: 'GET STYLED', desc: 'AI creates combos based on your body type, weather, and preferences. Save & plan your week.', icon: <Wand2 className="w-10 h-10 text-[#FF5A50]" /> },
+            ].map((item, i) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const isInView = useInView(ref, { once: true, margin: '-50px' });
+              return (
+                <motion.div
+                  key={item.step}
+                  ref={ref}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: i * 0.2 }}
+                  className="text-center relative"
+                >
+                  {/* Step Number */}
+                  <div className="text-8xl md:text-9xl font-black text-[#FF5A50]/10 absolute -top-4 left-1/2 -translate-x-1/2 select-none">
+                    {item.step}
+                  </div>
+                  <div className="relative z-10">
+                    <div className="w-20 h-20 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 mx-auto mb-6 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <h3 className="font-black text-white text-2xl mb-4 tracking-wider">{item.title}</h3>
+                    <p className="text-gray-400 leading-relaxed font-medium">{item.desc}</p>
+                  </div>
+
+                  {/* Connector line (not on last) */}
+                  {i < 2 && (
+                    <div className="hidden md:block absolute top-1/3 -right-6 w-12 h-0.5 bg-[#FF5A50]/30" />
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ STATS BAR ═══ */}
+      <section className="py-16 px-6 border-y-2 border-white/10 bg-[#0a0f1a]">
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+          <StatCounter value="∞" label="Outfit Combos" delay={0} />
+          <StatCounter value="AI" label="Powered Styling" delay={0.1} />
+          <StatCounter value="24/7" label="Weather Sync" delay={0.2} />
+          <StatCounter value="100%" label="Free to Use" delay={0.3} />
+        </div>
+      </section>
+
+      {/* ═══ MARQUEE STRIP 2 ═══ */}
+      <MarqueeStrip texts={['STYLE', 'CONFIDENCE', 'AI', 'FASHION', 'WARDROBE', 'PLANNING', 'SMART']} direction="right" />
+
+      {/* ═══ TESTIMONIALS ═══ */}
+      <section id="reviews" className="py-24 md:py-32 px-6 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <BrutalReveal
+              text="WHAT USERS SAY"
+              className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-4"
+            />
+            <motion.div
+              className="w-20 h-1 bg-[#FF5A50] mx-auto"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((t, i) => (
+              <TestimonialCard key={i} quote={t.quote} author={t.author} role={t.role} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FINAL CTA ═══ */}
+      <section className="py-24 md:py-32 px-6 bg-[#0d1325] relative overflow-hidden">
+        {/* Top accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-[#FF5A50]" />
+
+        {/* Background number */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+          <span className="text-[20rem] md:text-[30rem] font-black text-white/[0.015] leading-none">W</span>
+        </div>
+
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <BrutalReveal
+            text="READY TO"
+            className="text-4xl md:text-7xl font-black text-white tracking-tighter"
+          />
+          <BrutalReveal
+            text="TRANSFORM"
+            className="text-4xl md:text-7xl font-black text-[#FF5A50] tracking-tighter"
+            delay={0.15}
+          />
+          <BrutalReveal
+            text="YOUR STYLE?"
+            className="text-4xl md:text-7xl font-black text-white tracking-tighter mb-8"
+            delay={0.3}
+          />
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
+          >
+            Join the next generation of smart styling. Your AI-powered wardrobe awaits.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <MagneticButton onClick={onSignup} variant="primary" className="text-xl px-12 py-5">
+              <span className="flex items-center gap-3">
+                Get Started — It's Free
+                <ArrowRight className="w-6 h-6" />
+              </span>
+            </MagneticButton>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ FOOTER ═══ */}
+      <footer className="bg-[#060a14] border-t-2 border-white/10 py-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-[#FF5A50] flex items-center justify-center text-white font-black text-sm border-2 border-white/10 rotate-3"
+                   style={{ boxShadow: '2px 2px 0 rgba(255,255,255,0.1)' }}>
+                W
+              </div>
+              <span className="font-black text-white text-lg tracking-tight">
+                WARDROBE<span className="text-[#FF5A50]">.</span>
+              </span>
+            </div>
+
+            {/* Links */}
+            <div className="flex gap-8">
+              {['Features', 'How it Works', 'Reviews'].map(item => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-gray-500 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors"
+                >
+                  {item}
+                </a>
+              ))}
+            </div>
+
+            {/* Copyright */}
+            <div className="text-gray-600 text-xs uppercase tracking-wider font-bold">
+              © 2026 Online Wardrobe
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
 
 export default LandingPage;
