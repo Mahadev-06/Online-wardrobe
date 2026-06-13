@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
 import { ClothingItem } from '../types';
 import { generateOutfitRecommendation, reviewOutfit } from '../services/ai';
-import { Sparkles, Loader2, RefreshCw, AlertCircle, Quote, CheckCircle, Lightbulb, Shirt, Square, Footprints, ChevronDown, X, Layers, Watch } from 'lucide-react';
+import { Sparkles, Loader2, RefreshCw, AlertCircle, Quote, CheckCircle, Lightbulb, Shirt, Footprints, ChevronDown, X, Layers, Watch } from 'lucide-react';
 
 interface SlotBoxProps {
     label: string;
@@ -398,7 +398,11 @@ const StylistPage: React.FC = () => {
                                     <SlotBox 
                                         label="BOTTOM" 
                                         item={manualBottom} 
-                                        icon={<Square className="w-7 h-7 md:w-8 md:h-8 text-[#526594]" strokeWidth={1.5} />} 
+                                        icon={
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7 md:w-8 md:h-8 text-[#526594]">
+                                                <path d="M 6 3 L 18 3 L 19.5 9 L 18 22 L 14 22 L 12 12 L 10 22 L 6 22 L 4.5 9 Z" />
+                                            </svg>
+                                        } 
                                         isActive={activeTab === 'Bottom'} 
                                         onClick={() => setActiveTab('Bottom')}
                                         onClear={() => handleClearNotes('', setManualBottomId)}
