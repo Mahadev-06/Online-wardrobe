@@ -141,7 +141,7 @@ ${safePool.map(item => `- ${item.id}: ${item.category}, color: ${item.color}, st
 RULES:
 1. Selection: Pick ONLY item IDs listed in the wardrobe above (e.g., item_1, item_2, etc.).
 2. Outfit Structure: The outfit must contain either [Top + Bottom] or [Dress]. You should also select Shoes, and optionally Outerwear (highly recommended if weather is cold, winter, or rainy) and Accessories (watches, bags, jewelry) if they are in the wardrobe and fit the look.
-3. Aesthetic Standards: Mix colors, textures, and styles to curate a high-fashion, cohesive look. Respect the client's body profile (height/weight/body type/skin tone) and style preferences.
+3. Aesthetic Standards & Proportions: Mix colors, textures, and styles to curate a high-fashion, cohesive look. Respect the client's body profile (height/weight/body type/skin tone) and style preferences. Do NOT pair oversized tops with oversized bottoms if the client is relatively short and heavy/stout (as this adds visual bulk and shortens the frame); instead, balance proportions (e.g., slim bottoms with oversized tops, or vice versa, or opting for tailored/structured silhouettes).
 4. CRITICAL — Weather Suitability: Check if there are wardrobe items suitable for the current weather (e.g. if the weather is freezing/winter, the user needs long pants, warm tops, or coats). If no clothes in the wardrobe are appropriate for the current weather, you MUST return an empty array for "outfitItemIds" (i.e. []) and write a very concise stylist's recommendation in the "reasoning" field explaining why and suggesting what they should add to their wardrobe (e.g. "Because it is freezing winter and your digital closet only contains lightweight summer items, no outfit can be recommended. I recommend adding sweaters or a winter coat to your closet.").
 5. CRITICAL — Personalized Reasoning: Your reasoning paragraph MUST explicitly reference the client's body type ("${profile.bodyType || 'Average'}"), skin tone ("${profile.skinTone || 'Medium'}"), height (${profile.height || 170}cm), and weight (${profile.weight || 65}kg) by name. Keep it extremely concise (1-2 sentences, max 40 words total).
 6. Response Format: Return ONLY a raw JSON object matching the schema below. No markdown formatting, no code blocks, no trailing text.
@@ -321,18 +321,19 @@ CLIENT PROFILE:
 STYLING GUIDELINES:
 Evaluate this outfit based on elite fashion principles: color theory and contrast matching their ${profile.skinTone || 'medium'} skin tone, structural proportions complementing their ${profile.bodyType || 'average'} body type at ${profile.height || 170}cm and ${profile.weight || 65}kg, texture synergy, and style cohesion.
 
-CRITICAL — Personalized Critique:
+CRITICAL — Personalized Critique & Suitability Check:
+- You MUST evaluate whether the outfit suits the client's specific physical proportions (height, weight, body type).
+- Be completely honest, analytical, and professional. If a combination or item does not flatter them, you MUST explicitly state that it will not suit them.
+- SPECIFIC SILHOUETTE RULE: If the client is relatively short and heavy/stout (e.g. low height and high weight, or a "Plus Size" body type), and they pair multiple oversized items (like an oversized pant and an oversized shirt), you MUST explicitly state in the review that this combination will NOT suit them well because it adds visual bulk and overwhelms a shorter frame.
+- RECOMMENDATION RULE: If an item or combination is unflattering or doesn't suit their body, you MUST provide a specific, flattering alternative style recommendation (e.g. "Instead, pair a structured, well-fitted shirt with slim-fit trousers to elongate your silhouette and avoid looking overwhelmed by fabric.").
 - You MUST explicitly reference the client's body type ("${profile.bodyType || 'Average'}"), skin tone ("${profile.skinTone || 'Medium'}"), height (${profile.height || 170}cm), and weight (${profile.weight || 65}kg) in your review.
-- Be completely honest, analytical, and professional. If a piece doesn't flatter their ${profile.bodyType || 'average'} body type, say so diplomatically.
-- For example: "For your ${profile.bodyType || 'average'} frame at ${profile.height || 170}cm, this oversized silhouette may add unnecessary visual bulk — a more structured fit would better define your waist."
-- Or: "The warm undertones of this top beautifully complement your ${profile.skinTone || 'medium'} complexion, creating a harmonious color story."
 
 Response Format: Return ONLY a raw JSON object matching the schema below. No markdown, no code blocks.
 
 JSON Schema:
 {
     "score": 8,
-    "review": "A sophisticated, analytical, and deeply personalized critique (3-4 sentences). You MUST mention the client's body type, skin tone, height, and weight. Use high-end fashion vocabulary to explain color coordination against their skin tone, how the silhouette works with their body type and proportions, and overall style alignment. Be honest — point out any clashes in formality, silhouette weight, or color tone relative to their specific physique."
+    "review": "A sophisticated, analytical, and deeply personalized critique (3-4 sentences). You MUST mention the client's body type, skin tone, height, and weight. Use high-end fashion vocabulary to explain color coordination against their skin tone, how the silhouette works with their body type and proportions, and overall style alignment. Be honest — point out any clashes in formality, silhouette weight, or color tone relative to their specific physique. If the outfit does not suit their height, weight, and body type (such as double oversized garments on a short/heavy frame), clearly state that it will not suit them and provide a specific, flattering style recommendation instead."
 }`;
 
     try {

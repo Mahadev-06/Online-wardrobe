@@ -135,15 +135,7 @@ const StylistPage: React.FC = () => {
                 
                 setStylistNotes(res.reasoning);
                 setReviewResult(null); // Clear manual reviews
-                
-                // Automatically save it to the closet
-                saveOutfit({
-                    id: Date.now().toString(),
-                    items: selectedItems,
-                    date: new Date().toISOString(),
-                    notes: res.reasoning
-                });
-                setInlineMessage({text: "Outfit generated and saved to Closet!", type: 'success'});
+                setInlineMessage({text: "Outfit generated! Check the board below and save it to your closet if you like it.", type: 'success'});
             } else {
                 setInlineMessage({text: res.reasoning, type: 'error'});
                 setStylistNotes('');
@@ -177,6 +169,29 @@ const StylistPage: React.FC = () => {
             setInlineMessage({text: "Failed to review outfit.", type: 'error'});
         } finally {
             setReviewing(false);
+        }
+    };
+
+    const handleSaveOutfit = async () => {
+        setInlineMessage(null);
+        if (!profile) return;
+        
+        const selected = [manualTop, manualBottom, manualShoes, manualOuterwear, manualAccessory].filter(Boolean) as ClothingItem[];
+        if (selected.length === 0) {
+            setInlineMessage({text: "Please select at least one item to save.", type: 'error'});
+            return;
+        }
+
+        try {
+            await saveOutfit({
+                id: Date.now().toString(),
+                items: selected,
+                date: new Date().toISOString(),
+                notes: stylistNotes || reviewResult?.review || "Custom styling look"
+            });
+            setInlineMessage({text: "Outfit saved to Closet!", type: 'success'});
+        } catch (err) {
+            setInlineMessage({text: "Failed to save outfit.", type: 'error'});
         }
     };
 
@@ -329,14 +344,25 @@ const StylistPage: React.FC = () => {
                                 <h3 className="font-mono text-sm font-black tracking-widest text-[#526594] uppercase">STYLE BOARD</h3>
                                 <p className="text-[10px] md:text-xs text-p_dark/50 font-bold mt-0.5">Curated for {profile?.name || 'Demo Stylist'}</p>
                             </div>
-                            <button 
-                                onClick={() => {
-                                    setInlineMessage({ text: "Virtual Try-on coming soon!", type: "success" });
-                                }}
-                                className="px-4 py-2 border border-p_red text-p_red hover:bg-p_red hover:text-white transition-all font-bold text-[10px] md:text-xs rounded-full cursor-pointer hover:scale-102 transform active:scale-98"
-                            >
-                                SETUP TRY-ON
-                            </button>
+                            <div className="flex gap-2">
+                                {(manualTopId || manualBottomId || manualShoesId || manualOuterwearId || manualAccessoryId) && (
+                                    <button 
+                                        onClick={handleSaveOutfit}
+                                        className="px-4 py-2 bg-p_teal hover:bg-[#E04B42] text-white font-bold text-[10px] md:text-xs rounded-full cursor-pointer hover:scale-102 transition-all transform active:scale-98 shadow-sm flex items-center gap-1.5"
+                                    >
+                                        <CheckCircle size={12} />
+                                        SAVE TO CLOSET
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={() => {
+                                        setInlineMessage({ text: "Virtual Try-on coming soon!", type: "success" });
+                                    }}
+                                    className="px-4 py-2 border border-p_red text-p_red hover:bg-p_red hover:text-white transition-all font-bold text-[10px] md:text-xs rounded-full cursor-pointer hover:scale-102 transform active:scale-98"
+                                >
+                                    SETUP TRY-ON
+                                </button>
+                            </div>
                         </div>
 
                         {/* Canvas Area with Slots in a Triangle */}
