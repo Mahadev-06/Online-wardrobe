@@ -255,7 +255,7 @@ const UploadPage: React.FC = () => {
   };
 
   return (
-    <div className="px-6 py-10 max-w-7xl mx-auto page-enter pb-24">
+    <div className="px-6 md:px-10 py-10 max-w-[1600px] mx-auto page-enter pb-24">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">Upload Items</h1>

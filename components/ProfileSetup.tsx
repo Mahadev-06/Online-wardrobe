@@ -199,7 +199,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
 
   // ── Setup / Login Card ─────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0f1a] p-4 py-16 relative page-enter overflow-y-auto">
+    <div className="min-h-screen flex items-center justify-center bg-transparent p-4 py-16 relative page-enter overflow-y-auto">
       {/* Grid Overlay Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 

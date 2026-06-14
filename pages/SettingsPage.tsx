@@ -94,7 +94,7 @@ const SettingsPage: React.FC = () => {
   if (!formData) return null;
 
   return (
-    <div className="min-h-screen page-enter pb-24 max-w-5xl mx-auto px-4 md:px-8 pt-8">
+    <div className="min-h-screen page-enter pb-24 max-w-7xl mx-auto px-4 md:px-8 pt-8">
       {/* Toast Notification */}
       {inlineMessage && createPortal(
           <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[99999] animate-slide-up">
@@ -175,16 +175,6 @@ const SettingsPage: React.FC = () => {
               accept="image/*"
               onChange={handleFileChange}
             />
-
-            <div className="w-full pt-5 border-t-2 border-[#0a0f1a] mt-2">
-              <button
-                type="button"
-                onClick={() => setShowLogoutModal(true)}
-                className="w-full py-3 bg-red-500/10 border-2 border-[#0a0f1a] text-red-600 font-mono font-black text-xs hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] uppercase tracking-widest"
-              >
-                Log Out
-              </button>
-            </div>
           </div>
 
           {/* Right Column: Editable Details */}
@@ -415,11 +405,18 @@ const SettingsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end pt-4">
+            {/* Action Buttons */}
+            <div className="flex flex-col-reverse sm:flex-row justify-between gap-4 pt-6 border-t-2 border-[#0a0f1a] mt-8">
+              <button
+                type="button"
+                onClick={() => setShowLogoutModal(true)}
+                className="py-3 px-6 bg-red-500/10 border-2 border-[#0a0f1a] text-red-600 font-mono font-black text-xs hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] uppercase tracking-widest sm:w-auto w-full text-center"
+              >
+                Log Out
+              </button>
               <Button
                 type="submit"
-                variant="default" size="lg" className="py-4 px-10 font-mono font-black text-sm uppercase tracking-wider bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[3px_3px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] rounded-none"
+                variant="default" size="lg" className="py-4 px-10 font-mono font-black text-sm uppercase tracking-wider bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[3px_3px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] rounded-none sm:w-auto w-full text-center justify-center"
               >
                 Save Changes
               </Button>

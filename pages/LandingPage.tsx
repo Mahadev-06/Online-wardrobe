@@ -249,7 +249,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
   ];
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#0a0f1a] text-white overflow-x-hidden relative">
+    <div ref={containerRef} className="min-h-screen bg-transparent text-white overflow-x-hidden relative">
       <ScrollProgress />
 
       {/* ═══ NAVBAR ═══ */}
@@ -474,7 +474,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
       </section>
 
       {/* ═══ HOW IT WORKS ═══ */}
-      <section id="how-it-works" className="py-24 md:py-32 px-6 bg-[#0d1325] relative">
+      <section id="how-it-works" className="py-24 md:py-32 px-6 bg-transparent relative">
         {/* Diagonal accent */}
         <div className="absolute top-0 left-0 right-0 h-2 bg-[#FF5A50]" />
 
@@ -534,7 +534,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
       </section>
 
       {/* ═══ STATS BAR ═══ */}
-      <section className="py-16 px-6 border-y-2 border-white/10 bg-[#0a0f1a]">
+      <section className="py-16 px-6 border-y-2 border-white/10 bg-transparent">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <StatCounter value="∞" label="Outfit Combos" delay={0} />
           <StatCounter value="AI" label="Powered Styling" delay={0.1} />
@@ -572,7 +572,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
       </section>
 
       {/* ═══ FINAL CTA ═══ */}
-      <section className="py-24 md:py-32 px-6 bg-[#0d1325] relative overflow-hidden">
+      <section className="py-24 md:py-32 px-6 bg-transparent relative overflow-hidden">
         {/* Top accent bar */}
         <div className="absolute top-0 left-0 right-0 h-2 bg-[#FF5A50]" />
 
@@ -625,7 +625,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="bg-[#060a14] border-t-2 border-white/10 py-12 px-6">
+      <footer className="bg-transparent border-t-2 border-white/10 py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             {/* Logo */}

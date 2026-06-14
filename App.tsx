@@ -42,14 +42,14 @@ const AppContent: React.FC = () => {
 
   // ── Gate 3: Profile exists → Render Main App ───────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0a0f1a] text-white">
+    <div className="min-h-screen bg-transparent text-white">
       <Navigation
         isExpanded={isSidebarExpanded}
         toggleSidebar={() => setIsSidebarExpanded((prev) => !prev)}
       />
 
       <main
-        className={`transition-all duration-300 ease-in-out md:pl-32 min-h-screen pt-20 md:pt-0 pb-28 md:pb-0`}
+        className={`transition-all duration-300 ease-in-out md:pl-20 min-h-screen pt-20 md:pt-0 pb-28 md:pb-0`}
       >
         <Routes>
           <Route path="/"           element={<Navigate to="/dashboard" replace />} />

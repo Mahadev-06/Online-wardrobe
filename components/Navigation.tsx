@@ -21,50 +21,53 @@ const NAV_LINKS = [
 const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) => {
   return (
     <>
-      {/* ── Desktop Fixed Logo ────────────────────────────────────────────── */}
-      <div className="hidden md:flex fixed top-8 left-8 items-center gap-4 z-50 cursor-pointer select-none">
-        <div className="w-12 h-12 bg-[#FF5A50] border-2 border-white/20 flex items-center justify-center font-mono text-3xl shadow-[3px_3px_0_rgba(255,90,80,0.3)] shrink-0 text-white font-black pt-0.5 transition-transform duration-300 hover:rotate-6 hover:scale-110">
-          W
-        </div>
-      </div>
-
       {/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
       <aside
         className={`
-          hidden md:flex fixed top-1/2 -translate-y-1/2 left-8 h-auto
+          hidden md:flex fixed top-4 bottom-4 left-4
           bg-[#0d1325] text-white flex-col z-50 border-2 border-white/10 shadow-[4px_4px_0_rgba(255,90,80,0.15)]
-          transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] w-[76px] rounded-none py-6
+          transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] w-[60px] rounded-none
         `}
         aria-label="Main navigation"
       >
+        {/* Logo at Top */}
+        <div className="flex items-center justify-center py-4 border-b border-white/10">
+          <div className="w-9 h-9 bg-[#FF5A50] border-2 border-white/20 flex items-center justify-center font-mono text-lg shadow-[2px_2px_0_rgba(255,90,80,0.3)] shrink-0 text-white font-black transition-transform duration-300 hover:rotate-6 hover:scale-110 cursor-pointer">
+            W
+          </div>
+        </div>
+
         {/* Nav Links */}
-        <nav className="flex flex-col items-center space-y-5 w-full relative z-[60]">
+        <nav className="flex flex-col items-center space-y-1.5 w-full relative z-[60] flex-1 py-3">
           {NAV_LINKS.map((link) => (
             <div key={link.to} className="relative group w-full flex justify-center">
               <NavLink
                 to={link.to}
                 className={({ isActive }) =>
-                  `flex items-center justify-center w-[46px] h-[46px] rounded-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] select-none bg-transparent ${
+                  `flex items-center justify-center w-[40px] h-[40px] rounded-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] select-none bg-transparent ${
                     isActive
-                      ? 'text-white border-2 border-[#FF5A50] shadow-[3px_3px_0_rgba(255,90,80,0.3)] bg-[#FF5A50]/10'
+                      ? 'text-white border-2 border-[#FF5A50] shadow-[2px_2px_0_rgba(255,90,80,0.3)] bg-[#FF5A50]/10'
                       : 'text-gray-400 hover:text-white border border-transparent hover:border-white/10 hover:bg-white/5'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <div className={`transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
-                    {link.icon}
+                    {React.cloneElement(link.icon as React.ReactElement<{ size?: number }>, { size: 18 })}
                   </div>
                 )}
               </NavLink>
 
               {/* Tooltip on Hover */}
-              <div className="absolute left-[calc(100%+16px)] top-1/2 -translate-y-1/2 px-4 py-2 bg-[#0d1325] text-white text-xs font-mono font-bold rounded-none opacity-0 -translate-x-2 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100 group-hover:translate-x-0 border-2 border-white/10 whitespace-nowrap shadow-[3px_3px_0_rgba(255,90,80,0.2)] z-[99]">
+              <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0d1325] text-white text-[10px] font-mono font-bold rounded-none opacity-0 -translate-x-2 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100 group-hover:translate-x-0 border-2 border-white/10 whitespace-nowrap shadow-[2px_2px_0_rgba(255,90,80,0.2)] z-[99] uppercase tracking-wider">
                 {link.label}
               </div>
             </div>
           ))}
         </nav>
+
+        {/* Bottom accent line */}
+        <div className="h-1 bg-[#FF5A50] w-full" />
       </aside>
 
       {/* ── Mobile Bottom Navigation ─────────────────────────────────────── */}
