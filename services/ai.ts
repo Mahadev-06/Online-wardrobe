@@ -67,7 +67,9 @@ async function analyzeLocally(base64Image: string): Promise<AnalysisResult> {
 Analyze the provided image of a clothing item, footwear, or fashion accessory.
 Return a STRICT JSON object with the following fields:
 
-1. is_clothing: boolean (True if this image clearly depicts a standalone clothing piece, pair of shoes, or fashion accessory. Return false if the image contains human faces, pets, scenery, or non-fashion items).
+1. is_clothing: boolean (Set to true if this image clearly depicts a standalone clothing piece, pair of shoes, or fashion accessory, OR if it depicts a person/human wearing visible clothes like a T-shirt, shirt, pants, dress, outerwear, etc.
+   - NOTE: This site is for human wardrobe management, so images of a human wearing or modeling clothes are COMPLETELY VALID. You MUST set is_clothing to true if the person is wearing visible clothes. Do NOT reject or make the image invalid just because there is a human face, human body, or human hands showing the clothes.
+   - Return false if the image contains no visible clothing, if it is only a close-up human face/headshot with no garments shown, if the person is naked, shirtless, or undressed, or if the subject is a pet, scenery, food, or non-clothing item).
 2. confidence: number (Confidence score between 0.0 and 1.0)
 3. message: string (Explain the classification decision. If is_clothing is false, explain why).
 4. metadata: object (Include ONLY if is_clothing is true):

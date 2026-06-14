@@ -60,7 +60,9 @@ export default async function handler(req: any, res: any) {
 You are an expert fashion AI and wardrobe supervisor.
 Analyze this image and return a STRICT JSON object answering the following:
 
-1. is_clothing: boolean (Is this image clearly a standalone piece of clothing, footwear, or fashion accessory? Return false if it is a human face, an animal/dog/pet, randomly cropped scenery, or an unidentifiable object).
+1. is_clothing: boolean (Set to true if this image clearly depicts a standalone clothing piece, pair of shoes, or fashion accessory, OR if it depicts a person/human wearing visible clothes like a T-shirt, shirt, pants, dress, outerwear, etc.
+   - NOTE: This site is for human wardrobe management, so images of a human wearing or modeling clothes are COMPLETELY VALID. You MUST set is_clothing to true if the person is wearing visible clothes. Do NOT reject or make the image invalid just because there is a human face, human body, or human hands showing the clothes.
+   - Return false if the image contains no visible clothing, if it is only a close-up human face/headshot with no garments shown, if the person is naked, shirtless, or undressed, or if the subject is a pet, scenery, food, or non-clothing item).
 2. confidence: number (0.0 to 1.0)
 3. message: string (If is_clothing is false, explain why).
 4. metadata: object (If is_clothing is true, provide the following details):
