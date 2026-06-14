@@ -259,8 +259,10 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
             
             <div className="space-y-3">
                <div>
-                  <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1 font-mono">Email Address</label>
+                  <label htmlFor="setup-email" className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1 font-mono">Email Address</label>
                   <input
+                    id="setup-email"
+                    name="email"
                     type="email"
                     required
                     placeholder="Enter your email"
@@ -271,9 +273,11 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                </div>
                
                <div>
-                 <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1 font-mono">Password</label>
+                 <label htmlFor="setup-password" className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1 font-mono">Password</label>
                  <div className="relative">
                     <input
+                      id="setup-password"
+                      name="password"
                       type={showPassword ? "text" : "password"}
                       required
                       placeholder="Enter your password"
@@ -330,11 +334,12 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
 
             {/* Display Name */}
             <div>
-              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1 font-mono">
+              <label htmlFor="profile-name" className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1.5 ml-1 font-mono">
                 Display Name
               </label>
               <input
                 id="profile-name"
+                name="name"
                 type="text"
                 required
                 autoComplete="name"
@@ -348,9 +353,9 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
 
             {/* Gender */}
             <div>
-              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1 font-mono">
+              <span className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1 font-mono">
                 Gender
-              </label>
+              </span>
               <div className="flex bg-white/5 p-1 border-2 border-white/10 rounded-none shadow-[2px_2px_0_rgba(255,255,255,0.05)]">
                 {(['Female', 'Male', 'Other'] as UserProfile['gender'][]).map((g) => (
                   <button
@@ -373,7 +378,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
               {/* Height */}
               <div>
                 <div className="flex justify-between items-center mb-1.5 ml-1">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1 font-mono">
+                  <label htmlFor={heightUnit === 'cm' ? "profile-height-cm" : "profile-height-ft"} className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1 font-mono">
                     <Ruler size={10} /> Height
                   </label>
                   <div className="flex bg-white/5 rounded-none p-0.5 border border-white/10">
@@ -393,6 +398,8 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                 </div>
                 {heightUnit === 'cm' ? (
                   <input
+                    id="profile-height-cm"
+                    name="heightCm"
                     type="number"
                     required
                     min={50}
@@ -405,20 +412,26 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                 ) : (
                   <div className="flex gap-2">
                     <input
+                      id="profile-height-ft"
+                      name="heightFt"
                       type="number"
                       required
                       min={1}
                       max={9}
+                      aria-label="Height in feet"
                       className="w-full bg-white/5 border-2 border-white/10 hover:border-white/20 focus:border-[#FF5A50] focus:outline-none px-2 py-3.5 font-mono text-sm font-bold text-white placeholder:text-gray-600 transition-all rounded-none shadow-[2px_2px_0_rgba(255,255,255,0.05)] focus:shadow-[2px_2px_0_rgba(255,90,80,0.2)] text-center"
                       placeholder="5"
                       value={heightFt}
                       onChange={(e) => setHeightFt(e.target.value)}
                     />
                     <input
+                      id="profile-height-in"
+                      name="heightIn"
                       type="number"
                       required
                       min={0}
                       max={11}
+                      aria-label="Height in inches"
                       className="w-full bg-white/5 border-2 border-white/10 hover:border-white/20 focus:border-[#FF5A50] focus:outline-none px-2 py-3.5 font-mono text-sm font-bold text-white placeholder:text-gray-600 transition-all rounded-none shadow-[2px_2px_0_rgba(255,255,255,0.05)] focus:shadow-[2px_2px_0_rgba(255,90,80,0.2)] text-center"
                       placeholder="7"
                       value={heightIn}
@@ -431,7 +444,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
               {/* Weight */}
               <div>
                 <div className="flex justify-between items-center mb-1.5 ml-1">
-                  <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1 font-mono">
+                  <label htmlFor="profile-weight" className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-1 font-mono">
                     <Weight size={10} /> Weight
                   </label>
                   <div className="flex bg-white/5 rounded-none p-0.5 border border-white/10">
@@ -450,6 +463,8 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
                   </div>
                 </div>
                 <input
+                  id="profile-weight"
+                  name="weight"
                   type="number"
                   required
                   min={20}
@@ -466,9 +481,9 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
 
             {/* Skin Tone */}
             <div>
-              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1 font-mono">
+              <span className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1 font-mono">
                 <Palette size={10} /> Skin Tone
-              </label>
+              </span>
               <div className="flex justify-center gap-2.5 bg-white/5 p-2 rounded-none border-2 border-white/10 shadow-[2px_2px_0_rgba(255,255,255,0.05)]">
                 {SKIN_TONES.map((tone) => (
                   <button
@@ -494,9 +509,9 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
 
             {/* Body Type */}
             <div>
-              <label className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1 font-mono">
+              <span className="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 ml-1 flex items-center gap-1 font-mono">
                 <User size={10} /> Body Type
-              </label>
+              </span>
               <div className="grid grid-cols-5 gap-2">
                 {BODY_TYPES.map((bt) => (
                   <button

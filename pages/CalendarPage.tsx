@@ -207,6 +207,7 @@ const CalendarPage: React.FC = () => {
                 </label>
                 <input
                   id="event-title"
+                  name="eventTitle"
                   type="text"
                   maxLength={80}
                   className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
@@ -218,9 +219,9 @@ const CalendarPage: React.FC = () => {
 
               {/* Outfit Selector */}
               <div>
-                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">
+                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">
                   Select Saved Look
-                </label>
+                </span>
                 <div className="grid grid-cols-2 gap-3 max-h-56 overflow-y-auto pr-1">
                   {savedOutfits.map((outfit) => (
                     <button

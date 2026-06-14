@@ -443,8 +443,10 @@ const UploadPage: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Color</label>
+                                        <label htmlFor="upload-color" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Color</label>
                                         <input
+                                            id="upload-color"
+                                            name="color"
                                             type="text"
                                             value={selectedItem.data.color}
                                             onChange={(e) => updateItemData(selectedItem.id, { color: e.target.value })}
@@ -455,8 +457,10 @@ const UploadPage: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Style</label>
+                                    <label htmlFor="upload-style" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Style</label>
                                     <input
+                                        id="upload-style"
+                                        name="style"
                                         type="text"
                                         value={selectedItem.data.style}
                                         onChange={(e) => updateItemData(selectedItem.id, { style: e.target.value })}
@@ -477,8 +481,10 @@ const UploadPage: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Material</label>
+                                    <label htmlFor="upload-material" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Material</label>
                                     <input
+                                        id="upload-material"
+                                        name="material"
                                         type="text"
                                         value={selectedItem.data.material}
                                         onChange={(e) => updateItemData(selectedItem.id, { material: e.target.value })}
@@ -499,8 +505,10 @@ const UploadPage: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Description</label>
+                                    <label htmlFor="upload-description" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Description</label>
                                     <textarea
+                                        id="upload-description"
+                                        name="description"
                                         value={selectedItem.data.description}
                                         onChange={(e) => updateItemData(selectedItem.id, { description: e.target.value })}
                                         className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition h-24 resize-none font-mono font-bold"

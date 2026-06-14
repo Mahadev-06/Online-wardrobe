@@ -210,6 +210,46 @@ const MarqueeStrip: React.FC<{ texts: string[]; direction?: 'left' | 'right' }> 
   </div>
 );
 
+/* ─── STEP CARD subcomponent to prevent hook rule violations ─── */
+const StepCard: React.FC<{
+  step: string;
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+  index: number;
+  isLast: boolean;
+}> = ({ step, title, desc, icon, index, isLast }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.2 }}
+      className="text-center relative"
+    >
+      {/* Step Number */}
+      <div className="text-8xl md:text-9xl font-black text-[#FF5A50]/10 absolute -top-4 left-1/2 -translate-x-1/2 select-none">
+        {step}
+      </div>
+      <div className="relative z-10">
+        <div className="w-20 h-20 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 mx-auto mb-6 flex items-center justify-center">
+          {icon}
+        </div>
+        <h3 className="font-black text-white text-2xl mb-4 tracking-wider">{title}</h3>
+        <p className="text-gray-400 leading-relaxed font-medium">{desc}</p>
+      </div>
+
+      {/* Connector line (not on last) */}
+      {!isLast && (
+        <div className="hidden md:block absolute top-1/3 -right-6 w-12 h-0.5 bg-[#FF5A50]/30" />
+      )}
+    </motion.div>
+  );
+};
+
+
 /* ═══════════════════════════════════════════════════════════
    MAIN LANDING PAGE
    ═══════════════════════════════════════════════════════════ */
@@ -498,37 +538,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
               { step: '01', title: 'UPLOAD', desc: 'Snap a photo of your clothes or upload from gallery. AI detects type, color, and season.', icon: <Upload className="w-10 h-10 text-[#FF5A50]" /> },
               { step: '02', title: 'ORGANIZE', desc: 'Your wardrobe gets auto-categorized. Filter, sort, and view by any attribute instantly.', icon: <LayoutGrid className="w-10 h-10 text-[#FF5A50]" /> },
               { step: '03', title: 'GET STYLED', desc: 'AI creates combos based on your body type, weather, and preferences. Save & plan your week.', icon: <Wand2 className="w-10 h-10 text-[#FF5A50]" /> },
-            ].map((item, i) => {
-              const ref = useRef<HTMLDivElement>(null);
-              const isInView = useInView(ref, { once: true, margin: '-50px' });
-              return (
-                <motion.div
-                  key={item.step}
-                  ref={ref}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.7, delay: i * 0.2 }}
-                  className="text-center relative"
-                >
-                  {/* Step Number */}
-                  <div className="text-8xl md:text-9xl font-black text-[#FF5A50]/10 absolute -top-4 left-1/2 -translate-x-1/2 select-none">
-                    {item.step}
-                  </div>
-                  <div className="relative z-10">
-                    <div className="w-20 h-20 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 mx-auto mb-6 flex items-center justify-center">
-                      {item.icon}
-                    </div>
-                    <h3 className="font-black text-white text-2xl mb-4 tracking-wider">{item.title}</h3>
-                    <p className="text-gray-400 leading-relaxed font-medium">{item.desc}</p>
-                  </div>
-
-                  {/* Connector line (not on last) */}
-                  {i < 2 && (
-                    <div className="hidden md:block absolute top-1/3 -right-6 w-12 h-0.5 bg-[#FF5A50]/30" />
-                  )}
-                </motion.div>
-              );
-            })}
+            ].map((item, i) => (
+              <StepCard
+                key={item.step}
+                step={item.step}
+                title={item.title}
+                desc={item.desc}
+                icon={item.icon}
+                index={i}
+                isLast={i === 2}
+              />
+            ))}
           </div>
         </div>
       </section>

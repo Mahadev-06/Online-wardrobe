@@ -169,6 +169,8 @@ const SettingsPage: React.FC = () => {
             </div>
 
             <input
+              id="settings-avatar-file"
+              name="avatarFile"
               type="file"
               ref={fileInputRef}
               className="hidden"
@@ -185,8 +187,10 @@ const SettingsPage: React.FC = () => {
 
               {/* Display Name */}
               <div>
-                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Display Name</label>
+                <label htmlFor="settings-name" className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Display Name</label>
                 <input
+                  id="settings-name"
+                  name="name"
                   type="text"
                   required
                   className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
@@ -198,7 +202,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Gender */}
               <div>
-                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Gender</label>
+                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Gender</span>
                 <div className="flex bg-gray-100 p-1 border-2 border-[#0a0f1a] rounded-none shadow-[2px_2px_0_#0a0f1a]">
                   {(['Female', 'Male', 'Other'] as UserProfile['gender'][]).map((g) => (
                     <button
@@ -220,7 +224,7 @@ const SettingsPage: React.FC = () => {
               {/* Height */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
+                  <label htmlFor={heightUnit === 'cm' ? "settings-height-cm" : "settings-height-ft"} className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
                     <Ruler size={10} /> Height
                   </label>
                   <div className="flex bg-gray-100 rounded-none p-0.5 border-2 border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a]">
@@ -240,6 +244,8 @@ const SettingsPage: React.FC = () => {
                 </div>
                 {heightUnit === 'cm' ? (
                     <input
+                      id="settings-height-cm"
+                      name="heightCm"
                       type="number"
                       required
                       className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
@@ -250,10 +256,13 @@ const SettingsPage: React.FC = () => {
                 ) : (
                     <div className="flex gap-2">
                       <input
+                        id="settings-height-ft"
+                        name="heightFt"
                         type="number"
                         required
                         min={1}
                         max={9}
+                        aria-label="Height in feet"
                         className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
                         value={Math.floor((formData.height || 170) / 30.48)}
                         onChange={(e) => {
@@ -263,10 +272,13 @@ const SettingsPage: React.FC = () => {
                         }}
                       />
                       <input
+                        id="settings-height-in"
+                        name="heightIn"
                         type="number"
                         required
                         min={0}
                         max={11}
+                        aria-label="Height in inches"
                         className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
                         value={Math.round(((formData.height || 170) / 2.54) % 12)}
                         onChange={(e) => {
@@ -282,7 +294,7 @@ const SettingsPage: React.FC = () => {
               {/* Weight */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
+                  <label htmlFor="settings-weight" className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
                     <Weight size={10} /> Weight
                   </label>
                   <div className="flex bg-gray-100 rounded-none p-0.5 border-2 border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a]">
@@ -301,6 +313,8 @@ const SettingsPage: React.FC = () => {
                   </div>
                 </div>
                 <input
+                  id="settings-weight"
+                  name="weight"
                   type="number"
                   required
                   className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3.5px_3.5px_0_#FF5A50]"
@@ -320,7 +334,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Skin Tone */}
               <div>
-                 <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Skin Tone</label>
+                 <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Skin Tone</span>
                  <div className="flex justify-start gap-2 bg-gray-50 p-2 rounded-none border-2 border-[#0a0f1a] shadow-[2px_2px_0_#0a0f1a] max-w-md">
                     {SKIN_TONES.map((tone) => (
                       <button
@@ -346,7 +360,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Body Type */}
               <div>
-                <label className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Body Type</label>
+                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Body Type</span>
                 <div className="grid grid-cols-5 gap-2 max-w-xl">
                   {BODY_TYPES.map((bt) => (
                     <button
