@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { verifyUser, checkRateLimit, sanitizeText } from "./_auth";
+import { verifyUser, checkRateLimit, sanitizeText } from "./_auth.js";
 
 const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
