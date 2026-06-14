@@ -206,7 +206,7 @@ const ProfileSetup: React.FC<ProfileSetupProps> = ({ onBack, mode }) => {
       {/* Back Button */}
       <Button
         onClick={handleBack}
-        variant="default" size="default" className="absolute top-6 left-6 flex items-center gap-2 bg-[#0d1325]-white/10 hover:-[#FF5A50]FF5A50]FF5A50]/5 px-5 py-2.5 font-mono font-bold z-20 shadow-[3px_3px_0_rgba(255,90,80,0.2)]"
+        variant="default" size="default" className="absolute top-6 left-6 flex items-center gap-2 bg-[#0d1325] border border-white/10 hover:bg-[#FF5A50]/5 px-5 py-2.5 font-mono font-bold z-20 shadow-[3px_3px_0_rgba(255,90,80,0.2)]"
         type="button"
       >
         <ArrowLeft size={18} />

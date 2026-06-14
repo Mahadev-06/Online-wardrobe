@@ -61,7 +61,7 @@ const MagneticButton: React.FC<{
       onMouseLeave={reset}
       animate={{ x: position.x, y: position.y }}
       transition={{ type: 'spring', stiffness: 150, damping: 15 }}
-      className={`relative font-black text-lg md:text-xl px-8 py-4 transition-all duration-300 cursor-pointer ${baseStyle} ${className}`}
+      className={`relative font-black text-sm md:text-xl px-5 py-3 md:px-8 md:py-4 transition-all duration-300 cursor-pointer ${baseStyle} ${className}`}
       whileTap={{ scale: 0.95 }}
     >
       {children}
@@ -260,17 +260,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             : 'bg-transparent py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center">
           {/* Logo */}
           <motion.div
-            className="flex items-center gap-3 cursor-default group"
+            className="flex items-center gap-2 sm:gap-3 cursor-default group"
             whileHover={{ scale: 1.02 }}
           >
-            <div className="w-10 h-10 bg-[#FF5A50] flex items-center justify-center text-white font-black text-xl border-2 border-white/20 rotate-3 group-hover:rotate-12 transition-transform duration-500"
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#FF5A50] flex items-center justify-center text-white font-black text-lg sm:text-xl border-2 border-white/20 rotate-3 group-hover:rotate-12 transition-transform duration-500"
                  style={{ boxShadow: '3px 3px 0 rgba(255,255,255,0.2)' }}>
               W
             </div>
-            <span className="font-black text-white text-2xl tracking-tight">
+            <span className="font-black text-white text-xl sm:text-2xl tracking-tight">
               WARDROBE
               <span className="text-[#FF5A50]">.</span>
             </span>
@@ -291,7 +291,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
           </div>
 
           {/* Auth Buttons */}
-          <div className="flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-3">
             <button
               onClick={onLogin}
               className="px-5 py-2.5 text-white font-bold text-sm uppercase tracking-wider hover:text-[#FF5A50] transition-colors relative group cursor-pointer"
@@ -301,7 +301,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             </button>
             <Button
               onClick={onSignup}
-              variant="default" size="default" className="px-5 py-2.5 bg-[#FF5A50] font-black text-sm uppercase tracking-wider-white/20e84d43] duration-300"
+              variant="default" size="default" className="px-5 py-2.5 bg-[#FF5A50] font-black text-sm uppercase tracking-wider duration-300"
               style={{ boxShadow: '3px 3px 0 rgba(255,255,255,0.15)' }}
             >
               Get Started
@@ -369,22 +369,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 text-[#FF5A50] text-xs uppercase tracking-[0.2em] font-black mb-10"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 text-[#FF5A50] text-xs uppercase tracking-[0.2em] font-black mb-6 sm:mb-10"
           >
             <Sparkles size={14} className="animate-pulse" />
             <span>AI-Powered Smart Wardrobe</span>
           </motion.div>
 
           {/* Main Title — Brutalist Typography */}
-          <div className="mb-8 select-none">
+          <div className="mb-6 sm:mb-8 select-none">
             <BrutalReveal
               text="YOUR CLOSET,"
-              className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter"
+              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter"
               delay={0.3}
             />
             <BrutalReveal
               text="REIMAGINED."
-              className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter"
+              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter"
               delay={0.5}
             />
             {/* The word REIMAGINED in the red accent */}
@@ -396,7 +396,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.8 }}
-            className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
+            className="text-sm sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
           >
             Digitize your wardrobe. Let AI style your outfits based on your body, weather, and mood.
             Plan your week, never overdress or underdress again.
@@ -407,16 +407,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 1.0 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-6 sm:px-0"
           >
-            <MagneticButton onClick={onSignup} variant="primary">
-              <span className="flex items-center gap-3">
+            <MagneticButton onClick={onSignup} variant="primary" className="w-full max-w-[280px] sm:w-auto">
+              <span className="flex items-center gap-3 justify-center">
                 Start Styling
                 <ArrowRight className="w-5 h-5" />
               </span>
             </MagneticButton>
-            <MagneticButton onClick={onLogin} variant="secondary">
-              <span className="flex items-center gap-3">
+            <MagneticButton onClick={onLogin} variant="secondary" className="w-full max-w-[280px] sm:w-auto">
+              <span className="flex items-center gap-3 justify-center">
                 Sign In
               </span>
             </MagneticButton>
@@ -425,7 +425,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
 
         {/* Scroll Indicator */}
         <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
+          className="hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 z-10"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
