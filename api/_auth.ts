@@ -1,10 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+// Initialize with a placeholder if missing to prevent module loading crashes on Vercel
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder-project-id.supabase.co', 
+  supabaseAnonKey || 'placeholder-anon-key'
+);
 
 export async function verifyUser(req: any) {
+  const currentUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+  const currentKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+
+  if (!currentUrl || !currentKey) {
+    return { user: null, error: 'Database environment variables are not configured in Vercel. Please add SUPABASE_URL and SUPABASE_ANON_KEY to your Vercel Project Environment Variables.' };
+  }
+
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return { user: null, error: 'Missing or invalid Authorization header' };
