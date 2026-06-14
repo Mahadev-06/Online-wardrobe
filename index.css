@@ -523,36 +523,48 @@ body {
   color: #0a0f1a !important;
 }
 
-/* BUT restore white text for elements inside explicitly dark sub-containers in these cards */
+/* BUT restore white text for elements inside explicitly dark or colored sub-containers in these cards */
 .glass-panel [class*="bg-p_dark"],
 .glass-panel [class*="bg-[#0a0f1a]"],
 .glass-panel [class*="bg-[#0d1325]"],
 .glass-panel [class*="bg-gray-900"],
 .glass-panel [class*="bg-black"],
 .glass-panel [class*="bg-purple-950"],
+.glass-panel [class*="bg-p_teal"],
+.glass-panel [class*="bg-[#FF5A50]"],
 .glass-panel [class*="from-[#0d1325]"],
 .liquid-glass-card [class*="bg-p_dark"],
 .liquid-glass-card [class*="bg-[#0a0f1a]"],
 .liquid-glass-card [class*="bg-[#0d1325]"],
 .liquid-glass-card [class*="bg-gray-900"],
 .liquid-glass-card [class*="bg-black"],
+.liquid-glass-card [class*="bg-p_teal"],
+.liquid-glass-card [class*="bg-[#FF5A50]"],
 .liquid-glass-card [class*="from-[#0d1325]"],
 .magic-bento-card [class*="bg-p_dark"],
 .magic-bento-card [class*="bg-[#0a0f1a]"],
 .magic-bento-card [class*="bg-[#0d1325]"],
 .magic-bento-card [class*="bg-gray-900"],
 .magic-bento-card [class*="bg-black"],
+.magic-bento-card [class*="bg-p_teal"],
+.magic-bento-card [class*="bg-[#FF5A50]"],
 .magic-bento-card [class*="from-[#0d1325]"] {
   color: #ffffff !important;
 }
 
-/* Restore white text for specific icons or badges inside dark containers */
+/* Restore white text for specific icons or badges inside dark/colored containers */
 .glass-panel [class*="bg-[#0d1325]"] .text-white,
 .liquid-glass-card [class*="bg-[#0d1325]"] .text-white,
 .magic-bento-card [class*="bg-[#0d1325]"] .text-white,
 .glass-panel [class*="from-[#0d1325]"] .text-white,
 .liquid-glass-card [class*="from-[#0d1325]"] .text-white,
-.magic-bento-card [class*="from-[#0d1325]"] .text-white {
+.magic-bento-card [class*="from-[#0d1325]"] .text-white,
+.glass-panel [class*="bg-p_teal"] .text-white,
+.liquid-glass-card [class*="bg-p_teal"] .text-white,
+.magic-bento-card [class*="bg-p_teal"] .text-white,
+.glass-panel [class*="bg-[#FF5A50]"] .text-white,
+.liquid-glass-card [class*="bg-[#FF5A50]"] .text-white,
+.magic-bento-card [class*="bg-[#FF5A50]"] .text-white {
   color: #ffffff !important;
 }
 
@@ -561,7 +573,24 @@ body {
 .glass-panel .text-gray-400, .liquid-glass-card .text-gray-400, .magic-bento-card .text-gray-400,
 .glass-panel .text-gray-300, .liquid-glass-card .text-gray-300, .magic-bento-card .text-gray-300,
 .glass-panel .text-gray-500, .liquid-glass-card .text-gray-500, .magic-bento-card .text-gray-500 {
-  color: #4b5563 !important;
+  color: #374151 !important;
+}
+
+/* Accent text inside cards — dark red for accessibility contrast */
+.glass-panel .text-p_teal,
+.liquid-glass-card .text-p_teal,
+.magic-bento-card .text-p_teal {
+  color: #D03A30 !important;
+}
+
+/* Restore bright red for explicitly dark sub-containers in these cards */
+.glass-panel [class*="bg-[#0d1325]"] .text-p_teal,
+.liquid-glass-card [class*="bg-[#0d1325]"] .text-p_teal,
+.magic-bento-card [class*="bg-[#0d1325]"] .text-p_teal,
+.glass-panel [class*="bg-p_dark"] .text-p_teal,
+.liquid-glass-card [class*="bg-p_dark"] .text-p_teal,
+.magic-bento-card [class*="bg-p_dark"] .text-p_teal {
+  color: #FF5A50 !important;
 }
 
 /* Restore gray text for dark sub-containers */
