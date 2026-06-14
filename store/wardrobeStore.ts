@@ -26,6 +26,13 @@ interface WardrobeState {
   clearCustomRecommendation: () => void;
 }
 
+const calculateHash = async (base64Str: string): Promise<string> => {
+  const msgUint8 = new TextEncoder().encode(base64Str);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
 const uploadImageToStorage = async (base64Str: string, userId: string): Promise<string> => {
   if (!base64Str.startsWith('data:image')) return base64Str; // Already a URL
 
@@ -69,6 +76,31 @@ export const useWardrobeStore = create<WardrobeState>((set, get) => ({
 
   addClothingItem: async (item, userId) => {
     try {
+      // 1. Quota Check (Max 100 items)
+      const { count, error: countError } = await supabase
+        .from('clothing_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+        
+      if (countError) throw countError;
+      if (count !== null && count >= 100) {
+        throw new Error("Closet quota exceeded: You can only have up to 100 items in your closet.");
+      }
+
+      // 2. Hash Calculation & Duplicate Detection
+      const hash = await calculateHash(item.image);
+      const { data: duplicate } = await supabase
+        .from('clothing_items')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('image_hash', hash)
+        .maybeSingle();
+
+      if (duplicate) {
+        throw new Error("Duplicate item: This clothing item is already in your closet.");
+      }
+
+      // 3. Image Upload
       let imageUrl = item.image;
       if (item.image.length > 200) {
         console.log("Uploading image...");
@@ -83,7 +115,8 @@ export const useWardrobeStore = create<WardrobeState>((set, get) => ({
         style: item.style,
         material: item.material,
         description: item.description,
-        season_suitability: item.seasonSuitability || []
+        season_suitability: item.seasonSuitability || [],
+        image_hash: hash
       };
 
       const { data, error } = await supabase.from('clothing_items').insert(dbItem).select().single();
@@ -116,6 +149,17 @@ export const useWardrobeStore = create<WardrobeState>((set, get) => ({
 
   saveOutfit: async (outfit, userId) => {
     try {
+      // 1. Quota Check (Max 50 outfits)
+      const { count, error: countError } = await supabase
+        .from('outfits')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId);
+        
+      if (countError) throw countError;
+      if (count !== null && count >= 50) {
+        throw new Error("Outfit quota exceeded: You can only have up to 50 saved outfits.");
+      }
+
       const { data, error } = await supabase.from('outfits').insert({
         user_id: userId,
         notes: outfit.notes

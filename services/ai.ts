@@ -1,8 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { ClothingItem, UserProfile } from "../types";
+import { supabase } from "./supabase";
 
-// Initialize Gemini SDK for local development
-const API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || "";
+// Initialize Gemini SDK for local development (only in development environment)
+const API_KEY = (import.meta as any).env.DEV ? ((import.meta as any).env.VITE_GEMINI_API_KEY || "") : "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 // Determine if we are running in local development mode
@@ -183,6 +184,21 @@ JSON Schema:
     };
 }
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+            headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+    } catch (err) {
+        console.error("Error retrieving supabase session:", err);
+    }
+    return headers;
+}
+
 /**
  * Analyzes a clothing image (Vision API).
  * Hybrid: Calls local SDK in dev mode, secure serverless API on Vercel.
@@ -200,11 +216,10 @@ export async function analyzeClothingImage(base64Image: string): Promise<Analysi
 
     console.log("[Fashion AI] Running in production: forwarding request to Vercel Serverless Function...");
     try {
+        const headers = await getAuthHeaders();
         const response = await fetch('/api/analyze', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: JSON.stringify({ image: base64Image }),
         });
 
@@ -266,11 +281,10 @@ export async function generateOutfitRecommendation(
 
     console.log("[Fashion AI] Generating recommendation in production: forwarding request to Vercel Serverless Function...");
     try {
+        const headers = await getAuthHeaders();
         const response = await fetch('/api/recommend', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers,
             body: JSON.stringify({ availableClothes, profile, occasion, weather }),
         });
 
@@ -305,6 +319,37 @@ export async function reviewOutfit(
         return { success: false, score: 0, review: "You haven't selected any clothes to review." };
     }
 
+    if (!isLocal) {
+        console.log("[Fashion AI] Reviewing outfit in production: forwarding request to Vercel Serverless Function...");
+        try {
+            const headers = await getAuthHeaders();
+            const response = await fetch('/api/review', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ selectedItems, profile }),
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                return {
+                    success: false,
+                    score: 0,
+                    review: `Server API Error: ${errText || "Failed to review outfit."}`
+                };
+            }
+
+            return await response.json();
+        } catch (err: any) {
+            console.error("Production AI Review Error:", err);
+            return {
+                success: false,
+                score: 0,
+                review: `Network Error: ${err.message || "Failed to connect to AI service."}`
+            };
+        }
+    }
+
+    console.log("[Fashion AI] Reviewing outfit locally using direct Gemini SDK...");
     const itemsDescription = selectedItems.map(i => `- ${i.category}: ${i.color} ${i.style} ${i.description}`).join('\n');
     
     const prompt = `You are an elite, world-class fashion critic and stylist. Critique this outfit curated by the client.

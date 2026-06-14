@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { verifyUser, checkRateLimit, sanitizeText } from "./_auth";
 
-const API_KEY = process.env.VITE_GEMINI_API_KEY || "";
+const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const MODELS = [
@@ -29,8 +30,20 @@ async function generateWithFallback(prompt: string) {
 
 export default async function handler(req: any, res: any) {
   // CORS configuration
+  const origin = req.headers.origin;
+  if (origin) {
+    const isAllowedOrigin = 
+      origin.startsWith('http://localhost:') || 
+      origin === 'https://online-wardrobe.vercel.app' ||
+      origin.endsWith('.vercel.app');
+      
+    if (!isAllowedOrigin) {
+      return res.status(403).send('Forbidden: CORS origin not allowed');
+    }
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -45,11 +58,38 @@ export default async function handler(req: any, res: any) {
     return res.status(405).send('Method Not Allowed');
   }
 
-  const { availableClothes, profile, occasion, weather } = req.body;
+  // 1. Verify User Token
+  const { user, error: authError } = await verifyUser(req);
+  if (authError || !user) {
+    return res.status(401).send(authError || 'Unauthorized');
+  }
+
+  // 2. Enforce 15s Rate Limit
+  const { allowed, waitTime } = await checkRateLimit(user.id, 'recommend', 15);
+  if (!allowed) {
+    return res.status(429).send(`Rate limit exceeded. Please wait ${waitTime} seconds before generating another recommendation.`);
+  }
+
+  const { availableClothes, profile: rawProfile } = req.body;
+  const occasion = sanitizeText(req.body.occasion, 50);
+  const weather = sanitizeText(req.body.weather, 50);
   
   if (!availableClothes || availableClothes.length === 0) {
     return res.status(400).send('Available clothes are required');
   }
+
+  if (!rawProfile) {
+    return res.status(400).send('Profile is required');
+  }
+
+  const profile = {
+    gender: sanitizeText(rawProfile.gender || '', 30),
+    bodyType: sanitizeText(rawProfile.bodyType || 'Average', 30),
+    skinTone: sanitizeText(rawProfile.skinTone || '', 30),
+    stylePreference: sanitizeText(rawProfile.stylePreference || '', 50),
+    height: Number(rawProfile.height) || 170,
+    weight: Number(rawProfile.weight) || 65,
+  };
 
   if (!API_KEY) {
     return res.status(500).send('Gemini API Key is not configured on the server.');
@@ -63,10 +103,12 @@ export default async function handler(req: any, res: any) {
         return {
             id: shortId,
             category: c.category,
-            color: c.color || 'Unknown',
-            style: c.style || 'Unknown',
-            description: c.description || '',
-            seasons: c.season_suitability || c.seasonSuitability || []
+            color: sanitizeText(c.color || 'Unknown', 30),
+            style: sanitizeText(c.style || 'Unknown', 50),
+            description: sanitizeText(c.description || '', 100),
+            seasons: Array.isArray(c.season_suitability || c.seasonSuitability) 
+              ? (c.season_suitability || c.seasonSuitability).map((s: string) => sanitizeText(s, 20))
+              : []
         };
     });
 

@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { verifyUser, checkRateLimit } from "./_auth";
 
-const API_KEY = process.env.VITE_GEMINI_API_KEY || "";
+const API_KEY = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const MODELS = [
@@ -30,8 +31,20 @@ async function generateWithFallback(prompt: string, imageParts: any[]) {
 
 export default async function handler(req: any, res: any) {
   // CORS configuration
+  const origin = req.headers.origin;
+  if (origin) {
+    const isAllowedOrigin = 
+      origin.startsWith('http://localhost:') || 
+      origin === 'https://online-wardrobe.vercel.app' ||
+      origin.endsWith('.vercel.app');
+      
+    if (!isAllowedOrigin) {
+      return res.status(403).send('Forbidden: CORS origin not allowed');
+    }
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -44,6 +57,18 @@ export default async function handler(req: any, res: any) {
 
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
+  }
+
+  // 1. Verify User Token
+  const { user, error: authError } = await verifyUser(req);
+  if (authError || !user) {
+    return res.status(401).send(authError || 'Unauthorized');
+  }
+
+  // 2. Enforce 10s Rate Limit
+  const { allowed, waitTime } = await checkRateLimit(user.id, 'analysis', 10);
+  if (!allowed) {
+    return res.status(429).send(`Rate limit exceeded. Please wait ${waitTime} seconds before uploading another image.`);
   }
 
   const { image } = req.body;

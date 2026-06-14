@@ -73,7 +73,7 @@ const HomePage: React.FC = () => {
         {/* Card 1: Weather (2x1 on Desktop) */}
         <MagicBentoCard className="md:col-span-2 glass-panel relative overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300">
             
-            <div className="relative z-10 flex justify-between items-start h-full">
+            <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-stretch h-full gap-6">
                 <div className="flex flex-col justify-between h-full">
                     <div>
                         <h3 className="text-p_teal font-bold tracking-widest text-xs uppercase mb-3 flex items-center gap-2">
@@ -128,22 +128,18 @@ const HomePage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="text-right hidden sm:flex flex-col justify-between h-full items-end text-white max-w-[220px]">
+                <div className="flex flex-col justify-between items-start sm:items-end text-white w-full sm:max-w-[240px] gap-4 mt-6 sm:mt-0 border-t border-white/5 sm:border-0 pt-4 sm:pt-0">
                      {weather && (
                           <>
-                             <div className="text-right">
+                             <div className="text-left sm:text-right hidden sm:block">
                                 <p className="font-bold text-lg leading-tight">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
-                                <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
-                                    <Shirt size={12} className="inline mr-1 text-p_teal" />
-                                    {weather.advice}
-                                </p>
                              </div>
                              
                              {/* 3-day forecast */}
                              {weather.forecast && weather.forecast.length > 0 && (
-                                 <div className="flex gap-2 mt-4 border-t border-[#0a0f1a]/10 pt-3 w-full justify-end">
+                                 <div className="flex gap-2 w-full justify-start sm:justify-end">
                                      {weather.forecast.map((f, idx) => (
-                                         <div key={idx} className="flex flex-col items-center bg-[#0d1325] rounded-xl px-2 py-1 min-w-[52px] border border-[#0a0f1a]/15">
+                                         <div key={idx} className="flex flex-col items-center bg-[#0d1325] rounded-xl px-2.5 py-1.5 min-w-[56px] border border-[#0a0f1a]/15">
                                              <span className="text-[9px] text-gray-400 font-bold uppercase">{f.day}</span>
                                              <div className="text-p_teal my-0.5">
                                                  <WeatherIcon code={f.code} isDay={true} size={14} />
@@ -153,12 +149,20 @@ const HomePage: React.FC = () => {
                                      ))}
                                  </div>
                              )}
+
+                             {/* Weather Advice Recommendation (Below Forecast) */}
+                             <div className="text-left sm:text-right w-full">
+                                <p className="text-gray-400 text-xs leading-relaxed">
+                                    <Shirt size={12} className="inline mr-1 text-p_teal" />
+                                    {weather.advice}
+                                </p>
+                             </div>
                           </>
                       )}
                       {weatherError && (
                           <button 
-                             onClick={() => window.location.reload()} 
-                             className="btn-glass-secondary px-3 py-1.5 text-xs rounded-[2.5rem] flex items-center gap-1 ml-auto border border-white/10 animate-fade-in"
+                              onClick={() => window.location.reload()} 
+                              className="btn-glass-secondary px-3 py-1.5 text-xs rounded-[2.5rem] flex items-center gap-1 ml-auto border border-white/10 animate-fade-in"
                           >
                              <RefreshCw size={12} /> Retry
                           </button>
