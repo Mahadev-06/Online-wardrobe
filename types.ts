@@ -54,6 +54,7 @@ export interface Outfit {
 }
 
 export interface CalendarEvent {
+  id?: string;
   date: string; // ISO string
   title: string;
   outfitId: string;

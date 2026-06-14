@@ -54,6 +54,8 @@ interface WardrobeContextType {
 
   calendarEvents: CalendarEvent[];
   addCalendarEvent: (event: CalendarEvent) => Promise<void>;
+  deleteCalendarEvent: (id: string) => Promise<void>;
+  updateCalendarEvent: (event: CalendarEvent) => Promise<void>;
 
   customRecommendation: { outfitItemIds: string[]; reasoning: string } | null;
   customLoading: boolean;
@@ -570,6 +572,34 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
+  const deleteCalendarEvent = async (id: string): Promise<void> => {
+    try {
+        const { error } = await supabase.from('calendar_events').delete().eq('id', id);
+        if (error) throw error;
+        setCalendarEvents((prev) => prev.filter((e) => e.id !== id));
+        console.log('Event deleted from calendar!');
+    } catch (error: any) {
+        console.error('Could not delete event: ' + error.message);
+    }
+  };
+
+  const updateCalendarEvent = async (event: CalendarEvent): Promise<void> => {
+    if (!user || !event.id) return;
+    try {
+        const { error } = await supabase.from('calendar_events').update({
+            date: event.date,
+            title: event.title,
+            outfit_id: event.outfitId || null
+        }).eq('id', event.id);
+        if (error) throw error;
+        
+        setCalendarEvents((prev) => prev.map((e) => e.id === event.id ? event : e));
+        console.log('Event updated in calendar!');
+    } catch (error: any) {
+        console.error('Could not update event: ' + error.message);
+    }
+  };
+
   const [customRecommendation, setCustomRecommendation] = useState<{ outfitItemIds: string[]; reasoning: string } | null>(null);
   const [customLoading, setCustomLoading] = useState(false);
 
@@ -607,7 +637,7 @@ export const WardrobeProvider: React.FC<{ children: ReactNode }> = ({ children }
         profile, setProfile,
         clothes, addClothingItem, deleteClothingItem,
         savedOutfits, saveOutfit, deleteOutfit,
-        calendarEvents, addCalendarEvent,
+        calendarEvents, addCalendarEvent, deleteCalendarEvent, updateCalendarEvent,
         customRecommendation, customLoading, generateCustomRecommendation, clearCustomRecommendation,
       }}
     >
