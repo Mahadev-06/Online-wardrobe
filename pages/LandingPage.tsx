@@ -331,15 +331,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
 
             <span className="w-px h-4 bg-white/20" />
 
-            {/* Heart Icon (Action) */}
-            <button
-              onClick={onSignup}
-              className="text-gray-400 hover:text-[#FF5A50] hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
-              title="Favorites"
-            >
-              <Heart size={20} className="stroke-[2.5]" />
-            </button>
-
             {/* User Icon (Sign In) */}
             <button
               onClick={onLogin}
@@ -353,14 +344,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
           {/* Mobile Auth Icons */}
           <div className="flex md:hidden items-center gap-4">
             <button
-              onClick={onSignup}
-              className="text-gray-400 hover:text-[#FF5A50] active:scale-95 transition-all cursor-pointer"
-            >
-              <Heart size={20} className="stroke-[2.5]" />
-            </button>
-            <button
               onClick={onLogin}
               className="text-gray-400 hover:text-[#FF5A50] active:scale-95 transition-all cursor-pointer"
+              title="Sign In"
             >
               <User size={20} className="stroke-[2.5]" />
             </button>
@@ -453,67 +439,67 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             className="lg:col-span-5 flex justify-center lg:justify-end w-full"
             style={{ y: y1, opacity: opacity1, scale: scale1 }}
           >
-            <div className="grid grid-cols-3 gap-3 aspect-square w-full max-w-[420px] sm:max-w-[460px]">
-              {/* Card 1: Yellow, Closets Digitized */}
-              <div className="bg-[#FBE334] text-black p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] shadow-lg">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-black/60 leading-tight">Closets Digitized</span>
+            <div className="grid grid-cols-3 gap-4 aspect-square w-full max-w-[420px] sm:max-w-[460px]">
+              {/* Card 1: Cream, Closets Digitized */}
+              <div className="bg-[#F3E8D6] text-[#0a0f1a] p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#0a0f1a]/60 leading-tight">Closets Digitized</span>
                 <span className="text-xl sm:text-3xl font-black tracking-tight leading-none">1.2M</span>
               </div>
               
-              {/* Card 2: Lilac */}
-              <div className="bg-[#E5BDF0] flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] shadow-lg">
-                <Shirt className="w-8 h-8 text-purple-900/40" />
+              {/* Card 2: Brand Red */}
+              <div className="bg-[#FF5A50] text-white flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+                <Shirt className="w-8 h-8 text-[#0a0f1a]/50" />
               </div>
               
-              {/* Card 3: Dark */}
+              {/* Card 3: Deep Dark Blue */}
               <div 
                 onClick={onSignup}
-                className="bg-[#111827]/90 border border-white/10 text-white p-3 flex items-center justify-center rounded-tl-[50px] sm:rounded-tl-[60px] shadow-lg text-center cursor-pointer hover:bg-[#1A2238] transition-colors"
+                className="bg-[#0d1325]/90 border-2 border-white/20 text-white p-3 flex items-center justify-center rounded-tl-[50px] sm:rounded-tl-[60px] shadow-[4px_4px_0_#FF5A50] text-center cursor-pointer hover:bg-[#161f38] transition-colors"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-300 leading-tight">Try it for free</span>
               </div>
               
-              {/* Card 4: Image 1 */}
-              <div className="relative overflow-hidden rounded-tl-[50px] sm:rounded-tl-[60px] shadow-lg bg-[#111827]">
+              {/* Card 4: Wardrobe Image */}
+              <div className="relative overflow-hidden rounded-tl-[50px] sm:rounded-tl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
                 <img 
-                  src="https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?auto=format&fit=crop&w=300&q=80" 
-                  alt="Wardrobe" 
+                  src="https://images.unsplash.com/photo-1509691909012-704b6b2bc2a3?auto=format&fit=crop&w=300&q=80" 
+                  alt="Wardrobe rack" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
               </div>
               
-              {/* Card 5: Image 2 */}
-              <div className="relative overflow-hidden rounded-br-[50px] sm:rounded-br-[60px] shadow-lg bg-[#111827]">
+              {/* Card 5: Outfit flat lay */}
+              <div className="relative overflow-hidden rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
                 <img 
-                  src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=300&q=80" 
-                  alt="Styling Workspace" 
+                  src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=300&q=80" 
+                  alt="Outfit layout" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
               </div>
               
-              {/* Card 6: Yellow */}
-              <div className="bg-[#FBE334] flex items-center justify-center rounded-bl-[50px] sm:rounded-bl-[60px] shadow-lg">
-                <Sparkles className="w-8 h-8 text-yellow-900/40" />
+              {/* Card 6: Cream Sparkles */}
+              <div className="bg-[#F3E8D6] flex items-center justify-center rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+                <Sparkles className="w-8 h-8 text-[#0a0f1a]/50" />
               </div>
               
-              {/* Card 7: Image 3 */}
-              <div className="relative overflow-hidden rounded-bl-[50px] sm:rounded-bl-[60px] shadow-lg bg-[#111827]">
+              {/* Card 7: Garment hangers */}
+              <div className="relative overflow-hidden rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
                 <img 
-                  src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=300&q=80" 
-                  alt="Clothing flatlay" 
+                  src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=300&q=80" 
+                  alt="Garments on hangers" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
               </div>
               
-              {/* Card 8: Yellow, Outfits Created */}
-              <div className="bg-[#FBE334] text-black p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] shadow-lg">
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-black/60 leading-tight">Outfits Styled</span>
+              {/* Card 8: Red, Outfits Created */}
+              <div className="bg-[#FF5A50] text-white p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-white/70 leading-tight">Outfits Styled</span>
                 <span className="text-xl sm:text-3xl font-black tracking-tight leading-none">40K+</span>
               </div>
               
-              {/* Card 9: Lilac */}
-              <div className="bg-[#E5BDF0] flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] shadow-lg">
-                <Heart className="w-8 h-8 text-purple-900/40 fill-purple-900/10" />
+              {/* Card 9: Cream Heart */}
+              <div className="bg-[#0d1325]/90 flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+                <Heart className="w-8 h-8 text-[#FF5A50] fill-[#FF5A50]/20" />
               </div>
             </div>
           </motion.div>
