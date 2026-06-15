@@ -2,7 +2,7 @@ import { Button } from "../components/ui/button";
 
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Shirt, Sparkles, Calendar, CloudSun, Upload, Wand2, Star, Hexagon, Zap, ChevronDown, Layers, Eye, Brain, TrendingUp, Shield, Palette, LayoutGrid } from 'lucide-react';
+import { ArrowRight, Shirt, Sparkles, Calendar, CloudSun, Upload, Wand2, Star, Hexagon, Zap, ChevronDown, Layers, Eye, Brain, TrendingUp, Shield, Palette, LayoutGrid, Heart, User } from 'lucide-react';
 import Aurora from '../components/Aurora';
 
 interface LandingPageProps {
@@ -296,7 +296,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
       <motion.nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-[#0a0f1a]/90 backdrop-blur-xl border-b border-white/10 py-3'
+            ? 'bg-[#0a0f1a]/95 backdrop-blur-xl border-b border-white/10 py-3'
             : 'bg-transparent py-5'
         }`}
       >
@@ -318,40 +318,58 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
 
           {/* Nav Links */}
           <div className="hidden md:flex items-center gap-8">
-            {['Features', 'How it Works', 'Reviews'].map((item) => (
+            {['Home', 'About', 'Contact', 'More'].map((item) => (
               <a
                 key={item}
-                href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                href={item === 'Home' ? '#' : `#${item.toLowerCase().replace(/\s+/g, '-')}`}
                 className="text-gray-400 hover:text-white text-sm font-bold uppercase tracking-wider transition-colors duration-300 relative group"
               >
                 {item}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#FF5A50] group-hover:w-full transition-all duration-300" />
               </a>
             ))}
-          </div>
 
-          {/* Auth Buttons */}
-          <div className="hidden sm:flex items-center gap-3">
+            <span className="w-px h-4 bg-white/20" />
+
+            {/* Heart Icon (Action) */}
+            <button
+              onClick={onSignup}
+              className="text-gray-400 hover:text-[#FF5A50] hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+              title="Favorites"
+            >
+              <Heart size={20} className="stroke-[2.5]" />
+            </button>
+
+            {/* User Icon (Sign In) */}
             <button
               onClick={onLogin}
-              className="px-5 py-2.5 text-white font-bold text-sm uppercase tracking-wider hover:text-[#FF5A50] transition-colors relative group cursor-pointer"
+              className="text-gray-400 hover:text-[#FF5A50] hover:scale-110 active:scale-95 transition-all duration-200 cursor-pointer"
+              title="Sign In"
             >
-              Sign In
-              <span className="absolute bottom-1 left-2 right-2 h-0.5 bg-[#FF5A50] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              <User size={20} className="stroke-[2.5]" />
             </button>
-            <Button
+          </div>
+
+          {/* Mobile Auth Icons */}
+          <div className="flex md:hidden items-center gap-4">
+            <button
               onClick={onSignup}
-              variant="default" size="default" className="px-5 py-2.5 bg-[#FF5A50] font-black text-sm uppercase tracking-wider duration-300"
-              style={{ boxShadow: '3px 3px 0 rgba(255,255,255,0.15)' }}
+              className="text-gray-400 hover:text-[#FF5A50] active:scale-95 transition-all cursor-pointer"
             >
-              Get Started
-            </Button>
+              <Heart size={20} className="stroke-[2.5]" />
+            </button>
+            <button
+              onClick={onLogin}
+              className="text-gray-400 hover:text-[#FF5A50] active:scale-95 transition-all cursor-pointer"
+            >
+              <User size={20} className="stroke-[2.5]" />
+            </button>
           </div>
         </div>
       </motion.nav>
 
       {/* ═══ HERO SECTION ═══ */}
-      <section ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-28 pb-16 overflow-hidden">
         {/* Aurora Background (subtle) */}
         <div className="absolute inset-0 opacity-30">
           <Aurora
@@ -399,78 +417,116 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
           duration={8}
         />
 
-        {/* Hero Content */}
-        <motion.div
-          className="relative z-10 max-w-6xl mx-auto text-center"
-          style={{ y: y1, opacity: opacity1, scale: scale1 }}
-        >
-          {/* Badge */}
+        {/* Two-column Container */}
+        <div className="relative z-10 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-center pt-8">
+          {/* Left Column: Heading, CTA Button & Paragraph */}
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF5A50]/10 border-2 border-[#FF5A50]/30 text-[#FF5A50] text-xs uppercase tracking-[0.2em] font-black mb-6 sm:mb-10"
+            className="lg:col-span-7 flex flex-col justify-center text-left"
+            style={{ y: y2, opacity: opacity1 }}
           >
-            <Sparkles size={14} className="animate-pulse" />
-            <span>AI-Powered Smart Wardrobe</span>
+            {/* Title */}
+            <h1 className="text-white font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl lg:text-[5.5rem] leading-[1.0] tracking-tighter mb-10 select-none uppercase">
+              Your Closet <br />
+              is an Art, <br />
+              and you're <br className="hidden sm:inline" />
+              the <span className="text-[#FF5A50]">Artist.</span>
+            </h1>
+
+            {/* CTA & Subtitle Flex Row */}
+            <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
+              <button
+                onClick={onSignup}
+                className="w-full sm:w-auto bg-[#FF5A50] text-white hover:bg-white hover:text-black font-black text-sm uppercase tracking-wider px-8 py-5 transition-all duration-300 cursor-pointer shrink-0"
+                style={{ boxShadow: '4px 4px 0 rgba(255, 90, 80, 0.4)' }}
+              >
+                Get Started
+              </button>
+              
+              <p className="text-gray-400 text-sm sm:text-base leading-relaxed font-medium max-w-sm">
+                Digitize your wardrobe. Let AI style your outfits based on your body, weather, and mood. Plan your week, and never struggle with morning decisions.
+              </p>
+            </div>
           </motion.div>
 
-          {/* Main Title — Brutalist Typography */}
-          <div className="mb-6 sm:mb-8 select-none">
-            <BrutalReveal
-              text="YOUR CLOSET,"
-              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter"
-              delay={0.3}
-            />
-            <BrutalReveal
-              text="REIMAGINED."
-              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black leading-[0.9] tracking-tighter"
-              delay={0.5}
-            />
-            {/* The word REIMAGINED in the red accent */}
-            <style>{`.brutal-reveal-wrapper:last-child > div { color: #FF5A50; }`}</style>
-          </div>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.8 }}
-            className="text-sm sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-12 max-w-2xl mx-auto leading-relaxed font-medium"
-          >
-            Digitize your wardrobe. Let AI style your outfits based on your body, weather, and mood.
-            Plan your week, never overdress or underdress again.
-          </motion.p>
-
-          {/* CTA Buttons */}
+          {/* Right Column: 3x3 Bento Grid */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 1.0 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-6 sm:px-0"
+            className="lg:col-span-5 flex justify-center lg:justify-end w-full"
+            style={{ y: y1, opacity: opacity1, scale: scale1 }}
           >
-            <MagneticButton onClick={onSignup} variant="primary" className="w-full max-w-[280px] sm:w-auto">
-              <span className="flex items-center gap-3 justify-center">
-                Start Styling
-                <ArrowRight className="w-5 h-5" />
-              </span>
-            </MagneticButton>
-            <MagneticButton onClick={onLogin} variant="secondary" className="w-full max-w-[280px] sm:w-auto">
-              <span className="flex items-center gap-3 justify-center">
-                Sign In
-              </span>
-            </MagneticButton>
+            <div className="grid grid-cols-3 gap-3 aspect-square w-full max-w-[420px] sm:max-w-[460px]">
+              {/* Card 1: Yellow, Closets Digitized */}
+              <div className="bg-[#FBE334] text-black p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] shadow-lg">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-black/60 leading-tight">Closets Digitized</span>
+                <span className="text-xl sm:text-3xl font-black tracking-tight leading-none">1.2M</span>
+              </div>
+              
+              {/* Card 2: Lilac */}
+              <div className="bg-[#E5BDF0] flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] shadow-lg">
+                <Shirt className="w-8 h-8 text-purple-900/40" />
+              </div>
+              
+              {/* Card 3: Dark */}
+              <div 
+                onClick={onSignup}
+                className="bg-[#111827]/90 border border-white/10 text-white p-3 flex items-center justify-center rounded-tl-[50px] sm:rounded-tl-[60px] shadow-lg text-center cursor-pointer hover:bg-[#1A2238] transition-colors"
+              >
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-300 leading-tight">Try it for free</span>
+              </div>
+              
+              {/* Card 4: Image 1 */}
+              <div className="relative overflow-hidden rounded-tl-[50px] sm:rounded-tl-[60px] shadow-lg bg-[#111827]">
+                <img 
+                  src="https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?auto=format&fit=crop&w=300&q=80" 
+                  alt="Wardrobe" 
+                  className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                />
+              </div>
+              
+              {/* Card 5: Image 2 */}
+              <div className="relative overflow-hidden rounded-br-[50px] sm:rounded-br-[60px] shadow-lg bg-[#111827]">
+                <img 
+                  src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=300&q=80" 
+                  alt="Styling Workspace" 
+                  className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                />
+              </div>
+              
+              {/* Card 6: Yellow */}
+              <div className="bg-[#FBE334] flex items-center justify-center rounded-bl-[50px] sm:rounded-bl-[60px] shadow-lg">
+                <Sparkles className="w-8 h-8 text-yellow-900/40" />
+              </div>
+              
+              {/* Card 7: Image 3 */}
+              <div className="relative overflow-hidden rounded-bl-[50px] sm:rounded-bl-[60px] shadow-lg bg-[#111827]">
+                <img 
+                  src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=300&q=80" 
+                  alt="Clothing flatlay" 
+                  className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
+                />
+              </div>
+              
+              {/* Card 8: Yellow, Outfits Created */}
+              <div className="bg-[#FBE334] text-black p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] shadow-lg">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-black/60 leading-tight">Outfits Styled</span>
+                <span className="text-xl sm:text-3xl font-black tracking-tight leading-none">40K+</span>
+              </div>
+              
+              {/* Card 9: Lilac */}
+              <div className="bg-[#E5BDF0] flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] shadow-lg">
+                <Heart className="w-8 h-8 text-purple-900/40 fill-purple-900/10" />
+              </div>
+            </div>
           </motion.div>
-        </motion.div>
+        </div>
 
         {/* Scroll Indicator */}
         <motion.div
-          className="hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 z-10"
+          className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-1.5 z-10"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <span className="text-gray-500 text-xs uppercase tracking-[0.2em] font-bold">Scroll</span>
-          <ChevronDown className="w-5 h-5 text-[#FF5A50]" />
+          <span className="text-gray-500 text-[10px] uppercase tracking-[0.2em] font-bold">Scroll</span>
+          <ChevronDown className="w-4 h-4 text-[#FF5A50]" />
         </motion.div>
       </section>
 
