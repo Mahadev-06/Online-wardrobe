@@ -439,7 +439,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             className="lg:col-span-5 flex justify-center lg:justify-end w-full"
             style={{ y: y1, opacity: opacity1, scale: scale1 }}
           >
-            <div className="grid grid-cols-3 gap-4 aspect-square w-full max-w-[420px] sm:max-w-[460px]">
+            <div className="grid grid-cols-3 gap-4 sm:gap-5 aspect-square w-full max-w-[480px] sm:max-w-[520px] lg:max-w-[540px] xl:max-w-[580px]">
               {/* Card 1: Cream, Closets Digitized */}
               <div className="bg-[#F3E8D6] text-[#0a0f1a] p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#0a0f1a]/60 leading-tight">Closets Digitized</span>
@@ -462,8 +462,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
               {/* Card 4: Wardrobe Image */}
               <div className="relative overflow-hidden rounded-tl-[50px] sm:rounded-tl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
                 <img 
-                  src="https://images.unsplash.com/photo-1509691909012-704b6b2bc2a3?auto=format&fit=crop&w=300&q=80" 
-                  alt="Wardrobe rack" 
+                  src="https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?auto=format&fit=crop&w=400&q=80" 
+                  alt="" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
               </div>
@@ -471,8 +471,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
               {/* Card 5: Outfit flat lay */}
               <div className="relative overflow-hidden rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
                 <img 
-                  src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=300&q=80" 
-                  alt="Outfit layout" 
+                  src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=400&q=80" 
+                  alt="" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
               </div>
@@ -485,8 +485,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
               {/* Card 7: Garment hangers */}
               <div className="relative overflow-hidden rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
                 <img 
-                  src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=300&q=80" 
-                  alt="Garments on hangers" 
+                  src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=400&q=80" 
+                  alt="" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
               </div>
