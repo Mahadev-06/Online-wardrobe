@@ -411,7 +411,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             style={{ y: y2, opacity: opacity1 }}
           >
             {/* Title */}
-            <h1 className="text-white font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl lg:text-[5.5rem] leading-[1.0] tracking-tighter mb-10 select-none uppercase">
+            <h1 className="text-white font-black text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] xl:text-[4.2rem] leading-[1.05] tracking-tighter mb-8 select-none uppercase">
               Your Closet <br />
               is an Art, <br />
               and you're <br className="hidden sm:inline" />
