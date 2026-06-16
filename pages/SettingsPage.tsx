@@ -25,7 +25,7 @@ const BODY_TYPES = [
 ] as const;
 
 const SettingsPage: React.FC = () => {
-  const { profile, setProfile, logout } = useWardrobe();
+  const { profile, setProfile, logout, startOnboardingTour } = useWardrobe();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<UserProfile | null>(null);
   const [heightUnit, setHeightUnit] = useState<'cm' | 'ft'>('cm');
@@ -98,7 +98,7 @@ const SettingsPage: React.FC = () => {
       {/* Toast Notification */}
       {inlineMessage && createPortal(
           <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[99999] animate-slide-up">
-              <div className={`px-5 py-3 shadow-[4px_4px_0_rgba(255,90,80,0.25)] flex items-center gap-2 text-xs font-mono font-black uppercase border-2 ${
+              <div className={`px-5 py-3 shadow-[4px_4px_0_rgba(255,90,80,0.25)] flex items-center gap-2 text-xs font-black uppercase border-2 ${
                   inlineMessage.type === 'error' ? 'bg-red-500/20 text-red-500 border-red-500/30' :
                   inlineMessage.type === 'success' ? 'bg-p_teal/20 text-[#FF5A50] border-[#FF5A50]/30' :
                   'bg-blue-500/20 text-blue-500 border-blue-500/30'
@@ -114,17 +114,17 @@ const SettingsPage: React.FC = () => {
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-black text-white tracking-wider uppercase font-mono">Settings</h1>
-        <p className="text-gray-400 text-xs font-mono font-bold uppercase mt-1">Manage your personal details and app preferences.</p>
+        <h1 className="text-3xl md:text-4xl font-black text-white tracking-wider uppercase ">Settings</h1>
+        <p className="text-gray-400 text-xs font-bold uppercase mt-1">Manage your personal details and app preferences.</p>
       </div>
 
       {/* Unified Single-Page Panel */}
-      <div className="glass-panel p-6 md:p-8">
+      <div className="glass-panel p-4 sm:p-8">
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-8">
 
           {/* Left Column: Avatar & Log Out */}
           <div className="md:w-1/3 flex flex-col items-center gap-5 md:border-r-2 md:border-[#0a0f1a] md:pr-8">
-            <h3 className="w-full text-left text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest font-mono">Profile Photo</h3>
+            <h3 className="w-full text-left text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest ">Profile Photo</h3>
 
             <div
               className="w-32 h-32 bg-gray-50 border-2 border-[#0a0f1a] flex items-center justify-center overflow-hidden cursor-pointer relative group shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] transition-all rounded-none"
@@ -143,8 +143,8 @@ const SettingsPage: React.FC = () => {
             </div>
 
             <div className="text-center">
-              <h3 className="text-[#0a0f1a] font-mono font-black uppercase text-base tracking-wider">{formData.name || 'Your Name'}</h3>
-              <p className="text-[#0a0f1a]/60 font-mono text-xs uppercase tracking-wide mt-1">
+              <h3 className="text-[#0a0f1a] font-black uppercase text-base tracking-wider">{formData.name || 'Your Name'}</h3>
+              <p className="text-[#0a0f1a]/60 text-xs uppercase tracking-wide mt-1">
                 {formData.gender || 'Not set'} · {formData.height ? `${formData.height}cm` : 'Height not set'}
               </p>
             </div>
@@ -153,7 +153,7 @@ const SettingsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex-1 px-3 py-2 bg-gray-100 border-2 border-[#0a0f1a] font-mono font-bold text-[10px] text-[#0a0f1a] hover:bg-gray-200 transition-all cursor-pointer uppercase tracking-wider shadow-[2px_2px_0_#0a0f1a] hover:translate-x-[-0.5px] hover:translate-y-[-0.5px] hover:shadow-[2.5px_2.5px_0_#0a0f1a]"
+                className="flex-1 px-3 py-2 bg-gray-100 border-2 border-[#0a0f1a] font-bold text-[10px] text-[#0a0f1a] hover:bg-gray-200 transition-all cursor-pointer uppercase tracking-wider shadow-[2px_2px_0_#0a0f1a] hover:translate-x-[-0.5px] hover:translate-y-[-0.5px] hover:shadow-[2.5px_2.5px_0_#0a0f1a]"
               >
                 Change
               </button>
@@ -161,7 +161,7 @@ const SettingsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setFormData({...formData, bodyPhoto: undefined})}
-                  className="px-3 py-2 bg-red-500/10 border-2 border-[#0a0f1a] text-[#FF5A50] hover:bg-[#FF5A50] hover:text-white transition-all text-[10px] font-mono font-bold cursor-pointer uppercase tracking-wider shadow-[2px_2px_0_#0a0f1a] hover:translate-x-[-0.5px] hover:translate-y-[-0.5px] hover:shadow-[2.5px_2.5px_0_#0a0f1a]"
+                  className="px-3 py-2 bg-red-500/10 border-2 border-[#0a0f1a] text-[#FF5A50] hover:bg-[#FF5A50] hover:text-white transition-all text-[10px] font-bold cursor-pointer uppercase tracking-wider shadow-[2px_2px_0_#0a0f1a] hover:translate-x-[-0.5px] hover:translate-y-[-0.5px] hover:shadow-[2.5px_2.5px_0_#0a0f1a]"
                 >
                   Remove
                 </button>
@@ -177,6 +177,17 @@ const SettingsPage: React.FC = () => {
               accept="image/*"
               onChange={handleFileChange}
             />
+
+            <button
+              type="button"
+              onClick={() => {
+                startOnboardingTour();
+                navigate('/dashboard');
+              }}
+              className="w-full px-3 py-3 bg-[#FF5A50] border-2 border-[#0a0f1a] font-black text-xs text-white hover:bg-[#0a0f1a] hover:text-white transition-all cursor-pointer uppercase tracking-widest shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] text-center mt-6"
+            >
+              Take Tutorial Tour
+            </button>
           </div>
 
           {/* Right Column: Editable Details */}
@@ -187,13 +198,13 @@ const SettingsPage: React.FC = () => {
 
               {/* Display Name */}
               <div>
-                <label htmlFor="settings-name" className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Display Name</label>
+                <label htmlFor="settings-name" className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 ">Display Name</label>
                 <input
                   id="settings-name"
                   name="name"
                   type="text"
                   required
-                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
+                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   placeholder="Enter your name"
@@ -202,14 +213,14 @@ const SettingsPage: React.FC = () => {
 
               {/* Gender */}
               <div>
-                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Gender</span>
+                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 ">Gender</span>
                 <div className="flex bg-gray-100 p-1 border-2 border-[#0a0f1a] rounded-none shadow-[2px_2px_0_#0a0f1a]">
                   {(['Female', 'Male', 'Other'] as UserProfile['gender'][]).map((g) => (
                     <button
                       key={g}
                       type="button"
                       onClick={() => setFormData({...formData, gender: g})}
-                      className={`flex-1 py-2 text-xs font-mono font-bold transition-all uppercase cursor-pointer ${
+                      className={`flex-1 py-2 text-xs font-bold transition-all uppercase cursor-pointer ${
                         formData.gender === g
                           ? 'bg-[#FF5A50] text-white border-2 border-[#0a0f1a] shadow-[2px_2px_0_#0a0f1a]'
                           : 'bg-transparent text-[#0a0f1a]/65 hover:text-[#0a0f1a] border border-transparent'
@@ -224,7 +235,7 @@ const SettingsPage: React.FC = () => {
               {/* Height */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label htmlFor={heightUnit === 'cm' ? "settings-height-cm" : "settings-height-ft"} className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
+                  <label htmlFor={heightUnit === 'cm' ? "settings-height-cm" : "settings-height-ft"} className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 ">
                     <Ruler size={10} /> Height
                   </label>
                   <div className="flex bg-gray-100 rounded-none p-0.5 border-2 border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a]">
@@ -233,7 +244,7 @@ const SettingsPage: React.FC = () => {
                         key={unit}
                         type="button"
                         onClick={() => setHeightUnit(unit)}
-                        className={`text-[8px] font-mono font-black px-1.5 py-0.5 rounded-none cursor-pointer ${
+                        className={`text-[8px] font-black px-1.5 py-0.5 rounded-none cursor-pointer ${
                           heightUnit === unit ? 'bg-[#FF5A50] text-white border border-[#0a0f1a]' : 'text-[#0a0f1a]/65 hover:text-[#0a0f1a]'
                         }`}
                       >
@@ -248,7 +259,7 @@ const SettingsPage: React.FC = () => {
                       name="heightCm"
                       type="number"
                       required
-                      className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
+                      className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
                       value={formData.height || ''}
                       onChange={(e) => setFormData({...formData, height: Number(e.target.value)})}
                       placeholder="e.g. 170"
@@ -263,7 +274,7 @@ const SettingsPage: React.FC = () => {
                         min={1}
                         max={9}
                         aria-label="Height in feet"
-                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
+                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
                         value={Math.floor((formData.height || 170) / 30.48)}
                         onChange={(e) => {
                             const ft = Number(e.target.value);
@@ -279,7 +290,7 @@ const SettingsPage: React.FC = () => {
                         min={0}
                         max={11}
                         aria-label="Height in inches"
-                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
+                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-2 py-3 text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50] text-center"
                         value={Math.round(((formData.height || 170) / 2.54) % 12)}
                         onChange={(e) => {
                             const inch = Number(e.target.value);
@@ -294,7 +305,7 @@ const SettingsPage: React.FC = () => {
               {/* Weight */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="settings-weight" className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 font-mono">
+                  <label htmlFor="settings-weight" className="text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest flex items-center gap-1 ">
                     <Weight size={10} /> Weight
                   </label>
                   <div className="flex bg-gray-100 rounded-none p-0.5 border-2 border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a]">
@@ -303,7 +314,7 @@ const SettingsPage: React.FC = () => {
                         key={unit}
                         type="button"
                         onClick={() => setWeightUnit(unit)}
-                        className={`text-[8px] font-mono font-black px-1.5 py-0.5 rounded-none cursor-pointer ${
+                        className={`text-[8px] font-black px-1.5 py-0.5 rounded-none cursor-pointer ${
                           weightUnit === unit ? 'bg-[#FF5A50] text-white border border-[#0a0f1a]' : 'text-[#0a0f1a]/65 hover:text-[#0a0f1a]'
                         }`}
                       >
@@ -317,7 +328,7 @@ const SettingsPage: React.FC = () => {
                   name="weight"
                   type="number"
                   required
-                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3.5px_3.5px_0_#FF5A50]"
+                  className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3.5px_3.5px_0_#FF5A50]"
                   value={weightUnit === 'kg' ? (formData.weight || '') : Math.round((formData.weight || 65) * 2.20462)}
                   onChange={(e) => {
                       const val = Number(e.target.value);
@@ -334,7 +345,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Skin Tone */}
               <div>
-                 <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Skin Tone</span>
+                 <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 ">Skin Tone</span>
                  <div className="flex justify-start gap-2 bg-gray-50 p-2 rounded-none border-2 border-[#0a0f1a] shadow-[2px_2px_0_#0a0f1a] max-w-md">
                     {SKIN_TONES.map((tone) => (
                       <button
@@ -360,20 +371,20 @@ const SettingsPage: React.FC = () => {
 
               {/* Body Type */}
               <div>
-                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">Body Type</span>
+                <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 ">Body Type</span>
                 <div className="grid grid-cols-5 gap-2 max-w-xl">
                   {BODY_TYPES.map((bt) => (
                     <button
                       key={bt.id}
                       type="button"
                       onClick={() => setFormData({...formData, bodyType: bt.label})}
-                      className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-none transition-all duration-300 border-2 border-[#0a0f1a] cursor-pointer ${
+                      className={`flex flex-col items-center gap-1 sm:gap-1.5 py-2 sm:py-3 px-0.5 sm:px-1 rounded-none transition-all duration-300 border-2 border-[#0a0f1a] cursor-pointer ${
                         formData.bodyType === bt.label
                           ? 'bg-[#FF5A50] text-white shadow-[2px_2px_0_#0a0f1a] translate-x-[-1px] translate-y-[-1px]'
                           : 'bg-gray-50 text-[#0a0f1a]/60 hover:text-[#0a0f1a] hover:bg-gray-100 shadow-[1px_1px_0_#0a0f1a]'
                       }`}
                     >
-                      <div className="w-8 h-12 flex items-center justify-center">
+                      <div className="w-6 h-10 sm:w-8 sm:h-12 flex items-center justify-center">
                         {bt.id === 'slim' && (
                           <svg viewBox="0 0 24 40" fill="currentColor" className={`w-full h-full ${formData.bodyType === bt.label ? 'text-white' : 'text-[#0a0f1a]/45'}`}>
                             <circle cx="12" cy="4" r="3.5" />
@@ -410,7 +421,7 @@ const SettingsPage: React.FC = () => {
                           </svg>
                         )}
                       </div>
-                      <span className={`text-[9px] font-mono uppercase ${formData.bodyType === bt.label ? 'text-white font-black' : 'text-[#0a0f1a]/60 font-bold'}`}>
+                      <span className={`text-[8px] sm:text-[9px] uppercase ${formData.bodyType === bt.label ? 'text-white font-black' : 'text-[#0a0f1a]/60 font-bold'}`}>
                         {bt.label}
                       </span>
                     </button>
@@ -424,13 +435,13 @@ const SettingsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowLogoutModal(true)}
-                className="py-3 px-6 bg-red-500/10 border-2 border-[#0a0f1a] text-red-600 font-mono font-black text-xs hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] uppercase tracking-widest sm:w-auto w-full text-center"
+                className="py-3 px-6 bg-red-500/10 border-2 border-[#0a0f1a] text-red-600 font-black text-xs hover:bg-red-500 hover:text-white transition-all cursor-pointer shadow-[3px_3px_0_#0a0f1a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] uppercase tracking-widest sm:w-auto w-full text-center"
               >
                 Log Out
               </button>
               <Button
                 type="submit"
-                variant="default" size="lg" className="py-4 px-10 font-mono font-black text-sm uppercase tracking-wider bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[3px_3px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] rounded-none sm:w-auto w-full text-center justify-center"
+                variant="default" size="lg" className="py-4 px-10 font-black text-sm uppercase tracking-wider bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[3px_3px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_#0a0f1a] rounded-none sm:w-auto w-full text-center justify-center"
               >
                 Save Changes
               </Button>
@@ -453,20 +464,20 @@ const SettingsPage: React.FC = () => {
                   >
                       <X size={18} />
                   </button>
-                  <h3 className="text-lg font-mono font-black uppercase tracking-wider text-[#0a0f1a] mb-2">Log Out?</h3>
-                  <p className="text-[#0a0f1a]/60 font-mono text-xs uppercase tracking-wide mb-6">Are you sure you want to log out? You will be returned to the login screen.</p>
+                  <h3 className="text-lg font-black uppercase tracking-wider text-[#0a0f1a] mb-2">Log Out?</h3>
+                  <p className="text-[#0a0f1a]/60 text-xs uppercase tracking-wide mb-6">Are you sure you want to log out? You will be returned to the login screen.</p>
 
                   <div className="flex gap-3">
                       <button
                         type="button"
                         onClick={() => setShowLogoutModal(false)}
-                        className="flex-1 py-2.5 px-4 text-xs font-mono font-bold bg-gray-100 border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-200 transition shadow-[2px_2px_0_#0a0f1a] cursor-pointer uppercase tracking-wider rounded-none"
+                        className="flex-1 py-2.5 px-4 text-xs font-bold bg-gray-100 border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-200 transition shadow-[2px_2px_0_#0a0f1a] cursor-pointer uppercase tracking-wider rounded-none"
                       >
                           Cancel
                       </button>
                       <Button
                         onClick={handleLogout}
-                        variant="default" className="flex-1 py-2.5 px-4 text-xs font-mono font-black bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[2px_2px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#0a0f1a] rounded-none uppercase tracking-wider"
+                        variant="default" className="flex-1 py-2.5 px-4 text-xs font-black bg-[#FF5A50] border-2 border-[#0a0f1a] text-white shadow-[2px_2px_0_#0a0f1a] hover:bg-[#E04B42] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0_#0a0f1a] rounded-none uppercase tracking-wider"
                       >
                           Log Out
                       </Button>

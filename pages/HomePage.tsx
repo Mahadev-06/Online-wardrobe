@@ -71,7 +71,7 @@ const HomePage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 auto-rows-[minmax(200px,auto)]">
         
         {/* Card 1: Weather (2x1 on Desktop) */}
-        <MagicBentoCard className="md:col-span-2 glass-panel relative overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300">
+        <MagicBentoCard id="onboarding-weather" className="md:col-span-2 glass-panel relative overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300">
             
             <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-stretch h-full gap-6">
                 <div className="flex flex-col justify-between h-full">
@@ -172,7 +172,7 @@ const HomePage: React.FC = () => {
         </MagicBentoCard>
 
         {/* Card 2: Stats (1x1) */}
-        <MagicBentoCard className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <MagicBentoCard id="onboarding-stats" className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-6 md:mb-10">
                 <Layers size={32} className="text-p_teal transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1" />
                 <span className="text-4xl font-black text-white transition-transform duration-300 group-hover:scale-110">{clothes.length}</span>
@@ -184,7 +184,7 @@ const HomePage: React.FC = () => {
         </MagicBentoCard>
 
         {/* Card 3: Saved Looks Count (1x1) */}
-        <MagicBentoCard to="/closet" state={{ activeTab: 'outfits' }} className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <MagicBentoCard id="onboarding-saved-looks" to="/closet" state={{ activeTab: 'outfits' }} className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
              <div className="flex items-center justify-between mb-6 md:mb-10">
                 <Bookmark size={32} className="text-p_teal transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1" />
                 <span className="text-4xl font-black text-white transition-transform duration-300 group-hover:scale-110">{savedOutfits.length}</span>
@@ -196,7 +196,7 @@ const HomePage: React.FC = () => {
         </MagicBentoCard>
 
         {/* Card 4: Outfit Recommendation (2x2 - Large Feature) */}
-        <MagicBentoCard to="/stylist" className="md:col-span-2 md:row-span-2 glass-panel relative group min-h-[350px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-start p-6 md:p-8 gap-4">
+        <MagicBentoCard to="/stylist" id="onboarding-rec" className="md:col-span-2 md:row-span-2 glass-panel relative group min-h-[350px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-start p-6 md:p-8 gap-4">
 
             <div className="flex justify-between items-start relative z-10 w-full">
                 <div>
@@ -271,7 +271,7 @@ const HomePage: React.FC = () => {
         </MagicBentoCard>
 
         {/* Card 5: Quick Add (1x2 - Tall) */}
-        <MagicBentoCard to="/upload" className="md:row-span-2 glass-panel flex flex-col items-center justify-center text-center gap-6 group min-h-[300px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <MagicBentoCard id="onboarding-quick-add" to="/upload" className="md:row-span-2 glass-panel flex flex-col items-center justify-center text-center gap-6 group min-h-[300px] shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <div className="w-20 h-20 bg-gray-100 border-2 border-[#0a0f1a] text-[#0a0f1a] flex items-center justify-center shadow-[3px_3px_0_rgba(0,0,0,0.15)] group-hover:scale-110 group-hover:rotate-90 transition-all duration-500 rounded-none">
                 <Plus size={40} />
             </div>
@@ -282,7 +282,7 @@ const HomePage: React.FC = () => {
         </MagicBentoCard>
 
         {/* Card 6: Browse Closet (1x1) */}
-        <MagicBentoCard to="/closet" className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <MagicBentoCard id="onboarding-quick-browse" to="/closet" className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <div className="h-full flex flex-col justify-between">
                 <Shirt size={32} className="text-p_teal transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1" />
                 <div>
@@ -293,7 +293,7 @@ const HomePage: React.FC = () => {
         </MagicBentoCard>
 
         {/* Card 7: AI Stylist (1x1) */}
-        <MagicBentoCard to="/stylist" className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+        <MagicBentoCard id="onboarding-quick-stylist" to="/stylist" className="glass-panel group shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
             <div className="h-full flex flex-col justify-between">
                 <Wand2 size={32} className="text-p_teal transition-all duration-300 group-hover:scale-110 group-hover:-translate-y-1" />
                 <div>

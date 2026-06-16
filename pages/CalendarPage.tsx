@@ -68,6 +68,13 @@ const CalendarPage: React.FC = () => {
     setErrorMessage(null);
   };
 
+  const formatLocalISO = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}T12:00:00`;
+  };
+
   const handleCancelEdit = () => {
     setEditingEventId(null);
     setEventTitle('');
@@ -88,7 +95,7 @@ const CalendarPage: React.FC = () => {
     );
 
     addCalendarEvent({
-      date: date.toISOString(),
+      date: formatLocalISO(date),
       title: eventTitle.trim(),
       outfitId: selectedOutfitId,
     });
@@ -110,7 +117,7 @@ const CalendarPage: React.FC = () => {
 
     updateCalendarEvent({
       id: editingEventId,
-      date: date.toISOString(),
+      date: formatLocalISO(date),
       title: eventTitle.trim(),
       outfitId: selectedOutfitId,
     });
@@ -124,27 +131,29 @@ const CalendarPage: React.FC = () => {
   });
 
   return (
-    <div className="px-6 py-10 md:px-12 md:py-14 pb-8 md:pb-14 max-w-6xl mx-auto page-enter">
+    <div id="onboarding-calendar-page" className="px-6 py-10 md:px-12 md:py-14 pb-8 md:pb-14 max-w-6xl mx-auto page-enter">
       <h1 className="text-3xl font-black text-white mb-10">Plan Your Looks</h1>
 
       <div className="glass-panel overflow-hidden shadow-xl">
 
         {/* Month Navigation Header */}
-        <div className="flex items-center justify-between p-6 md:p-8 border-b-2 border-[#0a0f1a]">
+        <div className="flex items-center justify-between p-4 sm:p-6 md:p-8 border-b-2 border-[#0a0f1a] gap-2">
           <button
             onClick={handlePrevMonth}
-            className="p-3 rounded-none btn-glass-secondary border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-105 shadow-[2px_2px_0_#0a0f1a] transition-all"
+            className="p-2 sm:p-3 rounded-none btn-glass-secondary border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-105 shadow-[2px_2px_0_#0a0f1a] transition-all shrink-0"
             aria-label="Previous month"
           >
-            <ChevronLeft size={22} />
+            <ChevronLeft size={20} className="sm:w-[22px] sm:h-[22px]" />
           </button>
-          <h2 className="text-xl md:text-2xl font-black text-[#0a0f1a]">{monthLabel}</h2>
+          <h2 className="text-lg sm:text-xl md:text-2xl font-black text-[#0a0f1a] text-center flex-1 min-w-0 leading-tight uppercase tracking-wider">
+            {monthLabel}
+          </h2>
           <button
             onClick={handleNextMonth}
-            className="p-3 rounded-none btn-glass-secondary border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-105 shadow-[2px_2px_0_#0a0f1a] transition-all"
+            className="p-2 sm:p-3 rounded-none btn-glass-secondary border-2 border-[#0a0f1a] text-[#0a0f1a] hover:bg-gray-105 shadow-[2px_2px_0_#0a0f1a] transition-all shrink-0"
             aria-label="Next month"
           >
-            <ChevronRight size={22} />
+            <ChevronRight size={20} className="sm:w-[22px] sm:h-[22px]" />
           </button>
         </div>
 
@@ -166,7 +175,7 @@ const CalendarPage: React.FC = () => {
           {Array.from({ length: firstDayOfMonth }).map((_, i) => (
             <div
               key={`empty-${i}`}
-              className="min-h-[80px] md:min-h-[120px] bg-gray-100/40 border-b border-r border-[#0a0f1a]"
+              className="min-h-[64px] sm:min-h-[80px] md:min-h-[120px] bg-gray-100/40 border-b border-r border-[#0a0f1a]"
             />
           ))}
 
@@ -186,7 +195,7 @@ const CalendarPage: React.FC = () => {
                 key={day}
                 onClick={disabled ? undefined : () => openModal(day)}
                 disabled={disabled}
-                className={`min-h-[80px] md:min-h-[120px] p-2 md:p-3 border-b border-r border-[#0a0f1a] transition relative group text-left w-full ${
+                className={`min-h-[64px] sm:min-h-[80px] md:min-h-[120px] p-1.5 sm:p-2.5 md:p-3 border-b border-r border-[#0a0f1a] transition relative group text-left w-full ${
                   isToday ? 'bg-[#FF5A50]/15' : ''
                 } ${
                   disabled ? 'bg-gray-150/40 opacity-40 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'
@@ -194,7 +203,7 @@ const CalendarPage: React.FC = () => {
                 aria-label={`${monthLabel} ${day}`}
               >
                 <span
-                  className={`text-xs md:text-sm font-black w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-none border border-[#0a0f1a] shadow-[1.5px_1.5px_0_#0a0f1a] transition ${
+                  className={`text-[10px] sm:text-xs md:text-sm font-black w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 flex items-center justify-center rounded-none border border-[#0a0f1a] shadow-[1px_1px_0_#0a0f1a] sm:shadow-[1.5px_1.5px_0_#0a0f1a] transition ${
                     isToday
                       ? 'bg-[#FF5A50] text-white'
                       : 'text-[#0a0f1a]/70 group-hover:text-[#0a0f1a] group-hover:bg-gray-100'
@@ -263,7 +272,7 @@ const CalendarPage: React.FC = () => {
                 {/* Existing Scheduled Events List */}
                 {dayEvents.length > 0 && (
                   <div>
-                    <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">
+                    <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 ">
                       Scheduled Looks ({dayEvents.length})
                     </span>
                     <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -288,7 +297,7 @@ const CalendarPage: React.FC = () => {
                                 <p className="text-xs font-bold text-[#0a0f1a] truncate" title={evt.title}>
                                   {evt.title}
                                 </p>
-                                <p className="text-[9px] font-bold text-gray-500 font-mono">
+                                <p className="text-[9px] font-bold text-gray-500 ">
                                   {outfit ? `${outfit.items.length} item(s)` : 'No outfit'}
                                 </p>
                               </div>
@@ -318,7 +327,7 @@ const CalendarPage: React.FC = () => {
                 {isPast && !isEditing ? (
                   <div className="p-4 border-2 border-[#0a0f1a] bg-gray-50 text-center shadow-[3px_3px_0_#0a0f1a] flex flex-col items-center justify-center">
                     <AlertCircle className="w-8 h-8 text-[#FF5A50] mb-2" />
-                    <p className="text-xs font-bold text-[#0a0f1a]/70 font-mono">
+                    <p className="text-xs font-bold text-[#0a0f1a]/70 ">
                       This date is in the past. You can view or delete scheduled looks, but cannot schedule new ones.
                     </p>
                   </div>
@@ -332,7 +341,7 @@ const CalendarPage: React.FC = () => {
                     <div>
                       <label
                         htmlFor="event-title"
-                        className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono"
+                        className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 "
                       >
                         Occasion / Title
                       </label>
@@ -341,7 +350,7 @@ const CalendarPage: React.FC = () => {
                         name="eventTitle"
                         type="text"
                         maxLength={80}
-                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 font-mono text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
+                        className="w-full bg-gray-50 border-2 border-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:outline-none px-4 py-3 text-sm font-bold text-[#0a0f1a] placeholder:text-gray-400 transition-all rounded-none shadow-[2px_2px_0_#0a0f1a] focus:shadow-[3px_3px_0_#FF5A50]"
                         placeholder="e.g. Dinner Date"
                         value={eventTitle}
                         onChange={(e) => setEventTitle(e.target.value)}
@@ -350,7 +359,7 @@ const CalendarPage: React.FC = () => {
 
                     {/* Outfit Selector */}
                     <div>
-                      <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 font-mono">
+                      <span className="block text-[10px] font-black text-[#0a0f1a]/70 uppercase tracking-widest mb-2 ">
                         Select Saved Look
                       </span>
                       <div className="grid grid-cols-2 gap-3 max-h-56 overflow-y-auto pr-1">

@@ -8,9 +8,10 @@ interface MagicBentoCardProps {
   state?: any;
   onClick?: () => void;
   noHover?: boolean;
+  id?: string;
 }
 
-const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '', to, state, onClick, noHover = false }) => {
+const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '', to, state, onClick, noHover = false, id }) => {
   // Use a union type to allow ref to be assigned to both div and anchor tags
   const cardRef = useRef<HTMLDivElement | HTMLAnchorElement>(null);
 
@@ -50,6 +51,7 @@ const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '
         ref={cardRef as React.RefObject<HTMLAnchorElement>} 
         to={to} 
         state={state} 
+        id={id}
         className={`${baseClasses} block`}
       >
         <div className="magic-bento-content h-full flex flex-col justify-between">
@@ -62,6 +64,7 @@ const MagicBentoCard: React.FC<MagicBentoCardProps> = ({ children, className = '
   return (
     <div 
       ref={cardRef as React.RefObject<HTMLDivElement>} 
+      id={id}
       className={baseClasses} 
       onClick={onClick}
     >

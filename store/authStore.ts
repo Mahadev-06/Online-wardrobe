@@ -10,7 +10,7 @@ interface AuthState {
   setProfileState: (profile: UserProfile | null) => void;
   setLoading: (loading: boolean) => void;
   loginWithEmail: (email: string, password: string) => Promise<void>;
-  signupWithEmail: (email: string, password: string) => Promise<void>;
+  signupWithEmail: (email: string, password: string, profileData?: UserProfile) => Promise<void>;
   logout: () => Promise<void>;
   setProfile: (profile: UserProfile) => Promise<void>;
 }
@@ -38,11 +38,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signupWithEmail: async (email, password) => {
+  signupWithEmail: async (email, password, profileData?) => {
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: profileData ? {
+            full_name: profileData.name,
+            gender: profileData.gender,
+            height: profileData.height,
+            weight: profileData.weight,
+            skin_tone: profileData.skinTone,
+            skin_tone_hex: profileData.skinToneHex,
+            body_type: profileData.bodyType || 'Average',
+          } : undefined
+        }
       });
       if (error) throw error;
       console.log('Sign up successful! Please check your email for verification.');

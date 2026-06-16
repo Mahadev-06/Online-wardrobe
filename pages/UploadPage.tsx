@@ -5,7 +5,6 @@ import { useWardrobe } from '../context/WardrobeContext';
 import { ClothingItem, ClothingCategory } from '../types';
 import { useNavigate } from 'react-router-dom';
 import { compressImage } from '../utils/imageHelpers';
-import { analyzeClothingImage } from '../services/ai';
 import CustomSelect from '../components/CustomSelect';
 import { Button } from "../components/ui/button";
 import { Skeleton } from "../components/ui/skeleton";
@@ -35,7 +34,7 @@ const UploadPage: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { addClothingItem } = useWardrobe();
+  const { addClothingItem, analyzeClothingImage } = useWardrobe();
   const navigate = useNavigate();
   const [inlineMessage, setInlineMessage] = useState<{text: string, type: 'error' | 'success'} | null>(null);
 
@@ -255,7 +254,7 @@ const UploadPage: React.FC = () => {
   };
 
   return (
-    <div className="px-6 md:px-10 py-10 max-w-[1600px] mx-auto page-enter pb-24">
+    <div className="px-4 md:px-10 py-10 max-w-[1600px] mx-auto page-enter pb-24">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h1 className="text-2xl font-bold text-white tracking-tight">Upload Items</h1>
@@ -266,7 +265,7 @@ const UploadPage: React.FC = () => {
                 {inlineMessage.text}
             </div>
         )}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-start sm:justify-end">
             {uploads.length > 0 && (
                 <>
                     <Button
@@ -288,6 +287,7 @@ const UploadPage: React.FC = () => {
 
       {uploads.length === 0 ? (
         <div
+            id="onboarding-upload-dropzone"
             onDragOver={handleDragOver}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -429,7 +429,7 @@ const UploadPage: React.FC = () => {
                         ) : (
                             <div className="space-y-6">
                                 {selectedItem.aiFailed && (
-                                    <div className="bg-amber-50 text-[#78350f] p-4 rounded-none text-sm border-2 border-[#0a0f1a] shadow-[3px_3px_0_#0a0f1a] font-mono font-bold">
+                                    <div className="bg-amber-50 text-[#78350f] p-4 rounded-none text-sm border-2 border-[#0a0f1a] shadow-[3px_3px_0_#0a0f1a] font-bold">
                                         AI analysis is currently unavailable. Please fill in the details manually.
                                     </div>
                                 )}
@@ -443,28 +443,28 @@ const UploadPage: React.FC = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label htmlFor="upload-color" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Color</label>
+                                        <label htmlFor="upload-color" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Color</label>
                                         <input
                                             id="upload-color"
                                             name="color"
                                             type="text"
                                             value={selectedItem.data.color}
                                             onChange={(e) => updateItemData(selectedItem.id, { color: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition placeholder:text-gray-400 font-mono font-bold"
+                                            className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition placeholder:text-gray-400 font-bold"
                                             placeholder="e.g. Navy Blue"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="upload-style" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Style</label>
+                                    <label htmlFor="upload-style" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Style</label>
                                     <input
                                         id="upload-style"
                                         name="style"
                                         type="text"
                                         value={selectedItem.data.style}
                                         onChange={(e) => updateItemData(selectedItem.id, { style: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition placeholder:text-gray-400 font-mono font-bold mb-3"
+                                        className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition placeholder:text-gray-400 font-bold mb-3"
                                         placeholder="e.g. Casual, Streetwear"
                                     />
                                     <div className="flex flex-wrap gap-2">
@@ -481,14 +481,14 @@ const UploadPage: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="upload-material" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Material</label>
+                                    <label htmlFor="upload-material" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Material</label>
                                     <input
                                         id="upload-material"
                                         name="material"
                                         type="text"
                                         value={selectedItem.data.material}
                                         onChange={(e) => updateItemData(selectedItem.id, { material: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition placeholder:text-gray-400 font-mono font-bold mb-3"
+                                        className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition placeholder:text-gray-400 font-bold mb-3"
                                         placeholder="e.g. Cotton, Denim"
                                     />
                                     <div className="flex flex-wrap gap-2">
@@ -505,13 +505,13 @@ const UploadPage: React.FC = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="upload-description" className="block text-xs font-bold text-gray-700 mb-2 font-mono uppercase tracking-wider">Description</label>
+                                    <label htmlFor="upload-description" className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Description</label>
                                     <textarea
                                         id="upload-description"
                                         name="description"
                                         value={selectedItem.data.description}
                                         onChange={(e) => updateItemData(selectedItem.id, { description: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition h-24 resize-none font-mono font-bold"
+                                        className="w-full px-4 py-3 rounded-none bg-gray-50 border-2 border-[#0a0f1a] text-sm text-[#0a0f1a] focus:bg-white focus:border-[#FF5A50] focus:shadow-[2px_2px_0_#0a0f1a] outline-none transition h-24 resize-none font-bold"
                                     />
                                 </div>
                             </div>

@@ -31,12 +31,12 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
           </div>
         </div>
 
-        <h2 className="text-2xl font-mono font-black text-white tracking-wider uppercase mb-2">
+        <h2 className="text-2xl font-black text-white tracking-wider uppercase mb-2">
           {message}
         </h2>
 
         {subMessage && (
-            <div className="flex flex-col gap-1 items-center text-[#FF5A50] font-mono font-bold text-xs tracking-widest uppercase opacity-80">
+            <div className="flex flex-col gap-1 items-center text-[#FF5A50] font-bold text-xs tracking-widest uppercase opacity-80">
                 <span className="animate-pulse">{subMessage}</span>
             </div>
         )}

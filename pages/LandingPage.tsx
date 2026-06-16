@@ -1,4 +1,5 @@
 import { Button } from "../components/ui/button";
+import { cn } from '../utils/cn';
 
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion';
@@ -61,7 +62,7 @@ const MagneticButton: React.FC<{
       onMouseLeave={reset}
       animate={{ x: position.x, y: position.y }}
       transition={{ type: 'spring', stiffness: 150, damping: 15 }}
-      className={`relative font-black text-sm md:text-xl px-5 py-3 md:px-8 md:py-4 transition-all duration-300 cursor-pointer ${baseStyle} ${className}`}
+      className={cn("relative font-black text-sm md:text-xl px-5 py-3 md:px-8 md:py-4 transition-all duration-300 cursor-pointer", baseStyle, className)}
       whileTap={{ scale: 0.95 }}
     >
       {children}
@@ -273,6 +274,65 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
     return () => window.removeEventListener('scroll', handler);
   }, []);
 
+  // Animation Variants for Hero Title & Bento Grid
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const lineVariants = {
+    hidden: { y: '100%', rotate: 3, opacity: 0 },
+    visible: {
+      y: 0,
+      rotate: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    }
+  };
+
+  const gridContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.4
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.85, y: 30, rotate: -2 },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      y: 0, 
+      rotate: 0,
+      transition: {
+        type: 'spring',
+        stiffness: 90,
+        damping: 14
+      }
+    }
+  };
+
+  const cardHoverState = {
+    y: -8, 
+    x: -4, 
+    rotate: 1,
+    boxShadow: '8px 8px 0 #FF5A50',
+    transition: { type: 'spring', stiffness: 300, damping: 12 }
+  };
+
   const features = [
     { icon: <Shirt className="w-8 h-8 text-[#FF5A50]" />, title: 'Digital Closet', desc: 'Upload, categorize, and manage your entire wardrobe digitally. Filter by color, season, or occasion.' },
     { icon: <Wand2 className="w-8 h-8 text-[#FF5A50]" />, title: 'AI Stylist', desc: 'Get AI-powered outfit recommendations based on your body type, height, weight, and personal style.' },
@@ -294,10 +354,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
 
       {/* ═══ NAVBAR ═══ */}
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-[#0a0f1a]/95 backdrop-blur-xl border-b border-white/10 py-3'
-            : 'bg-transparent py-5'
+            ? 'top-4 left-4 right-4 max-w-7xl mx-auto bg-[#0d1325]/95 backdrop-blur-xl border-2 border-white/20 py-3 px-6 shadow-[4px_4px_0_#FF5A50] rounded-none'
+            : 'top-0 left-0 right-0 bg-transparent py-5 px-6 border-b border-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center">
@@ -411,22 +471,41 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             style={{ y: y2, opacity: opacity1 }}
           >
             {/* Title */}
-            <h1 className="text-white font-black text-4xl sm:text-5xl md:text-6xl lg:text-[3.5rem] xl:text-[4.2rem] leading-[1.05] tracking-tighter mb-8 select-none uppercase">
-              Your Closet <br />
-              is an Art, <br />
-              and you're <br className="hidden sm:inline" />
-              the <span className="text-[#FF5A50]">Artist.</span>
-            </h1>
+            <motion.h1 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="text-white font-black text-4xl sm:text-5xl md:text-6xl lg:text-[3.8rem] xl:text-[4.6rem] leading-[1.02] tracking-tighter mb-8 select-none uppercase"
+            >
+              <div className="overflow-hidden block py-1">
+                <motion.span variants={lineVariants} className="block origin-left">YOUR CLOSET</motion.span>
+              </div>
+              <div className="overflow-hidden block py-1">
+                <motion.span variants={lineVariants} className="block origin-left">IS AN ART,</motion.span>
+              </div>
+              <div className="overflow-hidden block py-1">
+                <motion.span variants={lineVariants} className="block origin-left">AND YOU'RE</motion.span>
+              </div>
+              <div className="overflow-hidden block py-1">
+                <motion.span variants={lineVariants} className="block origin-left">THE <span className="text-[#FF5A50]">ARTIST.</span></motion.span>
+              </div>
+            </motion.h1>
 
             {/* CTA & Subtitle Flex Row */}
             <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
-              <button
+              <motion.button
                 onClick={onSignup}
-                className="w-full sm:w-auto bg-[#FF5A50] text-white hover:bg-white hover:text-black font-black text-sm uppercase tracking-wider px-8 py-5 transition-all duration-300 cursor-pointer shrink-0"
+                whileHover={{ 
+                  y: -6, 
+                  x: -3, 
+                  boxShadow: '6px 6px 0 rgba(255, 90, 80, 0.6)' 
+                }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full sm:w-auto bg-[#FF5A50] text-white hover:bg-white hover:text-black font-black text-sm uppercase tracking-wider px-6 py-4 sm:px-8 sm:py-5 transition-all duration-300 cursor-pointer shrink-0"
                 style={{ boxShadow: '4px 4px 0 rgba(255, 90, 80, 0.4)' }}
               >
                 Get Started
-              </button>
+              </motion.button>
               
               <p className="text-gray-400 text-sm sm:text-base leading-relaxed font-medium max-w-sm">
                 Digitize your wardrobe. Let AI style your outfits based on your body, weather, and mood. Plan your week, and never struggle with morning decisions.
@@ -438,69 +517,115 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
           <motion.div
             className="lg:col-span-5 flex justify-center lg:justify-end w-full"
             style={{ y: y1, opacity: opacity1, scale: scale1 }}
+            variants={gridContainerVariants}
+            initial="hidden"
+            animate="visible"
           >
             <div className="grid grid-cols-3 gap-4 sm:gap-5 aspect-square w-full max-w-[480px] sm:max-w-[520px] lg:max-w-[540px] xl:max-w-[580px]">
               {/* Card 1: Cream, Closets Digitized */}
-              <div className="bg-[#F3E8D6] text-[#0a0f1a] p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="bg-[#F3E8D6] text-[#0a0f1a] p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] cursor-pointer"
+              >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#0a0f1a]/60 leading-tight">Closets Digitized</span>
                 <span className="text-xl sm:text-3xl font-black tracking-tight leading-none">1.2M</span>
-              </div>
+              </motion.div>
               
               {/* Card 2: Brand Red */}
-              <div className="bg-[#FF5A50] text-white flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="bg-[#FF5A50] text-white flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] cursor-pointer"
+              >
                 <Shirt className="w-8 h-8 text-[#0a0f1a]/50" />
-              </div>
+              </motion.div>
               
               {/* Card 3: Deep Dark Blue */}
-              <div 
+              <motion.div 
                 onClick={onSignup}
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
                 className="bg-[#0d1325]/90 border-2 border-white/20 text-white p-3 flex items-center justify-center rounded-tl-[50px] sm:rounded-tl-[60px] shadow-[4px_4px_0_#FF5A50] text-center cursor-pointer hover:bg-[#161f38] transition-colors"
               >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-300 leading-tight">Try it for free</span>
-              </div>
+              </motion.div>
               
               {/* Card 4: Wardrobe Image */}
-              <div className="relative overflow-hidden rounded-tl-[50px] sm:rounded-tl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="relative overflow-hidden rounded-tl-[50px] sm:rounded-tl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827] cursor-pointer"
+              >
                 <img 
                   src="https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?auto=format&fit=crop&w=400&q=80" 
                   alt="" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
-              </div>
+              </motion.div>
               
               {/* Card 5: Outfit flat lay */}
-              <div className="relative overflow-hidden rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="relative overflow-hidden rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827] cursor-pointer"
+              >
                 <img 
                   src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?auto=format&fit=crop&w=400&q=80" 
                   alt="" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
-              </div>
+              </motion.div>
               
               {/* Card 6: Cream Sparkles */}
-              <div className="bg-[#F3E8D6] flex items-center justify-center rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="bg-[#F3E8D6] flex items-center justify-center rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] cursor-pointer"
+              >
                 <Sparkles className="w-8 h-8 text-[#0a0f1a]/50" />
-              </div>
+              </motion.div>
               
               {/* Card 7: Garment hangers */}
-              <div className="relative overflow-hidden rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="relative overflow-hidden rounded-bl-[50px] sm:rounded-bl-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] bg-[#111827] cursor-pointer"
+              >
                 <img 
                   src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=400&q=80" 
                   alt="" 
                   className="w-full h-full object-cover grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-500"
                 />
-              </div>
+              </motion.div>
               
               {/* Card 8: Red, Outfits Created */}
-              <div className="bg-[#FF5A50] text-white p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="bg-[#FF5A50] text-white p-4 sm:p-5 flex flex-col justify-between rounded-tr-[50px] sm:rounded-tr-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] cursor-pointer"
+              >
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-white/70 leading-tight">Outfits Styled</span>
                 <span className="text-xl sm:text-3xl font-black tracking-tight leading-none">40K+</span>
-              </div>
+              </motion.div>
               
               {/* Card 9: Cream Heart */}
-              <div className="bg-[#0d1325]/90 flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50]">
+              <motion.div 
+                variants={cardVariants}
+                whileHover={cardHoverState}
+                whileTap={{ scale: 0.98 }}
+                className="bg-[#0d1325]/90 flex items-center justify-center rounded-br-[50px] sm:rounded-br-[60px] border-2 border-white/10 shadow-[4px_4px_0_#FF5A50] cursor-pointer"
+              >
                 <Heart className="w-8 h-8 text-[#FF5A50] fill-[#FF5A50]/20" />
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>
@@ -676,10 +801,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSignup, onLogin }) => {
             transition={{ duration: 0.6, delay: 0.7 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <MagneticButton onClick={onSignup} variant="primary" className="text-xl px-12 py-5">
-              <span className="flex items-center gap-3">
+            <MagneticButton onClick={onSignup} variant="primary" className="text-sm sm:text-xl px-4 py-3.5 sm:px-12 sm:py-5 w-full sm:w-auto hover:scale-105 active:scale-95 whitespace-nowrap shadow-[3px_3px_0_#1A2238] sm:shadow-[4px_4px_0_#1A2238]">
+              <span className="flex items-center justify-center gap-2 sm:gap-3 w-full">
                 Get Started — It's Free
-                <ArrowRight className="w-6 h-6" />
+                <ArrowRight className="w-5 h-5 sm:w-6 h-6 shrink-0" />
               </span>
             </MagneticButton>
           </motion.div>

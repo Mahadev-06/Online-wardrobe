@@ -1,15 +1,21 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWardrobe } from '../context/WardrobeContext';
 import { ClothingCategory, ClothingItem, Outfit } from '../types';
 import { Trash2, Filter, X, Eye, Calendar, Sparkles, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const ClosetPage: React.FC = () => {
-  const { clothes, savedOutfits, deleteClothingItem, deleteOutfit, profile } = useWardrobe();
+  const { clothes, savedOutfits, deleteClothingItem, deleteOutfit, profile, isOnboardingTour, onboardingStep } = useWardrobe();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'items' | 'outfits'>((location.state as any)?.activeTab || 'items');
   const [activeCategory, setActiveCategory] = useState<string>('All');
+
+  useEffect(() => {
+    if (isOnboardingTour && onboardingStep === 16) {
+      setActiveTab('outfits');
+    }
+  }, [isOnboardingTour, onboardingStep]);
 
   // Modal State
   const [viewingOutfit, setViewingOutfit] = useState<Outfit | null>(null);
@@ -184,7 +190,7 @@ const ClosetPage: React.FC = () => {
   }
 
   return (
-    <div className="px-4 py-8 md:px-12 md:py-14 pb-8 md:pb-14 min-h-screen page-enter max-w-[1600px] mx-auto">
+    <div id="onboarding-closet-page" className="px-4 py-8 md:px-12 md:py-14 pb-8 md:pb-14 min-h-screen page-enter max-w-[1600px] mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-10 gap-4">
         <h1 className="text-3xl md:text-3xl font-black text-white tracking-tight self-start">MY CLOSET</h1>
         <div className="relative flex w-full md:w-[320px] bg-[#0d1325] p-1.5 shadow-[3px_3px_0_#FF5A50] border-2 border-[#0a0f1a]">
@@ -214,7 +220,7 @@ const ClosetPage: React.FC = () => {
             <div className="flex gap-2.5 md:gap-4 overflow-x-auto pb-3 md:pb-4 mb-4 scrollbar-hide pt-2 w-full">
                 <button
                     onClick={() => setActiveCategory('All')}
-                    className={`px-5 md:px-6 py-2 md:py-3 rounded-none text-xs md:text-sm font-bold whitespace-nowrap border-2 ${activeCategory === 'All' ? 'btn-glass-primary text-white border-transparent' : 'btn-glass-secondary border-[#0a0f1a] text-gray-300'}`}
+                    className={`shrink-0 px-4 md:px-6 py-2 md:py-3 rounded-none text-xs md:text-sm font-bold whitespace-nowrap border-2 ${activeCategory === 'All' ? 'btn-glass-primary text-white border-transparent' : 'btn-glass-secondary border-[#0a0f1a] text-gray-300'}`}
                 >
                     All Items
                 </button>
@@ -222,7 +228,7 @@ const ClosetPage: React.FC = () => {
                     <button
                         key={cat}
                         onClick={() => setActiveCategory(cat)}
-                        className={`px-5 md:px-6 py-2 md:py-3 rounded-none text-xs md:text-sm font-bold whitespace-nowrap border-2 ${activeCategory === cat ? 'btn-glass-primary text-white border-transparent' : 'btn-glass-secondary border-[#0a0f1a] text-gray-300'}`}
+                        className={`shrink-0 px-4 md:px-6 py-2 md:py-3 rounded-none text-xs md:text-sm font-bold whitespace-nowrap border-2 ${activeCategory === cat ? 'btn-glass-primary text-white border-transparent' : 'btn-glass-secondary border-[#0a0f1a] text-gray-300'}`}
                     >
                         {cat}
                     </button>
@@ -273,7 +279,7 @@ const ClosetPage: React.FC = () => {
         </>
       ) : (
         /* Outfits Tab */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+        <div id="onboarding-closet-outfits-tab" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             {savedOutfits.length === 0 ? (
                 <div className="col-span-full flex flex-col items-center justify-center py-24 text-center">
                     <h3 className="text-2xl font-bold text-white">No saved outfits</h3>

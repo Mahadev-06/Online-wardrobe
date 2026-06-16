@@ -23,6 +23,7 @@ const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) =>
     <>
       {/* ── Desktop Sidebar ─────────────────────────────────────────────── */}
       <aside
+        id="onboarding-main-nav"
         className={`
           hidden md:flex fixed top-4 bottom-4 left-4
           bg-[#0d1325] text-white flex-col z-50 border-2 border-white/10 shadow-[4px_4px_0_rgba(255,90,80,0.15)]
@@ -32,7 +33,7 @@ const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) =>
       >
         {/* Logo at Top */}
         <div className="flex items-center justify-center py-4 border-b border-white/10">
-          <div className="w-9 h-9 bg-[#FF5A50] border-2 border-white/20 flex items-center justify-center font-mono text-lg shadow-[2px_2px_0_rgba(255,90,80,0.3)] shrink-0 text-white font-black transition-transform duration-300 hover:rotate-6 hover:scale-110 cursor-pointer">
+          <div className="w-9 h-9 bg-[#FF5A50] border-2 border-white/20 flex items-center justify-center font-cotta text-lg shadow-[2px_2px_0_rgba(255,90,80,0.3)] shrink-0 text-white font-black transition-transform duration-300 hover:rotate-6 hover:scale-110 cursor-pointer">
             W
           </div>
         </div>
@@ -59,7 +60,7 @@ const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) =>
               </NavLink>
 
               {/* Tooltip on Hover */}
-              <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0d1325] text-white text-[10px] font-mono font-bold rounded-none opacity-0 -translate-x-2 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100 group-hover:translate-x-0 border-2 border-white/10 whitespace-nowrap shadow-[2px_2px_0_rgba(255,90,80,0.2)] z-[99] uppercase tracking-wider">
+              <div className="absolute left-[calc(100%+12px)] top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0d1325] text-white text-[10px] font-bold rounded-none opacity-0 -translate-x-2 pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:opacity-100 group-hover:translate-x-0 border-2 border-white/10 whitespace-nowrap shadow-[2px_2px_0_rgba(255,90,80,0.2)] z-[99] uppercase tracking-wider">
                 {link.label}
               </div>
             </div>
@@ -72,6 +73,7 @@ const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) =>
 
       {/* ── Mobile Bottom Navigation ─────────────────────────────────────── */}
       <nav
+        id="onboarding-main-nav"
         className="md:hidden fixed bottom-5 left-4 right-4 bg-[#0d1325] border-2 border-white/10 z-50 rounded-none shadow-[4px_4px_0_rgba(255,90,80,0.15)] safe-area-inset-bottom pb-safe p-2"
         aria-label="Mobile navigation"
       >
@@ -94,7 +96,7 @@ const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) =>
                     {React.cloneElement(link.icon as React.ReactElement<{ size?: number }>, { size: isActive ? 16 : 20 })}
                   </div>
                   {isActive && (
-                    <span className="text-[9px] font-black tracking-wider uppercase font-mono transition-all duration-300 whitespace-nowrap">
+                    <span className="text-[9px] font-black tracking-wider uppercase transition-all duration-300 whitespace-nowrap">
                       {link.label}
                     </span>
                   )}
@@ -108,10 +110,10 @@ const Navigation: React.FC<NavigationProps> = ({ isExpanded, toggleSidebar }) =>
       {/* ── Mobile Top Header ─────────────────────────────────────────────── */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#0a0f1a] border-b-2 border-white/10 z-50 flex items-center justify-between px-5 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#FF5A50] border border-white/15 flex items-center justify-center font-mono text-lg shadow-[2px_2px_0_rgba(255,90,80,0.3)] shrink-0 text-white font-black pt-0.5">
+          <div className="w-8 h-8 bg-[#FF5A50] border border-white/15 flex items-center justify-center font-cotta text-lg shadow-[2px_2px_0_rgba(255,90,80,0.3)] shrink-0 text-white font-black pt-0.5">
             W
           </div>
-          <span className="font-mono text-xl font-black tracking-wide text-white uppercase">
+          <span className="font-cotta text-xl font-black tracking-wide text-white uppercase">
             Wardrobe
           </span>
         </div>
